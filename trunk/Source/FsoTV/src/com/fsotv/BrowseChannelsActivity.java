@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fsotv.dto.ChannelEntry;
+import com.fsotv.utils.DownloadImage;
 import com.fsotv.utils.YouTubeHelper;
 
 import android.os.AsyncTask;
@@ -12,6 +13,8 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -153,6 +156,12 @@ public class BrowseChannelsActivity extends Activity {
 			}
 			if(description.length()>150){
 				description = description.substring(0, 150) + "...";
+			}
+			if(item.getImage() == null || item.getImage().isEmpty()){
+				Bitmap b = BitmapFactory.decodeResource(getResources(), R.drawable.question50);
+				holder.image.setImageBitmap(b);
+			}else{
+				new DownloadImage(holder.image, holder.progressBar).execute(item.getImage());
 			}
 			holder.title.setText(title);
 			holder.description.setText(description);
