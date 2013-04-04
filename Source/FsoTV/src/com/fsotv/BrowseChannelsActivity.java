@@ -1,11 +1,10 @@
 package com.fsotv;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.fsotv.dto.Channel;
+import com.fsotv.dto.ChannelEntry;
 import com.fsotv.utils.YouTubeHelper;
 
 import android.os.AsyncTask;
@@ -13,10 +12,8 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.content.Intent;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -25,26 +22,37 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class ChannelsActivity extends Activity {
-
-	// Progress Dialog
+public class BrowseChannelsActivity extends Activity {
+	
 	private ProgressDialog pDialog;
 	private ListView lvChannel;
-	private List<Channel> channels;
+	private List<ChannelEntry> channels;
+	
+	private String userType;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_channels);
+		setContentView(R.layout.activity_browse_channels);
 		
 		lvChannel = (ListView)findViewById(R.id.lvChannel);
 		
-		pDialog = new ProgressDialog(ChannelsActivity.this);
+		pDialog = new ProgressDialog(BrowseChannelsActivity.this);
 		pDialog.setMessage("Loading data ...");
 		pDialog.setIndeterminate(false);
 		pDialog.setCancelable(false);
 		
-		channels = new ArrayList<Channel>();
+		channels = new ArrayList<ChannelEntry>();
+		userType = YouTubeHelper.USER_TYPE_COMEDIANS;
+		
+		Intent intent = getIntent();
+		Bundle extras = intent.getExtras();
+		if(extras!=null){
+			userType = extras.getString("userType");
+		}
+		
+		setTitle("Browse Channel - " + userType);
+		
 		new loadChannels().execute();
 	}
 
@@ -68,13 +76,7 @@ public class ChannelsActivity extends Activity {
 		 * */
 		@Override
 		protected String doInBackground(String... args) {
-			InputStream is;
-			try {
-				is = getAssets().open("Channels.txt");
-				channels = YouTubeHelper.getChannels(is);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			channels = YouTubeHelper.getChannels(userType);
 			// updating UI from Background Thread
 			runOnUiThread(new Runnable() {
 				public void run() {
@@ -82,7 +84,7 @@ public class ChannelsActivity extends Activity {
 					 * Updating list view with websites
 					 * */
 					ListItemAdapter adapter = new ListItemAdapter(
-							ChannelsActivity.this, R.layout.channel_item,
+							BrowseChannelsActivity.this, R.layout.browse_channel_item,
 							channels);
 					// updating listview
 					lvChannel.setAdapter(adapter);
@@ -101,13 +103,13 @@ public class ChannelsActivity extends Activity {
 
 	}
 	
-	class ListItemAdapter extends ArrayAdapter<Channel> {
+	class ListItemAdapter extends ArrayAdapter<ChannelEntry> {
 		Context context;
 		int layoutResourceId;
-		List<Channel> data = null;
+		List<ChannelEntry> data = null;
 
 		public ListItemAdapter(Context context, int layoutResourceId,
-				List<Channel> data) {
+				List<ChannelEntry> data) {
 			super(context, layoutResourceId, data);
 			this.layoutResourceId = layoutResourceId;
 			this.context = context;
@@ -135,10 +137,18 @@ public class ChannelsActivity extends Activity {
 				holder = (ListItemHolder) row.getTag();
 			}
 
-			Channel item = data.get(position);
-			// Default image
-			holder.title.setText(item.getNameChannel());
-			holder.description.setText(item.getDescribes());
+			ChannelEntry item = data.get(position);
+			// format string
+			String title = item.getTitle();
+			String description = item.getDescription();
+			if(title.length()>50){
+				title = title.substring(0, 50) + "...";
+			}
+			if(description.length()>150){
+				description = description.substring(0, 150) + "...";
+			}
+			holder.title.setText(title);
+			holder.description.setText(description);
 			
 			return row;
 		}
