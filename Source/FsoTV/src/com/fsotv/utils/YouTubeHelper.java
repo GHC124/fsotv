@@ -130,24 +130,24 @@ public class YouTubeHelper {
 	 * @param url
 	 * @return json string
 	 */
-	public static List<VideoEntry> getVideoEntrysInChannel(String channelId) {
+	public static List<VideoEntry> getVideosInChannel(String channelId) {
 		InputStream is = null;
 		StringBuilder sb = new StringBuilder();
 		sb.append(GdataURL);
 		sb.append("/users/");
 		sb.append(channelId);
 		sb.append("/uploads");
-		sb.append("?v=2&max-results=15&orderby=viewCount");
+		sb.append("?v=2&max-results=15&orderby=viewCount&alt=json");
 		String newUrl = sb.toString();
 		try {
 			is = WebRequest.GetStream(newUrl, WebRequest.PostType.GET);
 		} catch (Exception ex) {
 			Log.e("getVideoEntrysInChannel", ex.toString());
 		}
-		return getVideoEntrys(is);
+		return getVideosInChannel(is);
 	}
 	
-	public static List<VideoEntry> getVideoEntrys(InputStream is){
+	public static List<VideoEntry> getVideosInChannel(InputStream is){
 		List<VideoEntry> videos = new ArrayList<VideoEntry>();
 		try{
 			JSONObject json = JsonHelper.getJSONFromStream(is);
@@ -196,13 +196,13 @@ public class YouTubeHelper {
 	 * @param url
 	 * @return json string
 	 */
-	public static VideoEntry getVideoEntryDetail(String videoId) {
+	public static VideoEntry getVideoDetail(String videoId) {
 		InputStream is = null;
 		StringBuilder sb = new StringBuilder();
 		sb.append(GdataURL);
 		sb.append("/videos/");
 		sb.append(videoId);
-		sb.append("?v=2");
+		sb.append("?v=2&alt=json");
 		String newUrl = sb.toString();
 		try {
 			is = WebRequest.GetStream(newUrl, WebRequest.PostType.GET);
@@ -210,10 +210,10 @@ public class YouTubeHelper {
 		} catch (Exception ex) {
 			Log.e("getVideoEntryDetail", ex.toString());
 		}
-		return getVideoEntryDetail(is);
+		return getVideoDetail(is);
 	}
 	
-	public static VideoEntry getVideoEntryDetail(InputStream is){
+	public static VideoEntry getVideoDetail(InputStream is){
 		VideoEntry video = new VideoEntry();
 		try{
 			JSONObject json = JsonHelper.getJSONFromStream(is);
