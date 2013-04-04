@@ -3,7 +3,11 @@ package com.fsotv;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fsotv.dto.ChannelEntry;
+import com.fsotv.BrowseVideosActivity.ListItemAdapter;
+import com.fsotv.BrowseVideosActivity.ListItemAdapter.ListItemHolder;
+import com.fsotv.BrowseVideosActivity.loadVideos;
+import com.fsotv.dto.VideoEntry;
+import com.fsotv.dto.VideoEntry;
 import com.fsotv.utils.YouTubeHelper;
 
 import android.os.AsyncTask;
@@ -13,6 +17,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -23,56 +28,43 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class BrowseChannelsActivity extends Activity {
+public class BrowseVideosActivity extends Activity {
 	
 	private ProgressDialog pDialog;
-	private ListView lvChannel;
-	private List<ChannelEntry> channels;
-	
-	private String userType;
+	private ListView lvVideo;
+	private List<VideoEntry> videos;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_browse_channels);
+		setContentView(R.layout.activity_browse_videos);
 		
-		lvChannel = (ListView)findViewById(R.id.lvChannel);
+		lvVideo = (ListView)findViewById(R.id.lvVideo);
 		
-		pDialog = new ProgressDialog(BrowseChannelsActivity.this);
+		pDialog = new ProgressDialog(BrowseVideosActivity.this);
 		pDialog.setMessage("Loading data ...");
 		pDialog.setIndeterminate(false);
 		pDialog.setCancelable(false);
 		
-		channels = new ArrayList<ChannelEntry>();
-		userType = YouTubeHelper.USER_TYPE_COMEDIANS;
+		videos = new ArrayList<VideoEntry>();
+		String channelId = "";
 		
 		Intent intent = getIntent();
 		Bundle extras = intent.getExtras();
 		if(extras!=null){
-			userType = extras.getString("userType");
+			channelId = extras.getString("channelId");
 		}
 		
-		setTitle("Browse Channel - " + userType);
-		
-		// Launching new screen on Selecting Single ListItem
-		lvChannel.setOnItemClickListener(new OnItemClickListener() {
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
-				String channelId = channels.get(position).getId();
-				Intent i = new Intent(getApplicationContext(), BrowseVideosActivity.class);
-				i.putExtra("channelId", channelId);
-				startActivity(i);
-			}
-		});
-		
-		new loadChannels().execute();
+		setTitle("Browse Video");
+				
+		new loadVideos().execute(channelId);
 	}
 
 
 	/**
-	 * Background Async Task to get Channels from URL
+	 * Background Async Task to get Videos data from URL
 	 * */
-	class loadChannels extends AsyncTask<String, String, String> {
+	class loadVideos extends AsyncTask<String, String, String> {
 
 		/**
 		 * Before starting background thread Show Progress Dialog
@@ -85,16 +77,16 @@ public class BrowseChannelsActivity extends Activity {
 
 		@Override
 		protected String doInBackground(String... args) {
-			channels = YouTubeHelper.getChannels(userType);
+			String channelId = args[0];
+			videos = YouTubeHelper.getVideosInChannel(channelId);
 			// updating UI from Background Thread
 			runOnUiThread(new Runnable() {
 				public void run() {
-					
 					ListItemAdapter adapter = new ListItemAdapter(
-							BrowseChannelsActivity.this, R.layout.browse_channel_item,
-							channels);
+							BrowseVideosActivity.this, R.layout.browse_video_item,
+							videos);
 					// updating listview
-					lvChannel.setAdapter(adapter);
+					lvVideo.setAdapter(adapter);
 				}
 			});
 			return null;
@@ -110,13 +102,13 @@ public class BrowseChannelsActivity extends Activity {
 
 	}
 	
-	class ListItemAdapter extends ArrayAdapter<ChannelEntry> {
+	class ListItemAdapter extends ArrayAdapter<VideoEntry> {
 		Context context;
 		int layoutResourceId;
-		List<ChannelEntry> data = null;
+		List<VideoEntry> data = null;
 
 		public ListItemAdapter(Context context, int layoutResourceId,
-				List<ChannelEntry> data) {
+				List<VideoEntry> data) {
 			super(context, layoutResourceId, data);
 			this.layoutResourceId = layoutResourceId;
 			this.context = context;
@@ -144,7 +136,7 @@ public class BrowseChannelsActivity extends Activity {
 				holder = (ListItemHolder) row.getTag();
 			}
 
-			ChannelEntry item = data.get(position);
+			VideoEntry item = data.get(position);
 			// format string
 			String title = item.getTitle();
 			String description = item.getDescription();

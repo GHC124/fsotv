@@ -18,5 +18,6 @@
     <string name="title_activity_browse">BrowseActivity</string>
     <string name="title_activity_social">SocialActivity</string>
     <string name="title_activity_record">RecordActivity</string>
+    <string name="title_activity_browse_videos">Browse Videos</string>
 
 </resources>
