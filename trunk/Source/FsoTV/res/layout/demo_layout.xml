@@ -1,0 +1,23 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity" >
+
+	<Button android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:text="Get Channels"
+	    android:onClick="getChannels"
+	    />
+	<Button android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:text="Get videos in channel"
+	    android:onClick="getVideosInChannel"
+	    />
+	<Button android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:text="Get video detail"
+	    android:onClick="getVideoDetail"
+	    />
+</LinearLayout>
