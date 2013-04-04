@@ -133,7 +133,9 @@ public class BrowseVideosActivity extends Activity {
 				holder.progressBar = (ProgressBar) row.findViewById(R.id.progressBar);
 				holder.title = (TextView) row.findViewById(R.id.title);
 				holder.description = (TextView) row.findViewById(R.id.description);
-
+				holder.viewCount = (TextView) row.findViewById(R.id.viewCount);
+				holder.favoriteCount = (TextView) row.findViewById(R.id.favoriteCount);
+				
 				row.setTag(holder);
 			} else {
 				holder = (ListItemHolder) row.getTag();
@@ -157,6 +159,8 @@ public class BrowseVideosActivity extends Activity {
 			}
 			holder.title.setText(title);
 			holder.description.setText(description);
+			holder.viewCount.setText(item.getViewCount() + "");
+			holder.favoriteCount.setText(item.getFavoriteCount() + "");
 			
 			return row;
 		}
@@ -166,6 +170,8 @@ public class BrowseVideosActivity extends Activity {
 			ProgressBar progressBar;
 			TextView title;
 			TextView description;
+			TextView viewCount;
+			TextView favoriteCount;
 		}
 	}
 }

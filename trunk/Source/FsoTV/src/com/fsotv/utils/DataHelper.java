@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DataHelper extends SQLiteOpenHelper {
 	
 	protected static final String DATABASE_NAME = "FsoTV";
-	protected static final int DATABASE_VERSION = 1;
+	protected static final int DATABASE_VERSION = 2;
 	
 	public DataHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);

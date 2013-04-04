@@ -2,6 +2,7 @@ package com.fsotv.dto;
 
 public class ChannelEntry {
 	String id;
+	String idReal;
 	String title;
 	String description;
 	String link;
@@ -9,6 +10,7 @@ public class ChannelEntry {
 	int commentCount;
 	int videoCount;
 	int viewCount;
+	int subscriberCount;
 	
 	public ChannelEntry(){
 		
@@ -76,6 +78,22 @@ public class ChannelEntry {
 
 	public void setViewCount(int viewCount) {
 		this.viewCount = viewCount;
+	}
+
+	public String getIdReal() {
+		return idReal;
+	}
+
+	public void setIdReal(String idReal) {
+		this.idReal = idReal;
+	}
+
+	public int getSubscriberCount() {
+		return subscriberCount;
+	}
+
+	public void setSubscriberCount(int subscriberCount) {
+		this.subscriberCount = subscriberCount;
 	}
 	
 	

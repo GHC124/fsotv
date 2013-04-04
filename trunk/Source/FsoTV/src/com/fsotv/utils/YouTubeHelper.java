@@ -60,7 +60,7 @@ public class YouTubeHelper {
 	
 	private final static String GdataURL = "http://gdata.youtube.com/feeds/api";
 	private final static String CategoryURL = "-/%7Bhttp%3A%2F%2Fgdata.youtube.com%2Fschemas%2F2007%2Fcategories.cat%7D";
-	
+	public static int MAX_RESULT = 15;
 	/**
 	 * Get Channels by user type
 	 * @param userType
@@ -72,7 +72,8 @@ public class YouTubeHelper {
 		sb.append(GdataURL);
 		sb.append("/channelstandardfeeds/most_viewed_");
 		sb.append(userType);
-		sb.append("?v=2&max-results=15&orderby=viewCount&alt=json");
+		sb.append("?v=2&orderby=viewCount&alt=json&max-results=");
+		sb.append(MAX_RESULT);
 		String newUrl = sb.toString();
 		try {
 			is = WebRequest.GetStream(newUrl, WebRequest.PostType.GET);
@@ -100,7 +101,7 @@ public class YouTubeHelper {
 				String id = idObject.getString("$t");
 				String title = titleObject.getString("$t");
 				String description = summaryObject.getString("$t");
-				String link = GdataURL + "/users/" + id + "/uploads?v=2&alt=json&max-results=5";
+				String link = "";
 				String image = "";
 				if(thumbnails.length()>0){
 					image = thumbnails.getJSONObject(0).getString("url");
@@ -111,6 +112,7 @@ public class YouTubeHelper {
 				
 				ChannelEntry channel = new ChannelEntry();
 				channel.setId(id);
+				channel.setIdReal(id);
 				channel.setTitle(title);
 				channel.setDescription(description);
 				channel.setLink(link);
@@ -141,10 +143,8 @@ public class YouTubeHelper {
 		return channels;
 	}
 	/**
-	 * Get video detail
+	 * Get videos in channel
 	 * 
-	 * @param url
-	 * @return json string
 	 */
 	public static List<VideoEntry> getVideosInChannel(String channelId) {
 		InputStream is = null;
@@ -153,7 +153,8 @@ public class YouTubeHelper {
 		sb.append("/users/");
 		sb.append(channelId);
 		sb.append("/uploads");
-		sb.append("?v=2&max-results=15&orderby=viewCount&alt=json");
+		sb.append("?v=2&orderby=viewCount&alt=json&max-results=");
+		sb.append(MAX_RESULT);
 		String newUrl = sb.toString();
 		try {
 			is = WebRequest.GetStream(newUrl, WebRequest.PostType.GET);
@@ -181,7 +182,7 @@ public class YouTubeHelper {
 				String id = idObject.getString("$t");
 				String title = titleObject.getString("$t");
 				String description = descriptionObject.getString("$t");
-				String link = GdataURL + "/videos/" + id + "?v=2&alt=json";
+				String link = "";
 				String image = "";
 				if(thumbnails.length()>0){
 					image = thumbnails.getJSONObject(0).getString("url");
@@ -219,6 +220,72 @@ public class YouTubeHelper {
 		
 		return videos;
 	}
+	
+	public static ChannelEntry getChannelDetail(String channelId) {
+		InputStream is = null;
+		StringBuilder sb = new StringBuilder();
+		sb.append(GdataURL);
+		sb.append("/channels/");
+		sb.append(channelId);
+		sb.append("?v=2&alt=json");
+		String newUrl = sb.toString();
+		try {
+			is = WebRequest.GetStream(newUrl, WebRequest.PostType.GET);
+			
+		} catch (Exception ex) {
+			Log.e("getChannelDetail", ex.toString());
+		}
+		return getChannelDetail(is);
+	}
+	
+	public static ChannelEntry getChannelDetail(InputStream is){
+		ChannelEntry channel = new ChannelEntry();
+		try{
+			JSONObject json = JsonHelper.getJSONFromStream(is);
+			JSONObject entryObject = json.getJSONObject("entry");
+			JSONObject idObject = entryObject.getJSONObject("yt$channelId");
+			JSONObject titleObject = entryObject.getJSONObject("title");
+			JSONObject summaryObject = entryObject.getJSONObject("summary");
+			JSONObject statisticsObject = entryObject.getJSONObject("yt$channelStatistics");
+			JSONArray thumbnails = entryObject.getJSONArray("media$thumbnail");
+			
+			String id = idObject.getString("$t");
+			String title = titleObject.getString("$t");
+			String description = summaryObject.getString("$t");
+			String link = "";
+			String image = "";
+			if(thumbnails.length()>0){
+				image = thumbnails.getJSONObject(0).getString("url");
+			}
+			int subscriberCount = statisticsObject.getInt("subscriberCount");
+			int viewCount = statisticsObject.getInt("viewCount");
+			
+			channel.setId(id);
+			channel.setIdReal(id);
+			channel.setTitle(title);
+			channel.setDescription(description);
+			channel.setLink(link);
+			channel.setImage(image);
+			channel.setViewCount(viewCount);
+			channel.setSubscriberCount(subscriberCount);
+			
+			thumbnails = null;
+			statisticsObject = null;
+			summaryObject = null;
+			titleObject = null;
+			idObject = null;
+			entryObject = null;
+			json = null;
+			
+		} catch (JSONException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return channel;
+	}
+	
 	/**
 	 * Get video detail
 	 * 
@@ -237,11 +304,11 @@ public class YouTubeHelper {
 			is = WebRequest.GetStream(newUrl, WebRequest.PostType.GET);
 			
 		} catch (Exception ex) {
-			Log.e("getVideoEntryDetail", ex.toString());
+			Log.e("getVideoDetail", ex.toString());
 		}
 		return getVideoDetail(is);
 	}
-	
+		
 	public static VideoEntry getVideoDetail(InputStream is){
 		VideoEntry video = new VideoEntry();
 		try{

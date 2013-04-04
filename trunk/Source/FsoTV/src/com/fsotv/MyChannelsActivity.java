@@ -6,6 +6,7 @@ import java.util.List;
 import com.fsotv.dao.ChannelDao;
 import com.fsotv.dto.Channel;
 import com.fsotv.dto.ChannelEntry;
+import com.fsotv.utils.DownloadChannel;
 import com.fsotv.utils.DownloadImage;
 import com.fsotv.utils.YouTubeHelper;
 
@@ -35,44 +36,41 @@ import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Toast;
 
-public class BrowseChannelsActivity extends Activity {
+public class MyChannelsActivity extends Activity {
 	
-	private final int MENU_SUBSCRIBE = Menu.FIRST;	
+	private final int MENU_UNSUBSCRIBE = Menu.FIRST;	
 	
 	private ProgressDialog pDialog;
 	private ListView lvChannel;
 	private List<ChannelEntry> channels;
-	
-	private String userType;
-	
+		
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_browse_channels);
+		setContentView(R.layout.activity_my_channels);
 		
 		lvChannel = (ListView)findViewById(R.id.lvChannel);
 		
-		pDialog = new ProgressDialog(BrowseChannelsActivity.this);
+		pDialog = new ProgressDialog(MyChannelsActivity.this);
 		pDialog.setMessage("Loading data ...");
 		pDialog.setIndeterminate(false);
 		pDialog.setCancelable(false);
 		
 		channels = new ArrayList<ChannelEntry>();
-		userType = YouTubeHelper.USER_TYPE_COMEDIANS;
-		
+				
 		Intent intent = getIntent();
 		Bundle extras = intent.getExtras();
 		if(extras!=null){
-			userType = extras.getString("userType");
+			
 		}
 		
-		setTitle("Browse Channel - " + userType);
+		setTitle("My Channels");
 		
 		// Launching new screen on Selecting Single ListItem
 		lvChannel.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
-				String channelId = channels.get(position).getId();
+				String channelId = channels.get(position).getIdReal();
 				Intent i = new Intent(getApplicationContext(), BrowseVideosActivity.class);
 				i.putExtra("channelId", channelId);
 				startActivity(i);
@@ -91,7 +89,7 @@ public class BrowseChannelsActivity extends Activity {
 			ContextMenuInfo menuInfo) {
 		if (v.getId() == R.id.lvChannel) {
 			menu.setHeaderTitle("Option");
-			menu.add(Menu.NONE, MENU_SUBSCRIBE, 0, "Subscribe");
+			menu.add(Menu.NONE, MENU_UNSUBSCRIBE, 0, "Unsubscribe");
 		}
 	}
 
@@ -104,20 +102,33 @@ public class BrowseChannelsActivity extends Activity {
 				.getMenuInfo();
 		int menuItemId = item.getItemId();
 		// check for selected option
-		if (menuItemId == MENU_SUBSCRIBE) {
+		if (menuItemId == MENU_UNSUBSCRIBE) {
 			final int position = info.position;
-			ChannelEntry entry = channels.get(position);
-			ChannelDao channelDao = new ChannelDao(getApplicationContext());
-			Channel channel = new Channel();
-			channel.setNameChannel(entry.getTitle());
-			channel.setDescribes(entry.getDescription());
-			channel.setThumnail(entry.getImage());
-			channel.setUri(entry.getLink());
-			channel.setIdRealChannel(entry.getIdReal());
-			channelDao.insertChannel(channel);
-			if(channel.getIdChannel()>0){
-				Toast.makeText(this, "Subscribed", Toast.LENGTH_SHORT).show();
-			}
+			AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+			alertDialogBuilder.setTitle("Unsubscribe Channel");
+			alertDialogBuilder
+					.setMessage("Do you want to unsubscribe this channel?")
+					.setCancelable(false)
+					.setPositiveButton("Ok",
+							new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog,
+										int id){ 									
+									ChannelEntry entry = channels.get(position);
+									ChannelDao channelDao = new ChannelDao(getApplicationContext());
+									channelDao.deleteChannel(Integer.parseInt(entry.getId()));
+									channels.remove(position);
+									lvChannel.invalidateViews();
+								}
+							})
+					.setNegativeButton("Cancel",
+							new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog,
+										int id) {
+									dialog.cancel();
+								}
+							});
+			AlertDialog alertDialog = alertDialogBuilder.create();
+			alertDialog.show();
 		}
 
 		return true;
@@ -139,12 +150,22 @@ public class BrowseChannelsActivity extends Activity {
 
 		@Override
 		protected String doInBackground(String... args) {
-			channels = YouTubeHelper.getChannels(userType);
-			// updating UI from Background Thread
+			ChannelDao channelDao = new ChannelDao(getApplicationContext());
+			List<Channel> list = channelDao.getListChannel();
+			for (Channel channel:list) {
+				ChannelEntry item = new ChannelEntry();
+				item.setId(channel.getIdChannel()+"");
+				item.setIdReal(channel.getIdRealChannel()+"");
+				item.setTitle(channel.getNameChannel());
+				item.setImage(channel.getThumnail());
+				item.setLink(channel.getUri());
+				item.setDescription(channel.getDescribes());
+				channels.add(item);
+			}
 			runOnUiThread(new Runnable() {
 				public void run() {
 					ListItemAdapter adapter = new ListItemAdapter(
-							BrowseChannelsActivity.this, R.layout.browse_channel_item,
+							MyChannelsActivity.this, R.layout.my_channel_item,
 							channels);
 					// updating listview
 					registerForContextMenu(lvChannel);
@@ -192,9 +213,8 @@ public class BrowseChannelsActivity extends Activity {
 				holder.progressBar = (ProgressBar) row.findViewById(R.id.progressBar);
 				holder.title = (TextView) row.findViewById(R.id.title);
 				holder.description = (TextView) row.findViewById(R.id.description);
-				holder.videoCount = (TextView) row.findViewById(R.id.videoCount);
 				holder.viewCount = (TextView) row.findViewById(R.id.viewCount);
-				holder.commentCount = (TextView) row.findViewById(R.id.commentCount);
+				holder.subscriberCount = (TextView) row.findViewById(R.id.subscriberCount);
 
 				row.setTag(holder);
 			} else {
@@ -211,18 +231,12 @@ public class BrowseChannelsActivity extends Activity {
 			if(description.length()>150){
 				description = description.substring(0, 150) + "...";
 			}
-			if(item.getImage() == null || item.getImage().isEmpty()){
-				Bitmap b = BitmapFactory.decodeResource(getResources(), R.drawable.question50);
-				holder.image.setImageBitmap(b);
-			}else{
-				new DownloadImage(holder.image, holder.progressBar).execute(item.getImage());
-			}
+			new DownloadChannel(holder.viewCount, holder.subscriberCount, 
+					holder.image, holder.progressBar).execute(item.getIdReal());
+
 			holder.title.setText(title);
 			holder.description.setText(description);
-			holder.videoCount.setText(item.getVideoCount() + "");
-			holder.viewCount.setText(item.getViewCount() + "");
-			holder.commentCount.setText(item.getCommentCount() + "");
-			
+						
 			return row;
 		}
 
@@ -232,8 +246,7 @@ public class BrowseChannelsActivity extends Activity {
 			TextView title;
 			TextView description;
 			TextView viewCount;
-			TextView videoCount;
-			TextView commentCount;
+			TextView subscriberCount;
 		}
 	}
 }
