@@ -93,20 +93,36 @@ public class YouTubeHelper {
 				JSONObject idObject = entryObject.getJSONObject("yt$channelId");
 				JSONObject titleObject = entryObject.getJSONObject("title");
 				JSONObject summaryObject = entryObject.getJSONObject("summary");
+				JSONObject statisticsObject = entryObject.getJSONObject("yt$channelStatistics");
+				JSONObject groupObject = entryObject.getJSONObject("media$group");
+				JSONArray thumbnails = groupObject.getJSONArray("media$thumbnail");
 				
 				String id = idObject.getString("$t");
 				String title = titleObject.getString("$t");
 				String description = summaryObject.getString("$t");
 				String link = GdataURL + "/users/" + id + "/uploads?v=2&alt=json&max-results=5";
+				String image = "";
+				if(thumbnails.length()>0){
+					image = thumbnails.getJSONObject(0).getString("url");
+				}
+				int commentCount = statisticsObject.getInt("commentCount");
+				int videoCount = statisticsObject.getInt("videoCount");
+				int viewCount = statisticsObject.getInt("viewCount");
 				
 				ChannelEntry channel = new ChannelEntry();
 				channel.setId(id);
 				channel.setTitle(title);
 				channel.setDescription(description);
 				channel.setLink(link);
-				
+				channel.setImage(image);
+				channel.setCommentCount(commentCount);
+				channel.setVideoCount(videoCount);
+				channel.setViewCount(viewCount);
 				channels.add(channel);
 				
+				thumbnails = null;
+				groupObject = null;
+				statisticsObject = null;
 				summaryObject = null;
 				titleObject = null;
 				idObject = null;
@@ -155,23 +171,36 @@ public class YouTubeHelper {
 			JSONArray entries = feed.getJSONArray("entry");
 			for(int i = 0; i < entries.length(); i++){
 				JSONObject entryObject = entries.getJSONObject(i);
+				JSONObject statisticsObject = entryObject.getJSONObject("yt$statistics");
+				JSONObject titleObject = entryObject.getJSONObject("title");
 				JSONObject groupObject = entryObject.getJSONObject("media$group");
 				JSONObject descriptionObject = groupObject.getJSONObject("media$description");
-				JSONObject titleObject = groupObject.getJSONObject("media$title");
 				JSONObject idObject = groupObject.getJSONObject("yt$videoid");
-								
+				JSONArray thumbnails = groupObject.getJSONArray("media$thumbnail");
+				
 				String id = idObject.getString("$t");
 				String title = titleObject.getString("$t");
 				String description = descriptionObject.getString("$t");
 				String link = GdataURL + "/videos/" + id + "?v=2&alt=json";
-								
+				String image = "";
+				if(thumbnails.length()>0){
+					image = thumbnails.getJSONObject(0).getString("url");
+				}
+				int viewCount = statisticsObject.getInt("viewCount");
+				int favoriteCount = statisticsObject.getInt("favoriteCount");
+				
 				VideoEntry video = new VideoEntry();
 				video.setId(id);
 				video.setTitle(title);
 				video.setDescription(description);
 				video.setLink(link);
+				video.setImage(image);
+				video.setViewCount(viewCount);
+				video.setFavoriteCount(favoriteCount);
 				videos.add(video);
 				
+				thumbnails = null;
+				statisticsObject = null;
 				descriptionObject = null;
 				titleObject = null;
 				idObject = null;
@@ -217,29 +246,40 @@ public class YouTubeHelper {
 		VideoEntry video = new VideoEntry();
 		try{
 			JSONObject json = JsonHelper.getJSONFromStream(is);
-				JSONObject entryObject = json.getJSONObject("entry");
-				JSONObject groupObject = entryObject.getJSONObject("media$group");
-				JSONObject descriptionObject = groupObject.getJSONObject("media$description");
-				JSONObject titleObject = groupObject.getJSONObject("media$title");
-				JSONObject idObject = groupObject.getJSONObject("yt$videoid");
-								
-				String id = idObject.getString("$t");
-				String title = titleObject.getString("$t");
-				String description = descriptionObject.getString("$t");
-				String link = GdataURL + "/videos/" + id + "?v=2&alt=json";
-								
-				video.setId(id);
-				video.setTitle(title);
-				video.setDescription(description);
-				video.setLink(link);
-				
-				
-				descriptionObject = null;
-				titleObject = null;
-				idObject = null;
-				groupObject = null;
-				entryObject = null;
+			JSONObject entryObject = json.getJSONObject("entry");
+			JSONObject statisticsObject = entryObject.getJSONObject("yt$statistics");
+			JSONObject titleObject = entryObject.getJSONObject("title");
+			JSONObject groupObject = entryObject.getJSONObject("media$group");
+			JSONObject descriptionObject = groupObject.getJSONObject("media$description");
+			JSONObject idObject = groupObject.getJSONObject("yt$videoid");
+			JSONArray thumbnails = groupObject.getJSONArray("media$thumbnail");
 			
+			String id = idObject.getString("$t");
+			String title = titleObject.getString("$t");
+			String description = descriptionObject.getString("$t");
+			String link = GdataURL + "/videos/" + id + "?v=2&alt=json";
+			String image = "";
+			if(thumbnails.length()>0){
+				image = thumbnails.getJSONObject(0).getString("url");
+			}
+			int viewCount = statisticsObject.getInt("viewCount");
+			int favoriteCount = statisticsObject.getInt("favoriteCount");
+			
+			video.setId(id);
+			video.setTitle(title);
+			video.setDescription(description);
+			video.setLink(link);
+			video.setImage(image);
+			video.setViewCount(viewCount);
+			video.setFavoriteCount(favoriteCount);
+			
+			thumbnails = null;
+			statisticsObject = null;
+			descriptionObject = null;
+			titleObject = null;
+			idObject = null;
+			groupObject = null;
+			entryObject = null;
 			json = null;
 			
 		} catch (JSONException e) {

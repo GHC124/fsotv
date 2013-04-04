@@ -6,6 +6,9 @@ public class ChannelEntry {
 	String description;
 	String link;
 	String image;
+	int commentCount;
+	int videoCount;
+	int viewCount;
 	
 	public ChannelEntry(){
 		
@@ -49,6 +52,30 @@ public class ChannelEntry {
 
 	public void setImage(String image) {
 		this.image = image;
+	}
+
+	public int getCommentCount() {
+		return commentCount;
+	}
+
+	public void setCommentCount(int commentCount) {
+		this.commentCount = commentCount;
+	}
+
+	public int getVideoCount() {
+		return videoCount;
+	}
+
+	public void setVideoCount(int videoCount) {
+		this.videoCount = videoCount;
+	}
+
+	public int getViewCount() {
+		return viewCount;
+	}
+
+	public void setViewCount(int viewCount) {
+		this.viewCount = viewCount;
 	}
 	
 	
