@@ -1,3 +1,0 @@
-http://gdata.youtube.com/demo/index.html
-https://developers.google.com/youtube/2.0/developers_guide_protocol_channel_search
-http://stackoverflow.com/questions/13814055/how-to-play-youtube-videos-in-android-video-view
