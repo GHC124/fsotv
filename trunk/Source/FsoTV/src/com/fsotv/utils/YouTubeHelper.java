@@ -15,7 +15,11 @@ import org.w3c.dom.NodeList;
 import android.util.Log;
 
 import com.fsotv.dto.Channel;
+import com.fsotv.dto.Channel;
+import com.fsotv.dto.ChannelEntry;
 import com.fsotv.dto.Video;
+import com.fsotv.dto.Video;
+import com.fsotv.dto.VideoEntry;
 
 public class YouTubeHelper {
 	// Constants
@@ -24,6 +28,10 @@ public class YouTubeHelper {
 	public final static String CATEGORY_ENTERTAIMENT = "Entertainment";
 	public final static String CATEGORY_MUSIC = "Music";
 	public final static String CATEGORY_SPORTS = "Sports";
+	public final static String USER_TYPE_COMEDIANS = "Comedians";
+	public final static String USER_TYPE_DIRECTORS = "Directors";
+	public final static String USER_TYPE_MUSICIANS = "Musicians";
+	public final static String USER_TYPE_POLITICIANS = "Politicians";
 	public final static int CHANNEL_MOST_VIEWED = 1;
 	public final static int CHANNEL_MOST_SUBSCRIBED = 2;
 	public final static int ORDERING_RELEVANCE = 1;
@@ -54,18 +62,16 @@ public class YouTubeHelper {
 	private final static String CategoryURL = "-/%7Bhttp%3A%2F%2Fgdata.youtube.com%2Fschemas%2F2007%2Fcategories.cat%7D";
 	
 	/**
-	 * Get channels
-	 * 
-	 * @param url
-	 * @return json string
+	 * Get Channels by user type
+	 * @param userType
+	 * @return
 	 */
-	public static List<Channel> getChannels(String category) {
+	public static List<ChannelEntry> getChannels(String userType) {
 		InputStream is = null;
 		StringBuilder sb = new StringBuilder();
 		sb.append(GdataURL);
-		sb.append("/channelstandardfeeds/most_viewed");
-		//sb.append(CategoryURL);
-		//sb.append(category);
+		sb.append("/channelstandardfeeds/most_viewed_");
+		sb.append(userType);
 		sb.append("?v=2&max-results=15&orderby=viewCount&alt=json");
 		String newUrl = sb.toString();
 		try {
@@ -76,8 +82,8 @@ public class YouTubeHelper {
 		return getChannels(is);
 	}
 	
-	public static List<Channel> getChannels(InputStream is){
-		List<Channel> channels = new ArrayList<Channel>();
+	public static List<ChannelEntry> getChannels(InputStream is){
+		List<ChannelEntry> channels = new ArrayList<ChannelEntry>();
 		try{
 			JSONObject json = JsonHelper.getJSONFromStream(is);
 			JSONObject feed = json.getJSONObject("feed");
@@ -86,16 +92,22 @@ public class YouTubeHelper {
 				JSONObject entryObject = entries.getJSONObject(i);
 				JSONObject idObject = entryObject.getJSONObject("yt$channelId");
 				JSONObject titleObject = entryObject.getJSONObject("title");
+				JSONObject summaryObject = entryObject.getJSONObject("summary");
 				
 				String id = idObject.getString("$t");
 				String title = titleObject.getString("$t");
-				String uri = GdataURL + "/users/" + id + "/uploads?v=2&alt=json&max-results=5";
+				String description = summaryObject.getString("$t");
+				String link = GdataURL + "/users/" + id + "/uploads?v=2&alt=json&max-results=5";
 				
-				Channel channel = new Channel();
-				channel.setNameChannel(title);
-				channel.setUri(uri);
+				ChannelEntry channel = new ChannelEntry();
+				channel.setId(id);
+				channel.setTitle(title);
+				channel.setDescription(description);
+				channel.setLink(link);
+				
 				channels.add(channel);
 				
+				summaryObject = null;
 				titleObject = null;
 				idObject = null;
 				entryObject = null;
@@ -109,7 +121,7 @@ public class YouTubeHelper {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+				
 		return channels;
 	}
 	/**
@@ -118,7 +130,7 @@ public class YouTubeHelper {
 	 * @param url
 	 * @return json string
 	 */
-	public static List<Video> getVideosInChannel(String channelId) {
+	public static List<VideoEntry> getVideoEntrysInChannel(String channelId) {
 		InputStream is = null;
 		StringBuilder sb = new StringBuilder();
 		sb.append(GdataURL);
@@ -130,13 +142,13 @@ public class YouTubeHelper {
 		try {
 			is = WebRequest.GetStream(newUrl, WebRequest.PostType.GET);
 		} catch (Exception ex) {
-			Log.e("getVideosInChannel", ex.toString());
+			Log.e("getVideoEntrysInChannel", ex.toString());
 		}
-		return getVideos(is);
+		return getVideoEntrys(is);
 	}
 	
-	public static List<Video> getVideos(InputStream is){
-		List<Video> videos = new ArrayList<Video>();
+	public static List<VideoEntry> getVideoEntrys(InputStream is){
+		List<VideoEntry> videos = new ArrayList<VideoEntry>();
 		try{
 			JSONObject json = JsonHelper.getJSONFromStream(is);
 			JSONObject feed = json.getJSONObject("feed");
@@ -151,12 +163,13 @@ public class YouTubeHelper {
 				String id = idObject.getString("$t");
 				String title = titleObject.getString("$t");
 				String description = descriptionObject.getString("$t");
-				String uri = GdataURL + "/videos/" + id + "?v=2&alt=json";
-				
-				Video video = new Video();
-				video.setNameVideo(title);
-				video.setDescribes(description);
-				video.setUri(uri);
+				String link = GdataURL + "/videos/" + id + "?v=2&alt=json";
+								
+				VideoEntry video = new VideoEntry();
+				video.setId(id);
+				video.setTitle(title);
+				video.setDescription(description);
+				video.setLink(link);
 				videos.add(video);
 				
 				descriptionObject = null;
@@ -183,7 +196,7 @@ public class YouTubeHelper {
 	 * @param url
 	 * @return json string
 	 */
-	public static Video getVideoDetail(String videoId) {
+	public static VideoEntry getVideoEntryDetail(String videoId) {
 		InputStream is = null;
 		StringBuilder sb = new StringBuilder();
 		sb.append(GdataURL);
@@ -195,13 +208,13 @@ public class YouTubeHelper {
 			is = WebRequest.GetStream(newUrl, WebRequest.PostType.GET);
 			
 		} catch (Exception ex) {
-			Log.e("getVideoDetail", ex.toString());
+			Log.e("getVideoEntryDetail", ex.toString());
 		}
-		return getVideoDetail(is);
+		return getVideoEntryDetail(is);
 	}
 	
-	public static Video getVideoDetail(InputStream is){
-		Video video = new Video();
+	public static VideoEntry getVideoEntryDetail(InputStream is){
+		VideoEntry video = new VideoEntry();
 		try{
 			JSONObject json = JsonHelper.getJSONFromStream(is);
 				JSONObject entryObject = json.getJSONObject("entry");
@@ -213,11 +226,12 @@ public class YouTubeHelper {
 				String id = idObject.getString("$t");
 				String title = titleObject.getString("$t");
 				String description = descriptionObject.getString("$t");
-				String uri = GdataURL + "/videos/" + id + "?v=2&alt=json";
+				String link = GdataURL + "/videos/" + id + "?v=2&alt=json";
 								
-				video.setNameVideo(title);
-				video.setDescribes(description);
-				video.setUri(uri);
+				video.setId(id);
+				video.setTitle(title);
+				video.setDescription(description);
+				video.setLink(link);
 				
 				
 				descriptionObject = null;
