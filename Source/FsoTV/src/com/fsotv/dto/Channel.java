@@ -6,7 +6,8 @@ public class Channel {
 	private String uri;
 	private String thumnail;
 	private String describes;
-
+	private String idRealChannel;
+	
 	public String getDescribes() {
 		return describes;
 	}
@@ -47,17 +48,26 @@ public class Channel {
 		this.thumnail = thumnail;
 	}
 
-	public Channel() {
-		// TODO Auto-generated constructor stub
+	public String getIdRealChannel() {
+		return idRealChannel;
+	}
+
+	public void setIdRealChannel(String idRealChannel) {
+		this.idRealChannel = idRealChannel;
+	}
+	
+	public Channel(){
+		
 	}
 
 	public Channel(int idChannel, String nameChannel, String uri,
-			String thumnail, String describes) {
+			String thumnail, String describes, String idRealChannel) {
 		this.idChannel = idChannel;
 		this.nameChannel = nameChannel;
 		this.uri = uri;
 		this.thumnail = thumnail;
 		this.describes = describes;
+		this.idRealChannel = idRealChannel;
 	}
 
 }

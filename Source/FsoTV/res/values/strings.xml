@@ -18,6 +18,9 @@
     <string name="title_activity_browse">BrowseActivity</string>
     <string name="title_activity_social">SocialActivity</string>
     <string name="title_activity_record">RecordActivity</string>
+    <string name="title_activity_browse_channels">Browse Channels</string>
     <string name="title_activity_browse_videos">Browse Videos</string>
+    <string name="title_activity_my_channels">My Channels</string>
+    <string name="title_activity_demo">DemoActivity</string>
 
 </resources>

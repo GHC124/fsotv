@@ -34,7 +34,7 @@
         android:layout_toRightOf="@id/thumbnail"
         android:text="REVO"
         android:textColor="#040404"
-        android:textSize="15dip"
+        android:textSize="15sp"
         android:textStyle="bold"
         android:typeface="sans" />
 
@@ -49,7 +49,7 @@
         android:layout_toRightOf="@id/thumbnail"
         android:text="Revo ..."
         android:textColor="#343434"
-        android:textSize="10dip" />
+        android:textSize="10sp" />
 
     <!-- Statistic -->
 	<LinearLayout android:layout_below="@id/description"
@@ -57,6 +57,7 @@
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
 	    android:orientation="horizontal">
+        
          <TextView
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
@@ -67,7 +68,7 @@
 	        android:id="@+id/viewCount"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:text="123"
+	        android:text="0"
 	        android:textColor="#343434"
 	        android:textSize="8sp"
 	        android:layout_marginLeft="2dip"
@@ -75,21 +76,21 @@
 	     <TextView
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:text="favorites:"
+	        android:text="Subscribers:"
 	        android:textColor="#343434"
 	        android:textSize="8sp" />
 	     <TextView
-	        android:id="@+id/favoriteCount"
+	        android:id="@+id/subscriberCount"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:text="123"
+	        android:text="0"
 	        android:textColor="#343434"
 	        android:textSize="8sp"
 	        android:layout_marginLeft="2dip"
 	        android:layout_marginRight="2dip" />
 	      
 	</LinearLayout>
-    
+       
     <!-- Rightend Duration -->
 
     <ProgressBar
