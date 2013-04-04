@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">FSoTV Android</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title">Title</string>
+    <string name="logo_description">DirecTV logo</string>
+    <string name="btn_channel">Channels</string>
+    <string name="btn_browse">Browse</string>
+    <string name="btn_record">Record</string>
+    <string name="btn_social">Social</string>
+
+    <!-- String in video detail screen -->
+    <string name="title_activity_video_detail">VideoDetailActivity</string>
+    <string name="video_detail">Video details</string>
+    <string name="title_activity_home">HomeActivity</string>
+    <string name="title_activity_browse">BrowseActivity</string>
+    <string name="title_activity_social">SocialActivity</string>
+    <string name="title_activity_record">RecordActivity</string>
+
+</resources>
