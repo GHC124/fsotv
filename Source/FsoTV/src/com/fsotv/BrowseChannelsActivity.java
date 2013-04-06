@@ -1,5 +1,7 @@
 package com.fsotv;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +43,8 @@ public class BrowseChannelsActivity extends Activity {
 	
 	private ProgressDialog pDialog;
 	private ListView lvChannel;
+	private TextView tvTitle;
+	
 	private List<ChannelEntry> channels;
 	
 	private String userType;
@@ -51,6 +55,7 @@ public class BrowseChannelsActivity extends Activity {
 		setContentView(R.layout.activity_browse_channels);
 		
 		lvChannel = (ListView)findViewById(R.id.lvChannel);
+		tvTitle = (TextView)findViewById(R.id.tvTitle);
 		
 		pDialog = new ProgressDialog(BrowseChannelsActivity.this);
 		pDialog.setMessage("Loading data ...");
@@ -64,9 +69,11 @@ public class BrowseChannelsActivity extends Activity {
 		Bundle extras = intent.getExtras();
 		if(extras!=null){
 			userType = extras.getString("userType");
+			
+			userType = (userType==null)?"":userType;
 		}
-		
-		setTitle("Browse Channel - " + userType);
+		tvTitle.setText(userType);
+		setTitle("Browse Channel");
 		
 		// Launching new screen on Selecting Single ListItem
 		lvChannel.setOnItemClickListener(new OnItemClickListener() {
@@ -123,6 +130,10 @@ public class BrowseChannelsActivity extends Activity {
 		return true;
 	}
 
+	public void onPagingClick(View v){
+		
+	}
+	
 	/**
 	 * Background Async Task to get Channels from URL
 	 * */
@@ -149,6 +160,9 @@ public class BrowseChannelsActivity extends Activity {
 					// updating listview
 					registerForContextMenu(lvChannel);
 					lvChannel.setAdapter(adapter);
+					if(channels.size()==0){
+						Toast.makeText(getApplicationContext(), "No results", Toast.LENGTH_LONG).show();
+					}
 				}
 			});
 			return null;

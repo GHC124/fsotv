@@ -20,7 +20,8 @@ public class DownloadImage extends AsyncTask<String, Void, Bitmap> {
         this.bmImage = bmImage;
         this.progressBar = progressBar;
         //starting task, show progress bar
-        progressBar.setVisibility(View.VISIBLE);
+        if(progressBar!=null)
+        	progressBar.setVisibility(View.VISIBLE);
     }
 
     protected Bitmap doInBackground(String... urls) {
@@ -40,7 +41,9 @@ public class DownloadImage extends AsyncTask<String, Void, Bitmap> {
 
     protected void onPostExecute(Bitmap result) {
     	//task done, hide it again
-    	progressBar.setVisibility(View.GONE);
-    	bmImage.setImageBitmap(result);
+    	if(progressBar!=null)
+    		progressBar.setVisibility(View.GONE);
+    	if(result!=null)
+    		bmImage.setImageBitmap(result);
     }
 }

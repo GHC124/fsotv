@@ -19,7 +19,7 @@ public class MainActivity extends TabActivity {
 		 
         // Tab Home, setting Title and Icon for the Tab
         TabSpec homeSpec = tabHost.newTabSpec("Home");
-        homeSpec.setIndicator("Home", getResources().getDrawable(R.drawable.icon_browse));
+        homeSpec.setIndicator("Home", getResources().getDrawable(R.drawable.icon_home));
         Intent homeIntent = new Intent(this, HomeActivity.class);
         homeSpec.setContent(homeIntent);
         

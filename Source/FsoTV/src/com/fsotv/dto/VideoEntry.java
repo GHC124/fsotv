@@ -6,6 +6,7 @@ public class VideoEntry {
 	String description;
 	String link;
 	String image;
+	int duration;
 	int viewCount;
 	int favoriteCount;
 	
@@ -67,6 +68,14 @@ public class VideoEntry {
 
 	public void setFavoriteCount(int favoriteCount) {
 		this.favoriteCount = favoriteCount;
+	}
+
+	public int getDuration() {
+		return duration;
+	}
+
+	public void setDuration(int duration) {
+		this.duration = duration;
 	}
 	
 	

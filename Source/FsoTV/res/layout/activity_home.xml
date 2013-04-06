@@ -74,83 +74,103 @@
             android:layout_height="match_parent" >
             
             <LinearLayout
-                android:id="@+id/layout_channel" 
-    			android:layout_width="fill_parent"
-    			android:layout_height="fill_parent"
-    			android:background="@drawable/channel_list_background"
-   			 	android:orientation="vertical" >
+                android:id="@+id/layout_music"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:background="@drawable/channel_list_background"
+                android:gravity="center"
+                android:onClick="onCategoryClick"
+                android:orientation="vertical" >
             
                <TextView
-                    android:id="@+id/tv_music"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="35dp"
-                    android:layout_marginLeft="25dp"
-                    android:text="Music Channel (Button 1 clicked)" />
+                   android:id="@+id/tv_music"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:layout_margin="35dip"
+                   android:text="Music"
+                   android:textColor="#000000"
+                   android:textSize="50sp" 
+                   />
              
              </LinearLayout>
              
             <LinearLayout 
+                android:id="@+id/layout_sport"
     			android:layout_width="fill_parent"
     			android:layout_height="fill_parent"
     			android:background="@drawable/channel_list_background"
-   			 	android:orientation="vertical" >
+   			 	android:orientation="vertical" 
+   			 	android:gravity="center"
+   			 	android:onClick="onCategoryClick">
                
                <TextView
                     android:id="@+id/tv_sport"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="35dp"
-                    android:layout_marginLeft="25dp"
-                    android:text="Sport Channel (Button 2 clicked)" />
+                   android:layout_height="wrap_content"
+                   android:layout_margin="35dip"
+                   android:text="Sport"
+                   android:textColor="#000000"
+                   android:textSize="50sp" 
+                   />
                
             </LinearLayout>
                         
-            <LinearLayout 
+            <LinearLayout android:id="@+id/layout_news"
     			android:layout_width="fill_parent"
     			android:layout_height="fill_parent"
     			android:background="@drawable/channel_list_background"
-   			 	android:orientation="vertical" >
+   			 	android:orientation="vertical"
+   			 	android:gravity="center"
+   			 	android:onClick="onCategoryClick" >
                
                <TextView
                     android:id="@+id/tv_news"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="35dp"
-                    android:layout_marginLeft="25dp"
-                    android:text="News Channel (Button 3 clicked)" />
+                   android:layout_height="wrap_content"
+                   android:layout_margin="35dip"
+                   android:text="News"
+                   android:textColor="#000000"
+                   android:textSize="50sp" 
+                   />
                
             </LinearLayout>
             
             <LinearLayout 
+                android:id="@+id/layout_travel"
     			android:layout_width="fill_parent"
     			android:layout_height="fill_parent"
     			android:background="@drawable/channel_list_background"
-   			 	android:orientation="vertical" >
+   			 	android:orientation="vertical" 
+   			 	android:gravity="center"
+   			 	android:onClick="onCategoryClick">
                
                <TextView
-                    android:id="@+id/tv_game"
+                    android:id="@+id/tv_travel"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="35dp"
-                    android:layout_marginLeft="25dp"
-                    android:text="Game Channel (Button 4 clicked)" />
+                   android:layout_height="wrap_content"
+                   android:layout_margin="35dip"
+                   android:text="Travel"
+                   android:textSize="50sp" 
+                   android:textColor="#000000" />
                
             </LinearLayout>
             
-            <LinearLayout 
+            <LinearLayout android:id="@+id/layout_film"
     			android:layout_width="fill_parent"
     			android:layout_height="fill_parent"
     			android:background="@drawable/channel_list_background"
-   			 	android:orientation="vertical" >
+   			 	android:orientation="vertical" 
+   			 	android:gravity="center"
+   			 	android:onClick="onCategoryClick">
                
                <TextView
                     android:id="@+id/tv_film"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="35dp"
-                    android:layout_marginLeft="25dp"
-                    android:text="Film Channel (Button 5 clicked)" />
+                     android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:layout_margin="35dip"
+                   android:text="Film"
+                   android:textSize="50sp" 
+                   android:textColor="#000000"/>
                
             </LinearLayout>
                               
