@@ -34,7 +34,8 @@ public class DownloadChannel extends AsyncTask<String, Void, ChannelAsync> {
 		this.bmImage = bmImage;
 		this.progressBar = progressBar;
 		// starting task, show progress bar
-		progressBar.setVisibility(View.VISIBLE);
+		if(progressBar!=null)
+			progressBar.setVisibility(View.VISIBLE);
 	}
 
 	protected ChannelAsync doInBackground(String... args) {
@@ -59,9 +60,11 @@ public class DownloadChannel extends AsyncTask<String, Void, ChannelAsync> {
 
 	protected void onPostExecute(ChannelAsync result) {
 		// task done, hide it again
-		progressBar.setVisibility(View.GONE);
+		if(progressBar!=null)
+			progressBar.setVisibility(View.GONE);
 		viewCount.setText(result.viewCount + "");
 		subscriberCount.setText(result.subscriberCount + "");
-		bmImage.setImageBitmap(result.image);
+		if(result.image!=null)
+			bmImage.setImageBitmap(result.image);
 	}
 }

@@ -28,6 +28,9 @@ public class YouTubeHelper {
 	public final static String CATEGORY_ENTERTAIMENT = "Entertainment";
 	public final static String CATEGORY_MUSIC = "Music";
 	public final static String CATEGORY_SPORTS = "Sports";
+	public final static String CATEGORY_FILM = "Film";
+	public final static String CATEGORY_TRAVEL = "Travel";
+	public final static String CATEGORY_NEWS = "News";
 	public final static String USER_TYPE_COMEDIANS = "Comedians";
 	public final static String USER_TYPE_DIRECTORS = "Directors";
 	public final static String USER_TYPE_MUSICIANS = "Musicians";
@@ -80,10 +83,10 @@ public class YouTubeHelper {
 		} catch (Exception ex) {
 			Log.e("getChannels", ex.toString());
 		}
-		return getChannels(is);
+		return getChannelsByStream(is);
 	}
 	
-	public static List<ChannelEntry> getChannels(InputStream is){
+	public static List<ChannelEntry> getChannelsByStream(InputStream is){
 		List<ChannelEntry> channels = new ArrayList<ChannelEntry>();
 		try{
 			JSONObject json = JsonHelper.getJSONFromStream(is);
@@ -153,18 +156,34 @@ public class YouTubeHelper {
 		sb.append("/users/");
 		sb.append(channelId);
 		sb.append("/uploads");
-		sb.append("?v=2&orderby=viewCount&alt=json&max-results=");
+		sb.append("?v=2&orderby=viewCount&alt=json&format=6&max-results=");
 		sb.append(MAX_RESULT);
 		String newUrl = sb.toString();
 		try {
 			is = WebRequest.GetStream(newUrl, WebRequest.PostType.GET);
 		} catch (Exception ex) {
-			Log.e("getVideoEntrysInChannel", ex.toString());
+			Log.e("getVideosInChannel", ex.toString());
 		}
-		return getVideosInChannel(is);
+		return getVideosByStream(is);
 	}
-	
-	public static List<VideoEntry> getVideosInChannel(InputStream is){
+	public static List<VideoEntry> getVideosInCategory(String category) {
+		InputStream is = null;
+		StringBuilder sb = new StringBuilder();
+		sb.append(GdataURL);
+		sb.append("/videos/");
+		sb.append(CategoryURL);
+		sb.append(category);
+		sb.append("?v=2&orderby=viewCount&alt=json&format=6&max-results=");
+		sb.append(MAX_RESULT);
+		String newUrl = sb.toString();
+		try {
+			is = WebRequest.GetStream(newUrl, WebRequest.PostType.GET);
+		} catch (Exception ex) {
+			Log.e("getVideosInCategory", ex.toString());
+		}
+		return getVideosByStream(is);
+	}
+	public static List<VideoEntry> getVideosByStream(InputStream is){
 		List<VideoEntry> videos = new ArrayList<VideoEntry>();
 		try{
 			JSONObject json = JsonHelper.getJSONFromStream(is);
@@ -235,10 +254,10 @@ public class YouTubeHelper {
 		} catch (Exception ex) {
 			Log.e("getChannelDetail", ex.toString());
 		}
-		return getChannelDetail(is);
+		return getChannelByStream(is);
 	}
 	
-	public static ChannelEntry getChannelDetail(InputStream is){
+	public static ChannelEntry getChannelByStream(InputStream is){
 		ChannelEntry channel = new ChannelEntry();
 		try{
 			JSONObject json = JsonHelper.getJSONFromStream(is);
@@ -306,10 +325,10 @@ public class YouTubeHelper {
 		} catch (Exception ex) {
 			Log.e("getVideoDetail", ex.toString());
 		}
-		return getVideoDetail(is);
+		return getVideoByStream(is);
 	}
 		
-	public static VideoEntry getVideoDetail(InputStream is){
+	public static VideoEntry getVideoByStream(InputStream is){
 		VideoEntry video = new VideoEntry();
 		try{
 			JSONObject json = JsonHelper.getJSONFromStream(is);
@@ -319,12 +338,22 @@ public class YouTubeHelper {
 			JSONObject groupObject = entryObject.getJSONObject("media$group");
 			JSONObject descriptionObject = groupObject.getJSONObject("media$description");
 			JSONObject idObject = groupObject.getJSONObject("yt$videoid");
+			JSONArray contents = groupObject.getJSONArray("media$content");
 			JSONArray thumbnails = groupObject.getJSONArray("media$thumbnail");
 			
 			String id = idObject.getString("$t");
 			String title = titleObject.getString("$t");
 			String description = descriptionObject.getString("$t");
-			String link = GdataURL + "/videos/" + id + "?v=2&alt=json";
+			String link = "";
+			int duration = 0;
+			for(int i = 0; i < contents.length(); i++){
+				JSONObject contentObject = contents.getJSONObject(i);
+				if(contentObject.getInt("yt$format")==6){
+					link = contentObject.getString("url");
+					duration = contentObject.getInt("duration");
+					break;
+				}
+			}
 			String image = "";
 			if(thumbnails.length()>0){
 				image = thumbnails.getJSONObject(0).getString("url");
@@ -337,9 +366,11 @@ public class YouTubeHelper {
 			video.setDescription(description);
 			video.setLink(link);
 			video.setImage(image);
+			video.setDuration(duration);
 			video.setViewCount(viewCount);
 			video.setFavoriteCount(favoriteCount);
 			
+			contents = null;
 			thumbnails = null;
 			statisticsObject = null;
 			descriptionObject = null;

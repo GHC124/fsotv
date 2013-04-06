@@ -170,6 +170,9 @@ public class MyChannelsActivity extends Activity {
 					// updating listview
 					registerForContextMenu(lvChannel);
 					lvChannel.setAdapter(adapter);
+					if(channels.size()==0){
+						Toast.makeText(getApplicationContext(), "No results", Toast.LENGTH_LONG).show();
+					}
 				}
 			});
 			return null;

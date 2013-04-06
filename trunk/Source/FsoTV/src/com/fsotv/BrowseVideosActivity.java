@@ -1,5 +1,7 @@
 package com.fsotv;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +31,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
 public class BrowseVideosActivity extends Activity {
@@ -51,16 +54,34 @@ public class BrowseVideosActivity extends Activity {
 		
 		videos = new ArrayList<VideoEntry>();
 		String channelId = "";
+		String categoryId = "";
 		
 		Intent intent = getIntent();
 		Bundle extras = intent.getExtras();
 		if(extras!=null){
 			channelId = extras.getString("channelId");
+			categoryId = extras.getString("categoryId");
+			
+			channelId = (channelId==null)?"":channelId;
+			categoryId = (categoryId==null)?"":categoryId;
 		}
 		
-		setTitle("Browse Video");
-				
-		new loadVideos().execute(channelId);
+		if(!categoryId.isEmpty())
+			setTitle("Browse Video - " + categoryId);
+		else setTitle("Browse Video");
+		
+		// Launching new screen on Selecting Single ListItem
+		lvVideo.setOnItemClickListener(new OnItemClickListener() {
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				String videoId = videos.get(position).getId();
+				Intent i = new Intent(getApplicationContext(), VideoDetailActivity.class);
+				i.putExtra("videoId", videoId);
+				startActivity(i);
+			}
+		});
+		
+		new loadVideos().execute(channelId, categoryId);
 	}
 
 
@@ -81,7 +102,14 @@ public class BrowseVideosActivity extends Activity {
 		@Override
 		protected String doInBackground(String... args) {
 			String channelId = args[0];
-			videos = YouTubeHelper.getVideosInChannel(channelId);
+			String categoryId = args[1];
+			
+			if(!channelId.isEmpty()){
+				videos = YouTubeHelper.getVideosInChannel(channelId);
+			}
+			else if(!categoryId.isEmpty()){
+				videos = YouTubeHelper.getVideosInCategory(categoryId);
+			}
 			// updating UI from Background Thread
 			runOnUiThread(new Runnable() {
 				public void run() {
@@ -90,6 +118,9 @@ public class BrowseVideosActivity extends Activity {
 							videos);
 					// updating listview
 					lvVideo.setAdapter(adapter);
+					if(videos.size()==0){
+						Toast.makeText(getApplicationContext(), "No results", Toast.LENGTH_LONG).show();
+					}
 				}
 			});
 			return null;
@@ -175,3 +206,4 @@ public class BrowseVideosActivity extends Activity {
 		}
 	}
 }
+
