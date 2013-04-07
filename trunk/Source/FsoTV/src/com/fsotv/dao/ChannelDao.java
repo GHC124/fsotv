@@ -11,7 +11,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 public class ChannelDao extends DataHelper {
-
+	/** declare table and each column in table Channel */
 	public static final String TABLE_NAME = "Channel";
 	public static final String ID_CHANNEL = "IdChannel";
 	public static final String ID_REAL_CHANNEL = "IdRealChannel";
@@ -20,6 +20,7 @@ public class ChannelDao extends DataHelper {
 	public static final String THUMNAIL = "Thumnail";
 	public static final String DESCRIBES = "Describes";
 
+	/** constructor extends from DataHelpeer */
 	public ChannelDao(Context context) {
 		super(context);
 		// TODO Auto-generated constructor stub
@@ -28,10 +29,10 @@ public class ChannelDao extends DataHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 
-		String CreateTable = "CREATE TABLE " + TABLE_NAME + "("
-				+ ID_CHANNEL + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-				+ NAME_CHANNEL + " TEXT," + URI + " TEXT," + THUMNAIL
-				+ " TEXT," + DESCRIBES + " TEXT," + ID_REAL_CHANNEL + " TEXT)";
+		String CreateTable = "CREATE TABLE " + TABLE_NAME + "(" + ID_CHANNEL
+				+ " INTEGER PRIMARY KEY AUTOINCREMENT," + NAME_CHANNEL
+				+ " TEXT," + URI + " TEXT," + THUMNAIL + " TEXT," + DESCRIBES
+				+ " TEXT," + ID_REAL_CHANNEL + " TEXT)";
 		db.execSQL(CreateTable);
 	}
 
@@ -44,6 +45,7 @@ public class ChannelDao extends DataHelper {
 		onCreate(db);
 	}
 
+	/** method getListChannel : get list channel in database */
 	public List<Channel> getListChannel() {
 		List<Channel> listDto = new ArrayList<Channel>();
 		String sql = "Select * from Channel";
@@ -72,6 +74,7 @@ public class ChannelDao extends DataHelper {
 		return listDto;
 	}
 
+	/** method insertChannel : insert channel in database */
 	public void insertChannel(Channel channel) {
 		SQLiteDatabase db = this.getWritableDatabase();
 
@@ -120,8 +123,9 @@ public class ChannelDao extends DataHelper {
 		Channel channel = new Channel();
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor cursor = db.query(TABLE_NAME, new String[] { ID_CHANNEL,
-				NAME_CHANNEL, URI, DESCRIBES, THUMNAIL, ID_REAL_CHANNEL }, ID_CHANNEL + "=?",
-				new String[] { String.valueOf(id) }, null, null, null, null);
+				NAME_CHANNEL, URI, DESCRIBES, THUMNAIL, ID_REAL_CHANNEL },
+				ID_CHANNEL + "=?", new String[] { String.valueOf(id) }, null,
+				null, null, null);
 		if (cursor != null && cursor.moveToFirst()) {
 			channel.setIdChannel(cursor.getInt(0));
 			channel.setNameChannel(cursor.getString(1));
@@ -150,8 +154,9 @@ public class ChannelDao extends DataHelper {
 	 * read id
 	 * */
 	public int isChannelExists(SQLiteDatabase db, String realId) {
-		Cursor cursor = db.query(TABLE_NAME, new String[] { ID_CHANNEL }, ID_REAL_CHANNEL
-				+ "='" + realId + "'", null, null, null, null, null);
+		Cursor cursor = db.query(TABLE_NAME, new String[] { ID_CHANNEL },
+				ID_REAL_CHANNEL + "='" + realId + "'", null, null, null, null,
+				null);
 		int id = 0;
 		if (cursor != null && cursor.moveToFirst()) {
 			id = cursor.getInt(0);
