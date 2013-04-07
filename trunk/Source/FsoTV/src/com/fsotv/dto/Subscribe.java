@@ -1,10 +1,13 @@
 package com.fsotv.dto;
 
 public class Subscribe {
+	/* properties */
+
 	private String account;
 	private String idChannel;
 	private String nameChannel;
-	
+
+	/* get - set properties */
 
 	public String getAccount() {
 		return account;
@@ -30,6 +33,7 @@ public class Subscribe {
 		this.nameChannel = nameChannel;
 	}
 
+	/* constructor */
 	public Subscribe() {
 		// TODO Auto-generated constructor stub
 	}

@@ -1,13 +1,15 @@
 package com.fsotv.dto;
 
 public class Channel {
+	/* properties */
 	private int idChannel;
 	private String nameChannel;
 	private String uri;
 	private String thumnail;
 	private String describes;
 	private String idRealChannel;
-	
+
+	/* get - set properties */
 	public String getDescribes() {
 		return describes;
 	}
@@ -55,9 +57,10 @@ public class Channel {
 	public void setIdRealChannel(String idRealChannel) {
 		this.idRealChannel = idRealChannel;
 	}
-	
-	public Channel(){
-		
+
+	/* constructor */
+	public Channel() {
+
 	}
 
 	public Channel(int idChannel, String nameChannel, String uri,

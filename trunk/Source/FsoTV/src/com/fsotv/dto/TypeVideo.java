@@ -1,6 +1,9 @@
 package com.fsotv.dto;
 
 public class TypeVideo {
+	/* properties */
+
+	/* get - set properties */
 
 	private int idType;
 	private String nameType;
@@ -21,6 +24,7 @@ public class TypeVideo {
 		this.nameType = nameType;
 	}
 
+	/* constructor */
 	public TypeVideo() {
 		// TODO Auto-generated constructor stub
 	}

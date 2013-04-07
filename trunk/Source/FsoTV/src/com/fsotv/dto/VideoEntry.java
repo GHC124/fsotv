@@ -1,6 +1,8 @@
 package com.fsotv.dto;
 
 public class VideoEntry {
+	/* properties */
+
 	String id;
 	String title;
 	String description;
@@ -9,11 +11,14 @@ public class VideoEntry {
 	int duration;
 	int viewCount;
 	int favoriteCount;
-	
-	public VideoEntry(){
-		
+
+	/* get - set properties */
+
+	public VideoEntry() {
+
 	}
 
+	/* constructor */
 	public String getId() {
 		return id;
 	}
@@ -77,6 +82,5 @@ public class VideoEntry {
 	public void setDuration(int duration) {
 		this.duration = duration;
 	}
-	
-	
+
 }
