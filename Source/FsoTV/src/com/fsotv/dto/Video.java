@@ -1,6 +1,8 @@
 package com.fsotv.dto;
 
 public class Video {
+	/* properties */
+
 	private int idVideo;
 	private int idChannel;
 	private String nameVideo;
@@ -9,6 +11,8 @@ public class Video {
 	private String describes;
 	private String account;
 	private int typeVideo;
+
+	/* get - set properties */
 
 	public int getIdVideo() {
 		return idVideo;
@@ -74,6 +78,7 @@ public class Video {
 		this.typeVideo = typeVideo;
 	}
 
+	/* constructor */
 	public Video() {
 		// TODO Auto-generated constructor stub
 	}

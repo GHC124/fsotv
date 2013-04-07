@@ -1,9 +1,12 @@
 package com.fsotv.dto;
 
 public class Role {
+	/* properties */
+
 	private int idRole;
 	private String nameRole;
 
+	/* get - set properties */
 	public int getIdRole() {
 		return idRole;
 	}
@@ -20,6 +23,7 @@ public class Role {
 		this.nameRole = nameRole;
 	}
 
+	/* constructor */
 	public Role() {
 		// TODO Auto-generated constructor stub
 	}

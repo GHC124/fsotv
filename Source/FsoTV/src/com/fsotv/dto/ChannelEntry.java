@@ -1,6 +1,8 @@
 package com.fsotv.dto;
 
 public class ChannelEntry {
+	/* properties */
+
 	String id;
 	String idReal;
 	String title;
@@ -11,11 +13,14 @@ public class ChannelEntry {
 	int videoCount;
 	int viewCount;
 	int subscriberCount;
-	
-	public ChannelEntry(){
-		
+
+	/* constructor */
+
+	public ChannelEntry() {
+
 	}
 
+	/* get - set properties */
 	public String getId() {
 		return id;
 	}
@@ -95,6 +100,5 @@ public class ChannelEntry {
 	public void setSubscriberCount(int subscriberCount) {
 		this.subscriberCount = subscriberCount;
 	}
-	
-	
+
 }

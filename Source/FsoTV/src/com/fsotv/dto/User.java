@@ -1,9 +1,13 @@
 package com.fsotv.dto;
 
 public class User {
+	/* properties */
+
 	private String account;
 	private String role;
 	private String password;
+
+	/* get - set properties */
 
 	public String getPassword() {
 		return password;
@@ -29,6 +33,7 @@ public class User {
 		this.role = role;
 	}
 
+	/* constructor */
 	public User() {
 		// TODO Auto-generated constructor stub
 	}
