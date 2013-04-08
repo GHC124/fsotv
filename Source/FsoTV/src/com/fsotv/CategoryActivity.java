@@ -3,34 +3,27 @@ package com.fsotv;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fsotv.dao.ReferenceDao;
-import com.fsotv.dto.Reference;
-import com.fsotv.dto.Reference;
-import com.fsotv.utils.ImageLoader;
-import com.fsotv.utils.YouTubeHelper;
-
-import android.os.AsyncTask;
-import android.os.Bundle;
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
-import android.util.Log;
+import android.os.AsyncTask;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
+
+import com.fsotv.dao.ReferenceDao;
+import com.fsotv.dto.Reference;
+import com.fsotv.utils.ImageLoader;
 
 public class CategoryActivity extends ActivityBase {
 
@@ -56,19 +49,6 @@ public class CategoryActivity extends ActivityBase {
 		
 		setHeader("Category");
 		setTitle("Category");
-
-		// Launching new screen on Selecting Single ListItem
-		lvCategory.setOnItemClickListener(new OnItemClickListener() {
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
-				CheckBox cbx = (CheckBox) view.findViewById(R.id.cbxSelect);
-				if (cbx.isChecked()) {
-					select.add(categories.get(position));
-				} else {
-					select.remove(categories.get(position));
-				}
-			}
-		});
 
 		new loadCategories().execute();
 	}
@@ -117,20 +97,7 @@ public class CategoryActivity extends ActivityBase {
 		protected String doInBackground(String... args) {
 			categories = referenceDao.getListReference(
 					ReferenceDao.KEY_YOUTUBE_CATEGORY, null);
-			runOnUiThread(new Runnable() {
-				public void run() {
-					ListItemAdapter adapter = new ListItemAdapter(
-							CategoryActivity.this, R.layout.category_item,
-							categories);
-					// updating listview
-					registerForContextMenu(lvCategory);
-					lvCategory.setAdapter(adapter);
-					if (categories.size() == 0) {
-						Toast.makeText(getApplicationContext(), "No results",
-								Toast.LENGTH_LONG).show();
-					}
-				}
-			});
+			
 			return null;
 		}
 
@@ -139,6 +106,16 @@ public class CategoryActivity extends ActivityBase {
 		 * **/
 		protected void onPostExecute(String args) {
 			hideLoading();
+			ListItemAdapter adapter = new ListItemAdapter(
+					CategoryActivity.this, R.layout.category_item,
+					categories);
+			// updating listview
+			registerForContextMenu(lvCategory);
+			lvCategory.setAdapter(adapter);
+			if (categories.size() == 0) {
+				Toast.makeText(getApplicationContext(), "No results",
+						Toast.LENGTH_LONG).show();
+			}
 		}
 
 	}
@@ -209,6 +186,9 @@ public class CategoryActivity extends ActivityBase {
 					select.add(item);
 			} else {
 				holder.cbxSelect.setChecked(false);
+				// Remove item from select list
+				if(select.contains(item))
+					select.remove(item);
 			}
 
 			return row;
