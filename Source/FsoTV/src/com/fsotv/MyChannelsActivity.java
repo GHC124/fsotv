@@ -3,67 +3,58 @@ package com.fsotv;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fsotv.dao.ChannelDao;
-import com.fsotv.dto.Channel;
-import com.fsotv.dto.ChannelEntry;
-import com.fsotv.utils.DownloadChannel;
-import com.fsotv.utils.DownloadImage;
-import com.fsotv.utils.YouTubeHelper;
-
-import android.os.AsyncTask;
-import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
+import android.os.Bundle;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Toast;
 
-public class MyChannelsActivity extends Activity {
+import com.fsotv.dao.ChannelDao;
+import com.fsotv.dto.Channel;
+import com.fsotv.dto.ChannelEntry;
+import com.fsotv.utils.ImageLoader;
+
+public class MyChannelsActivity extends ActivityBase {
 	
 	private final int MENU_UNSUBSCRIBE = Menu.FIRST;	
 	
-	private ProgressDialog pDialog;
 	private ListView lvChannel;
 	private List<ChannelEntry> channels;
-		
+	private ImageLoader imageLoader;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_my_channels);
 		
 		lvChannel = (ListView)findViewById(R.id.lvChannel);
-		
-		pDialog = new ProgressDialog(MyChannelsActivity.this);
-		pDialog.setMessage("Loading data ...");
-		pDialog.setIndeterminate(false);
-		pDialog.setCancelable(false);
-		
-		channels = new ArrayList<ChannelEntry>();
 				
+		channels = new ArrayList<ChannelEntry>();
+		imageLoader = new ImageLoader(getApplicationContext());
+		
 		Intent intent = getIntent();
 		Bundle extras = intent.getExtras();
 		if(extras!=null){
 			
 		}
-		
+		setHeader("Channels");
 		setTitle("My Channels");
 		
 		// Launching new screen on Selecting Single ListItem
@@ -71,8 +62,10 @@ public class MyChannelsActivity extends Activity {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				String channelId = channels.get(position).getIdReal();
+				String channelTitle = channels.get(position).getTitle();
 				Intent i = new Intent(getApplicationContext(), BrowseVideosActivity.class);
 				i.putExtra("channelId", channelId);
+				i.putExtra("channelTitle", channelTitle);
 				startActivity(i);
 			}
 		});
@@ -145,7 +138,7 @@ public class MyChannelsActivity extends Activity {
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			pDialog.show();
+			showLoading();
 		}
 
 		@Override
@@ -182,8 +175,7 @@ public class MyChannelsActivity extends Activity {
 		 * After completing background task Dismiss the progress dialog
 		 * **/
 		protected void onPostExecute(String args) {
-			// dismiss the dialog after getting all products
-			pDialog.dismiss();
+			hideLoading();
 		}
 
 	}
@@ -216,9 +208,7 @@ public class MyChannelsActivity extends Activity {
 				holder.progressBar = (ProgressBar) row.findViewById(R.id.progressBar);
 				holder.title = (TextView) row.findViewById(R.id.title);
 				holder.description = (TextView) row.findViewById(R.id.description);
-				holder.viewCount = (TextView) row.findViewById(R.id.viewCount);
-				holder.subscriberCount = (TextView) row.findViewById(R.id.subscriberCount);
-
+				
 				row.setTag(holder);
 			} else {
 				holder = (ListItemHolder) row.getTag();
@@ -234,8 +224,11 @@ public class MyChannelsActivity extends Activity {
 			if(description.length()>150){
 				description = description.substring(0, 150) + "...";
 			}
-			new DownloadChannel(holder.viewCount, holder.subscriberCount, 
-					holder.image, holder.progressBar).execute(item.getIdReal());
+
+			imageLoader.DisplayImage(item.getImage(), holder.image, holder.progressBar);
+			
+			//new DownloadChannel(holder.viewCount, holder.subscriberCount, 
+			//		holder.image, holder.progressBar).execute(item.getIdReal());
 
 			holder.title.setText(title);
 			holder.description.setText(description);
@@ -248,8 +241,7 @@ public class MyChannelsActivity extends Activity {
 			ProgressBar progressBar;
 			TextView title;
 			TextView description;
-			TextView viewCount;
-			TextView subscriberCount;
+			
 		}
 	}
 }

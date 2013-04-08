@@ -31,8 +31,12 @@ public class DownloadImage extends AsyncTask<String, Void, Bitmap> {
         	URL url = new URL(strUrl);
         	URLConnection conn = url.openConnection();
         	InputStream is = conn.getInputStream();
-            //b = FileHelper.decodeImage(is, 50);
-        	b = BitmapFactory.decodeStream(is);
+        	
+        	BitmapFactory.Options bmOptions;
+            bmOptions = new BitmapFactory.Options();
+            bmOptions.inSampleSize = 1;
+            
+        	b = BitmapFactory.decodeStream(is, null, bmOptions);
         } catch (Exception e) {
             e.printStackTrace();
         }

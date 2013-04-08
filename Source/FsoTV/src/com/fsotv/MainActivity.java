@@ -8,8 +8,6 @@ import android.widget.TabHost.TabSpec;
 
 @SuppressWarnings("deprecation")
 public class MainActivity extends TabActivity {
-	
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -29,11 +27,11 @@ public class MainActivity extends TabActivity {
         Intent browseIntent = new Intent(this, BrowseActivity.class);
         browseSpec.setContent(browseIntent);
         
-        // Tab Record, setting Title and Icon for the Tab
-        TabSpec recordSpec = tabHost.newTabSpec("Record");
-        recordSpec.setIndicator("Record", getResources().getDrawable(R.drawable.icon_record));
-        Intent recordIntent = new Intent(this, RecordActivity.class);
-        recordSpec.setContent(recordIntent);
+        // Tab Favorite, setting Title and Icon for the Tab
+        TabSpec favoriteSpec = tabHost.newTabSpec("Favorite");
+        favoriteSpec.setIndicator("Favorite", getResources().getDrawable(R.drawable.icon_record));
+        Intent favoriteIntent = new Intent(this, FavoriteActivity.class);
+        favoriteSpec.setContent(favoriteIntent);
         
         // Tab Social, setting Title and Icon for the Tab
         TabSpec socialSpec = tabHost.newTabSpec("Social");
@@ -44,7 +42,7 @@ public class MainActivity extends TabActivity {
         // Adding all TabSpec to TabHost
         tabHost.addTab(homeSpec);
         tabHost.addTab(browseSpec);
-        tabHost.addTab(recordSpec);
+        tabHost.addTab(favoriteSpec);
         tabHost.addTab(socialSpec);
 	}
 

@@ -50,8 +50,12 @@ public class DownloadChannel extends AsyncTask<String, Void, ChannelAsync> {
 			URL url = new URL(entry.getImage());
 			URLConnection conn = url.openConnection();
 			InputStream is = conn.getInputStream();
-			// b = FileHelper.decodeImage(is, 50);
-			channel.image = BitmapFactory.decodeStream(is);
+			
+			BitmapFactory.Options bmOptions;
+            bmOptions = new BitmapFactory.Options();
+            bmOptions.inSampleSize = 1;
+            
+			channel.image = BitmapFactory.decodeStream(is, null, bmOptions);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

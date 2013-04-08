@@ -3,31 +3,112 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/fsotv_background"
+    android:gravity="center_vertical|center_horizontal"
     android:orientation="vertical"
     android:paddingBottom="0dp"
     android:paddingLeft="0dp"
     android:paddingRight="0dp"
     android:paddingTop="0dp" >
 
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:padding="15dip"
-        android:text="This is tab Browse"
-        android:textColor="#FFFFFF"
-        android:textSize="20sp"
-        android:textStyle="bold" />
-
-    <EditText
-        android:id="@+id/etVideo"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:ems="10" />
+        android:orientation="vertical" >
 
-    <Button
-        android:id="@+id/btSearch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/btnSearch" />
+        <RelativeLayout  android:layout_margin="15dip"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/list_selector"
+            android:orientation="horizontal"
+            android:padding="5dip" 
+            android:onClick="onBrowseChannels">
+
+            <!-- ListRow Left sied Thumbnail image -->
+
+            <LinearLayout
+                android:id="@+id/thumbnail1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_marginRight="5dip"
+                android:padding="3dip" >
+
+                <ImageView
+                    android:layout_width="25dip"
+                    android:layout_height="25dip" 
+                    android:src="@drawable/icon_channel"/>
+            </LinearLayout>
+
+            <!-- Title -->
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/thumbnail1"
+                android:text="@string/btn_browse_channels"
+                android:textColor="#040404"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:typeface="sans" />
+              
+            <!-- Rightend Arrow -->
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/arrow" />
+        </RelativeLayout>
+
+        <RelativeLayout  android:layout_margin="15dip"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/list_selector"
+            android:orientation="horizontal"
+            android:padding="5dip" 
+            android:onClick="onBrowseVideos">
+
+            <!-- ListRow Left sied Thumbnail image -->
+
+            <LinearLayout android:id="@+id/thumbnail2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_marginRight="5dip"
+                android:padding="3dip" >
+
+                <ImageView
+                    android:layout_width="25dip"
+                    android:layout_height="25dip" 
+                    android:src="@drawable/icon_channel"/>
+            </LinearLayout>
+
+            <!-- Title -->
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/thumbnail2"
+                android:text="@string/btn_browse_videos"
+                android:textColor="#040404"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:typeface="sans" />
+              
+            <!-- Rightend Arrow -->
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/arrow" />
+        </RelativeLayout>
+
+    </LinearLayout>
 
 </LinearLayout>

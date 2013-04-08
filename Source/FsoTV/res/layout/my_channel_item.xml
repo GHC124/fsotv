@@ -14,7 +14,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_marginRight="5dip"
-        android:background="@drawable/image_bg"
         android:padding="3dip" >
 
         <ImageView
@@ -57,37 +56,6 @@
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
 	    android:orientation="horizontal">
-        
-         <TextView
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="Views:"
-	        android:textColor="#343434"
-	        android:textSize="8sp" />
-	     <TextView
-	        android:id="@+id/viewCount"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="0"
-	        android:textColor="#343434"
-	        android:textSize="8sp"
-	        android:layout_marginLeft="2dip"
-	        android:layout_marginRight="2dip" />
-	     <TextView
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="Subscribers:"
-	        android:textColor="#343434"
-	        android:textSize="8sp" />
-	     <TextView
-	        android:id="@+id/subscriberCount"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="0"
-	        android:textColor="#343434"
-	        android:textSize="8sp"
-	        android:layout_marginLeft="2dip"
-	        android:layout_marginRight="2dip" />
 	      
 	</LinearLayout>
        
@@ -101,7 +69,8 @@
         android:layout_alignParentRight="true"
         android:layout_alignTop="@id/title"
         android:layout_marginRight="5dip"
-        android:gravity="right" />
+        android:gravity="right"
+        android:visibility="invisible" />
 
     <!-- Rightend Arrow -->
 

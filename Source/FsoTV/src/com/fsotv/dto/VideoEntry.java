@@ -1,9 +1,9 @@
 package com.fsotv.dto;
 
 public class VideoEntry {
-	/* properties */
-
 	String id;
+	String idReal;
+	String idChannel;
 	String title;
 	String description;
 	String link;
@@ -11,14 +11,27 @@ public class VideoEntry {
 	int duration;
 	int viewCount;
 	int favoriteCount;
-
-	/* get - set properties */
-
-	public VideoEntry() {
-
+	
+	public VideoEntry(){
+		
 	}
 
-	/* constructor */
+	public String getIdReal() {
+		return idReal;
+	}
+
+	public void setIdReal(String idReal) {
+		this.idReal = idReal;
+	}
+
+	public String getIdChannel() {
+		return idChannel;
+	}
+
+	public void setIdChannel(String idChannel) {
+		this.idChannel = idChannel;
+	}
+
 	public String getId() {
 		return id;
 	}
@@ -82,5 +95,6 @@ public class VideoEntry {
 	public void setDuration(int duration) {
 		this.duration = duration;
 	}
-
+	
+	
 }

@@ -15,8 +15,7 @@ import android.util.Log;
 
 public class JsonHelper {
 
-	public static JSONObject getJSONFromStream(InputStream is)
-			throws IOException, JSONException {
+	public static JSONObject getJSONFromStream(InputStream is) throws Exception {
 		String json = "";
 		JSONObject jObj = null;
 
@@ -38,7 +37,7 @@ public class JsonHelper {
 		return jObj;
 
 	}
-	
+
 	/**
 	 * 
 	 * @return

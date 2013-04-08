@@ -5,7 +5,9 @@
     android:padding="0dip"
     android:orientation="vertical"
     tools:context=".BrowseVideosActivity" >
-
+	
+    <include layout="@layout/header_loading"/>
+    
     <ListView android:id="@+id/lvVideo"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"

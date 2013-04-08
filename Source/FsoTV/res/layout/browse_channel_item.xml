@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_marginRight="5dip"
-        android:background="@drawable/image_bg"
+        
         android:padding="3dip" >
 
         <ImageView
@@ -45,6 +45,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/title"
+        android:layout_marginRight="15dp"
         android:layout_marginTop="1dip"
         android:layout_toRightOf="@id/thumbnail"
         android:text="Revo ..."
@@ -52,24 +53,28 @@
         android:textSize="10sp" />
 
     <!-- Statistic -->
-	<LinearLayout android:layout_below="@id/description"
-	    android:layout_toRightOf="@id/thumbnail"
+
+	<LinearLayout
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
-	    android:orientation="horizontal">
+	    android:layout_below="@id/description"
+	    android:layout_marginRight="10dip"
+	    android:layout_toRightOf="@id/thumbnail"
+	    android:orientation="horizontal" >
+
          <TextView
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:text="Videos:"
 	        android:textColor="#343434"
-	        android:textSize="8sp" />
+	        android:textSize="10sp" />
 	     <TextView
 	        android:id="@+id/videoCount"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:text="123"
 	        android:textColor="#343434"
-	        android:textSize="8sp"
+	        android:textSize="10sp"
 	        android:layout_marginLeft="2dip"
 	        android:layout_marginRight="2dip" />
          <TextView
@@ -77,14 +82,14 @@
 	        android:layout_height="wrap_content"
 	        android:text="Views:"
 	        android:textColor="#343434"
-	        android:textSize="8sp" />
+	        android:textSize="10sp" />
 	     <TextView
 	        android:id="@+id/viewCount"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:text="123"
 	        android:textColor="#343434"
-	        android:textSize="8sp"
+	        android:textSize="10sp"
 	        android:layout_marginLeft="2dip"
 	        android:layout_marginRight="2dip" />
 	     <TextView
@@ -92,22 +97,21 @@
 	        android:layout_height="wrap_content"
 	        android:text="Comments:"
 	        android:textColor="#343434"
-	        android:textSize="8sp" />
+	        android:textSize="10sp" />
 	     <TextView
 	        android:id="@+id/commentCount"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:text="123"
 	        android:textColor="#343434"
-	        android:textSize="8sp"
+	        android:textSize="10sp"
 	        android:layout_marginLeft="2dip"
 	        android:layout_marginRight="2dip" />
 	      
 	</LinearLayout>
        
     <!-- Rightend Duration -->
-
-    <ProgressBar
+	<ProgressBar
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyleSmall"
         android:layout_width="wrap_content"
@@ -115,8 +119,8 @@
         android:layout_alignParentRight="true"
         android:layout_alignTop="@id/title"
         android:layout_marginRight="5dip"
-        android:gravity="right" />
-
+        android:gravity="right" 
+        android:visibility="invisible"/>
     <!-- Rightend Arrow -->
 
     <ImageView

@@ -1,13 +1,14 @@
 package com.fsotv;
 
-import android.os.Bundle;
+import com.fsotv.utils.YouTubeHelper;
+
 import android.app.Activity;
 import android.content.Intent;
-import android.view.Menu;
+import android.os.Bundle;
 import android.view.View;
 
 public class BrowseActivity extends Activity {
-
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -19,8 +20,10 @@ public class BrowseActivity extends Activity {
 		startActivity(i);
 	}
 	
-	public void onMyChannels(View v){
-		Intent i = new Intent(getApplicationContext(), MyChannelsActivity.class);
+	public void onBrowseVideos(View v){
+		Intent i = new Intent(getApplicationContext(), BrowseVideosActivity.class);
+		i.putExtra("categoryId", YouTubeHelper.CATEGORY_FILM);
 		startActivity(i);
 	}
+	
 }
