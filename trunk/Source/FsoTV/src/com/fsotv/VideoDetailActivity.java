@@ -2,59 +2,50 @@ package com.fsotv;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
-import com.fsotv.dto.VideoEntry;
-import com.fsotv.utils.DownloadImage;
-import com.fsotv.utils.YouTubeHelper;
-
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.ContactsContract.CommonDataKinds.Email;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
-import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.Intent;
 
-public class VideoDetailActivity extends Activity {
+import com.fsotv.dto.VideoEntry;
+import com.fsotv.utils.DataHelper;
+import com.fsotv.utils.ImageLoader;
+import com.fsotv.utils.YouTubeHelper;
 
-	private ProgressDialog pDialog;
+public class VideoDetailActivity extends ActivityBase {
+
 	private VideoEntry video;
-	
+	private ImageLoader imageLoader;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_video_detail);
-		
-		pDialog = new ProgressDialog(VideoDetailActivity.this);
-		pDialog.setMessage("Loading data ...");
-		pDialog.setIndeterminate(false);
-		pDialog.setCancelable(false);
-		
+
+		imageLoader = new ImageLoader(getApplicationContext());
 		video = new VideoEntry();
 		String videoId = "";
-		
+
 		Intent intent = getIntent();
 		Bundle extras = intent.getExtras();
-		if(extras!=null){
+		if (extras != null) {
 			videoId = extras.getString("videoId");
-			
-			videoId = (videoId==null)?"":videoId;
+			videoId = (videoId == null) ? "" : videoId;
 		}
-		
+
+		setHeader("Video");
 		setTitle("Video Detail");
-		
+
 		new loadVideo().execute(videoId);
 	}
 
-	public void onWatchClick(View c){
+	public void onWatchClick(View c) {
 		Intent i = new Intent(getApplicationContext(), WatchVideoActivity.class);
 		i.putExtra("videoId", video.getId());
+		i.putExtra("videoTitle", video.getTitle());
 		i.putExtra("link", video.getLink());
 		startActivity(i);
 	}
@@ -70,27 +61,39 @@ public class VideoDetailActivity extends Activity {
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			pDialog.show();
+			showLoading();
 		}
 
 		@Override
 		protected String doInBackground(String... args) {
 			String videoId = args[0];
+			// Demo data
+//			try {
+//				InputStream is = getAssets().open("VideoDetail.txt");
+//				video = YouTubeHelper.getVideoByStream(is);
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 			video = YouTubeHelper.getVideoDetail(videoId);
 			// updating UI from Background Thread
 			runOnUiThread(new Runnable() {
 				public void run() {
-					ImageView img = (ImageView)findViewById(R.id.imgThumbnail);
-					TextView title = (TextView)findViewById(R.id.txtvTitle);
-					TextView viewCount = (TextView)findViewById(R.id.txtvViewCount);
-					TextView txtvDescriptionContent = (TextView)findViewById(R.id.txtvDescriptionContent);
-					TextView txtDuration = (TextView)findViewById(R.id.txtDuration);
-					
+					ImageView img = (ImageView) findViewById(R.id.imgThumbnail);
+					TextView title = (TextView) findViewById(R.id.txtvTitle);
+					TextView viewCount = (TextView) findViewById(R.id.txtvViewCount);
+					TextView txtvDescriptionContent = (TextView) findViewById(R.id.txtvDescriptionContent);
+					TextView txtDuration = (TextView) findViewById(R.id.txtDuration);
+
 					title.setText(video.getTitle());
-					viewCount.setText(video.getViewCount() + "");
+					viewCount.setText(DataHelper.numberWithCommas(video
+							.getViewCount()));
 					txtvDescriptionContent.setText(video.getDescription());
-					txtDuration.setText(video.getDuration() + "");
-					new DownloadImage(img, null).execute(video.getImage());
+					txtDuration.setText(DataHelper.milliSecondsToTimer(video
+							.getDuration()));
+
+					imageLoader.DisplayImage(video.getImage(), img,
+							getLoadingView());
 				}
 			});
 			return null;
@@ -100,8 +103,7 @@ public class VideoDetailActivity extends Activity {
 		 * After completing background task Dismiss the progress dialog
 		 * **/
 		protected void onPostExecute(String args) {
-			// dismiss the dialog after getting all products
-			pDialog.dismiss();
+			hideLoading();
 		}
 
 	}

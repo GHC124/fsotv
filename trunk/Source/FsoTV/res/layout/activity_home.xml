@@ -2,188 +2,51 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/fsotv_background"
+    android:orientation="vertical"
     android:paddingBottom="0dp"
     android:paddingLeft="0dp"
     android:paddingRight="0dp"
-    android:paddingTop="0dp"
-    android:background="@drawable/fsotv_background"
-    android:orientation="vertical" >
-    
+    android:paddingTop="0dp" >
+
     <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:gravity="center" >
-        
-        <Button
-            android:id="@+id/btn_one"
-            android:layout_width="30dp"
-            android:layout_height="10dp"
-            android:layout_marginTop="10dp"
-            android:background="#FFFFFF" />
-        
-        <Button
-            android:id="@+id/btn_two"
-            android:layout_width="30dp"
-            android:layout_height="10dp"
-            android:layout_toRightOf="@id/btn_one"
-            android:layout_marginTop="10dp"
-            android:layout_marginLeft="15dp"
-            android:background="#FFFFFF" />
-        
-        <Button
-            android:id="@+id/btn_three"
-            android:layout_width="30dp"
-            android:layout_height="10dp"
-            android:layout_toRightOf="@id/btn_two"
-            android:layout_marginTop="10dp"
-            android:layout_marginLeft="15dp"
-            android:background="#FFFFFF" />
-        
-        <Button
-            android:id="@+id/btn_four"
-            android:layout_width="30dp"
-            android:layout_height="10dp"
-            android:layout_toRightOf="@id/btn_three"
-            android:layout_marginTop="10dp"
-            android:layout_marginLeft="15dp"
-            android:background="#FFFFFF" />
-        
-        <Button
-            android:id="@+id/btn_five"
-            android:layout_width="30dp"
-            android:layout_height="10dp"
-            android:layout_toRightOf="@id/btn_four"
-            android:layout_marginTop="10dp"
-            android:layout_marginLeft="15dp"
-            android:background="#FFFFFF" />
-        
-    </RelativeLayout>
-    
-    <LinearLayout 
+        android:id="@+id/RelativeLayout1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:layout_marginTop="20dp"
         android:layout_marginBottom="20dp"
-        android:orientation="vertical" >
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        >
+
+        <ImageView
+            android:id="@+id/imgLeft"
+            android:layout_width="25dip"
+            android:layout_height="fill_parent"
+            android:layout_alignBaseline="@+id/viewFlip_channel"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:onClick="onLeftClick"
+            android:src="@drawable/left16" />
 
         <ViewFlipper
             android:id="@+id/viewFlip_channel"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" >
-            
-            <LinearLayout
-                android:id="@+id/layout_music"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:background="@drawable/channel_list_background"
-                android:gravity="center"
-                android:onClick="onCategoryClick"
-                android:orientation="vertical" >
-            
-               <TextView
-                   android:id="@+id/tv_music"
-                   android:layout_width="wrap_content"
-                   android:layout_height="wrap_content"
-                   android:layout_margin="35dip"
-                   android:text="Music"
-                   android:textColor="#000000"
-                   android:textSize="50sp" 
-                   />
-             
-             </LinearLayout>
-             
-            <LinearLayout 
-                android:id="@+id/layout_sport"
-    			android:layout_width="fill_parent"
-    			android:layout_height="fill_parent"
-    			android:background="@drawable/channel_list_background"
-   			 	android:orientation="vertical" 
-   			 	android:gravity="center"
-   			 	android:onClick="onCategoryClick">
-               
-               <TextView
-                    android:id="@+id/tv_sport"
-                    android:layout_width="wrap_content"
-                   android:layout_height="wrap_content"
-                   android:layout_margin="35dip"
-                   android:text="Sport"
-                   android:textColor="#000000"
-                   android:textSize="50sp" 
-                   />
-               
-            </LinearLayout>
-                        
-            <LinearLayout android:id="@+id/layout_news"
-    			android:layout_width="fill_parent"
-    			android:layout_height="fill_parent"
-    			android:background="@drawable/channel_list_background"
-   			 	android:orientation="vertical"
-   			 	android:gravity="center"
-   			 	android:onClick="onCategoryClick" >
-               
-               <TextView
-                    android:id="@+id/tv_news"
-                    android:layout_width="wrap_content"
-                   android:layout_height="wrap_content"
-                   android:layout_margin="35dip"
-                   android:text="News"
-                   android:textColor="#000000"
-                   android:textSize="50sp" 
-                   />
-               
-            </LinearLayout>
-            
-            <LinearLayout 
-                android:id="@+id/layout_travel"
-    			android:layout_width="fill_parent"
-    			android:layout_height="fill_parent"
-    			android:background="@drawable/channel_list_background"
-   			 	android:orientation="vertical" 
-   			 	android:gravity="center"
-   			 	android:onClick="onCategoryClick">
-               
-               <TextView
-                    android:id="@+id/tv_travel"
-                    android:layout_width="wrap_content"
-                   android:layout_height="wrap_content"
-                   android:layout_margin="35dip"
-                   android:text="Travel"
-                   android:textSize="50sp" 
-                   android:textColor="#000000" />
-               
-            </LinearLayout>
-            
-            <LinearLayout android:id="@+id/layout_film"
-    			android:layout_width="fill_parent"
-    			android:layout_height="fill_parent"
-    			android:background="@drawable/channel_list_background"
-   			 	android:orientation="vertical" 
-   			 	android:gravity="center"
-   			 	android:onClick="onCategoryClick">
-               
-               <TextView
-                    android:id="@+id/tv_film"
-                     android:layout_width="wrap_content"
-                   android:layout_height="wrap_content"
-                   android:layout_margin="35dip"
-                   android:text="Film"
-                   android:textSize="50sp" 
-                   android:textColor="#000000"/>
-               
-            </LinearLayout>
-                              
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/imgLeft"
+            android:layout_toLeftOf="@+id/imgRight" >
+
         </ViewFlipper>
-        
-    </LinearLayout>
-    
-    <RelativeLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:gravity="center" >
-        
+
+        <ImageView
+            android:id="@+id/imgRight"
+            android:layout_width="25dip"
+            android:layout_height="fill_parent"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:onClick="onRightClick"
+            android:src="@drawable/right16" />
+
     </RelativeLayout>
-    
+
 </LinearLayout>

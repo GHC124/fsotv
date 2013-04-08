@@ -5,6 +5,8 @@
     android:orientation="vertical"
     tools:context=".MyChannelsActivity" >
 	
+	<include layout="@layout/header_loading"/>
+	
     <ListView android:id="@+id/lvChannel"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"

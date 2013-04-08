@@ -5,41 +5,8 @@
     android:orientation="vertical"
     tools:context=".BrowseChannelsActivity" >
 
-    <RelativeLayout
-        android:id="@+id/RelativeLayout1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal" >
-
-        <ImageButton
-            android:id="@+id/btnLeft"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:src="@drawable/left16" 
-            android:onClick="onPagingClick"/>
-
-        <ImageButton
-            android:id="@+id/btnRight"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:src="@drawable/right16" 
-            android:onClick="onPagingClick"/>
-
-        <TextView
-            android:id="@+id/tvTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:text="TextView"
-            android:textSize="20sp" />
-
-    </RelativeLayout>
-
+    <include layout="@layout/header_loading"/>
+   
     <ListView
         android:id="@+id/lvChannel"
         android:layout_width="fill_parent"

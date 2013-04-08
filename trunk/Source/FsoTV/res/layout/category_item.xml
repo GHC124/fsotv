@@ -14,14 +14,12 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_marginRight="5dip"
-        android:background="@drawable/image_bg"
         android:padding="3dip" >
 
         <ImageView
             android:id="@+id/image"
-            android:layout_width="50dip"
-            android:layout_height="50dip"
-            />
+            android:layout_width="25dip"
+            android:layout_height="25dip" />
     </LinearLayout>
 
     <!-- Title -->
@@ -30,11 +28,11 @@
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/thumbnail"
-        android:layout_toRightOf="@+id/thumbnail"
+        android:layout_alignTop="@id/thumbnail"
+        android:layout_toRightOf="@id/thumbnail"
         android:text="REVO"
         android:textColor="#040404"
-        android:textSize="15dip"
+        android:textSize="15sp"
         android:textStyle="bold"
         android:typeface="sans" />
 
@@ -46,32 +44,36 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/title"
         android:layout_marginTop="1dip"
-        android:layout_toRightOf="@+id/thumbnail"
+        android:layout_toLeftOf="@+id/cbxSelect"
+        android:layout_toRightOf="@id/thumbnail"
         android:text="Revo ..."
         android:textColor="#343434"
-        android:textSize="10dip" />
+        android:textSize="10sp" />
 
-    <!-- Link -->
-    
+    <!-- Statistic -->
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/description"
+        android:layout_toRightOf="@id/thumbnail"
+        android:orientation="horizontal" >
+    </LinearLayout>
+
     <!-- Rightend Duration -->
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignTop="@id/title"
-        android:layout_marginRight="5dip"
-        android:gravity="right" />
 
     <!-- Rightend Arrow -->
 
-    <ImageView
+    <CheckBox
+        android:id="@+id/cbxSelect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_above="@+id/linearLayout1"
         android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:src="@drawable/arrow" />
+        android:layout_alignTop="@id/thumbnail"
+        android:layout_margin="0dp"
+        android:height="25dp"
+        android:padding="0dp" />
 
 </RelativeLayout>

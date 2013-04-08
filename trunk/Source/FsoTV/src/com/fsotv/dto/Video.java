@@ -1,19 +1,16 @@
 package com.fsotv.dto;
 
 public class Video {
-	/* properties */
-
 	private int idVideo;
-	private int idChannel;
+	private int idCategory;
 	private String nameVideo;
 	private String uri;
 	private String thumnail;
 	private String describes;
 	private String account;
 	private int typeVideo;
-
-	/* get - set properties */
-
+	private String idRealVideo;
+	
 	public int getIdVideo() {
 		return idVideo;
 	}
@@ -22,12 +19,12 @@ public class Video {
 		this.idVideo = idVideo;
 	}
 
-	public int getIdChannel() {
-		return idChannel;
+	public int getIdCategory() {
+		return idCategory;
 	}
 
-	public void setIdChannel(int idChannel) {
-		this.idChannel = idChannel;
+	public void setIdCategory(int idCategory) {
+		this.idCategory = idCategory;
 	}
 
 	public String getNameVideo() {
@@ -78,7 +75,14 @@ public class Video {
 		this.typeVideo = typeVideo;
 	}
 
-	/* constructor */
+	public String getIdRealVideo() {
+		return idRealVideo;
+	}
+
+	public void setIdRealVideo(String idRealVideo) {
+		this.idRealVideo = idRealVideo;
+	}
+
 	public Video() {
 		// TODO Auto-generated constructor stub
 	}
@@ -86,7 +90,7 @@ public class Video {
 	public Video(int idVideo, int idChannel, String nameVideo, String uri,
 			String thumnail, String describes, String account, int typeVideo) {
 		this.idVideo = idVideo;
-		this.idChannel = idChannel;
+		this.idCategory = idChannel;
 		this.nameVideo = nameVideo;
 		this.uri = uri;
 		this.thumnail = thumnail;

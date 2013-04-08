@@ -1,0 +1,54 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/RelativeLayout1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="0dip"
+    tools:context=".CategoryActivity" >
+
+    <include
+        android:id="@+id/include1"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        layout="@layout/header_loading" />
+
+    <ListView
+        android:id="@+id/lvCategory"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/include1"
+        android:layout_above="@+id/llAction"
+        />
+
+    <LinearLayout
+        android:id="@+id/llAction"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" 
+        android:layout_alignParentBottom="true"
+        android:gravity="center_horizontal"
+        >
+		<LinearLayout
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content" 
+        	>
+        	<Button
+	            android:id="@+id/button1"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="@string/btn_save"
+	            android:onClick="onSaveClick"  />
+
+	        <Button
+	            android:id="@+id/button2"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="@string/btn_cancel" 
+	            android:onClick="onBackClick" />
+			    
+        </LinearLayout>
+        
+    </LinearLayout>
+
+</RelativeLayout>

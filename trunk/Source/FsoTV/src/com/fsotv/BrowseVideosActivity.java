@@ -5,85 +5,268 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fsotv.BrowseVideosActivity.ListItemAdapter;
-import com.fsotv.BrowseVideosActivity.ListItemAdapter.ListItemHolder;
-import com.fsotv.BrowseVideosActivity.loadVideos;
-import com.fsotv.dto.VideoEntry;
-import com.fsotv.dto.VideoEntry;
-import com.fsotv.utils.DownloadImage;
-import com.fsotv.utils.YouTubeHelper;
-
-import android.os.AsyncTask;
-import android.os.Bundle;
 import android.app.Activity;
-import android.app.ProgressDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
 
-public class BrowseVideosActivity extends Activity {
-	
-	private ProgressDialog pDialog;
+import com.fsotv.dao.ChannelDao;
+import com.fsotv.dao.ReferenceDao;
+import com.fsotv.dao.VideoDao;
+import com.fsotv.dto.Channel;
+import com.fsotv.dto.ChannelEntry;
+import com.fsotv.dto.Reference;
+import com.fsotv.dto.Video;
+import com.fsotv.dto.VideoEntry;
+import com.fsotv.utils.DataHelper;
+import com.fsotv.utils.ImageLoader;
+import com.fsotv.utils.YouTubeHelper;
+
+public class BrowseVideosActivity extends ActivityBase {
+	private final int MENU_SUBSCRIBE = Menu.FIRST;
+	private final int OPTION_SEARCH = Menu.FIRST;
+	private final int OPTION_CATEGORY = Menu.FIRST + 1;
+
+	private Dialog searchDialog;
+	private Dialog categoryDialog;
 	private ListView lvVideo;
 	private List<VideoEntry> videos;
-	
+	private VideoEntry select;
+	private List<Reference> categories;
+	private ImageLoader imageLoader;
+	private boolean isSubscribe = false; // Subscribe Action
+	private boolean isCategory = false; // Change category Action
+
+	String channelId = "";
+	String categoryId = "";
+	private String orderBy = "";
+	private int maxResult = 5;
+	private int startIndex = 1;
+	String keyword = "";
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_browse_videos);
-		
-		lvVideo = (ListView)findViewById(R.id.lvVideo);
-		
-		pDialog = new ProgressDialog(BrowseVideosActivity.this);
-		pDialog.setMessage("Loading data ...");
-		pDialog.setIndeterminate(false);
-		pDialog.setCancelable(false);
-		
+
+		lvVideo = (ListView) findViewById(R.id.lvVideo);
+
+		imageLoader = new ImageLoader(getApplicationContext());
 		videos = new ArrayList<VideoEntry>();
-		String channelId = "";
-		String categoryId = "";
-		
+
+		String channelTitle = "";
+		String header = "";
 		Intent intent = getIntent();
 		Bundle extras = intent.getExtras();
-		if(extras!=null){
+		if (extras != null) {
 			channelId = extras.getString("channelId");
 			categoryId = extras.getString("categoryId");
-			
-			channelId = (channelId==null)?"":channelId;
-			categoryId = (categoryId==null)?"":categoryId;
+			channelTitle = extras.getString("channelTitle");
+
+			channelId = (channelId == null) ? "" : channelId;
+			categoryId = (categoryId == null) ? "" : categoryId;
+			channelTitle = (channelTitle == null) ? "" : channelTitle;
 		}
-		
-		if(!categoryId.isEmpty())
-			setTitle("Browse Video - " + categoryId);
-		else setTitle("Browse Video");
-		
+		if (!channelTitle.isEmpty()) {
+			header = channelTitle;
+			if (header.length() > 50)
+				header = header.substring(0, 50);
+		} else if (!categoryId.isEmpty()) {
+			header = categoryId;
+		}
+
+		setHeader(header);
+		setTitle("Browse Video");
+
 		// Launching new screen on Selecting Single ListItem
 		lvVideo.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
-				String videoId = videos.get(position).getId();
-				Intent i = new Intent(getApplicationContext(), VideoDetailActivity.class);
+				VideoEntry item = videos.get(position);
+				String videoId = item.getId();
+				Intent i = new Intent(getApplicationContext(),
+						VideoDetailActivity.class);
 				i.putExtra("videoId", videoId);
 				startActivity(i);
 			}
 		});
-		
-		new loadVideos().execute(channelId, categoryId);
+
+		new loadVideos().execute();
 	}
 
+	/**
+	 * Building a context menu for listview Long press on List row to see
+	 * context menu
+	 * */
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v,
+			ContextMenuInfo menuInfo) {
+		if (v.getId() == R.id.lvVideo) {
+			menu.setHeaderTitle("Option");
+			menu.add(Menu.NONE, MENU_SUBSCRIBE, 0, "Subscribe");
+		}
+	}
+
+	/**
+	 * Responding to context menu selected option
+	 * */
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item
+				.getMenuInfo();
+		int menuItemId = item.getItemId();
+		// check for selected option
+		if (menuItemId == MENU_SUBSCRIBE) {
+			final int position = info.position;
+			select = videos.get(position);
+			isSubscribe = true;
+			if (categoryDialog != null)
+				categoryDialog.show();
+			else {
+				createCategoryDialog(BrowseVideosActivity.this);
+				if (categoryDialog != null)
+					categoryDialog.show();
+			}
+		}
+
+		return true;
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		menu.add(0, OPTION_SEARCH, 0, "Search");
+		// Only show category dialog when browse by channel
+		if (!categoryId.isEmpty()) {
+			menu.add(0, OPTION_CATEGORY, 0, "Category");
+		}
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case OPTION_SEARCH:
+			if (searchDialog != null)
+				searchDialog.show();
+			else {
+				createSearchDialog(BrowseVideosActivity.this);
+				if (searchDialog != null)
+					searchDialog.show();
+			}
+
+			break;
+		case OPTION_CATEGORY:
+			isCategory = true;
+			if (categoryDialog != null)
+				categoryDialog.show();
+			else {
+				createCategoryDialog(BrowseVideosActivity.this);
+				if (categoryDialog != null)
+					categoryDialog.show();
+			}
+
+			break;
+		}
+
+		return super.onOptionsItemSelected(item);
+	}
+
+	private void createSearchDialog(Context context) {
+		searchDialog = new Dialog(context);
+		searchDialog.setContentView(R.layout.search_video);
+		searchDialog.setTitle("Search Video");
+		final TextView txtSearch = (TextView) searchDialog
+				.findViewById(R.id.txtSearch);
+		Button btnSearch = (Button) searchDialog.findViewById(R.id.btnSearch);
+		Button btnCancel = (Button) searchDialog.findViewById(R.id.btnCancel);
+		btnSearch.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				keyword = txtSearch.getText().toString();
+				searchDialog.dismiss();
+				// Get data again
+				new loadVideos().execute();
+			}
+		});
+		btnCancel.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				searchDialog.dismiss();
+			}
+		});
+	}
+
+	private void createCategoryDialog(Context context) {
+		categoryDialog = new Dialog(context);
+		categoryDialog.setContentView(R.layout.category_video);
+		categoryDialog.setTitle("Category");
+		ListView lvCategory = (ListView) categoryDialog
+				.findViewById(R.id.lvCategory);
+		Button btnCancel = (Button) categoryDialog.findViewById(R.id.btnCancel);
+		btnCancel.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				categoryDialog.dismiss();
+			}
+		});
+		lvCategory.setOnItemClickListener(new OnItemClickListener() {
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				Reference item = categories.get(position);
+				categoryDialog.dismiss();
+				if (isSubscribe) {
+					isSubscribe = false;
+					// Subscribe
+					subscribeVideo(item.getId());
+				} else if (isCategory) {
+					isCategory = false;
+					// Reload data
+					categoryId = item.getValue();
+					setHeader(categoryId);
+					new loadVideos().execute();
+				}
+			}
+		});
+		new loadCategories().execute(lvCategory);
+	}
+
+	private void subscribeVideo(int idCategory) {
+		VideoDao videoDao = new VideoDao(getApplicationContext());
+		Video video = new Video();
+		video.setIdCategory(idCategory);
+		video.setNameVideo(select.getTitle());
+		video.setDescribes(select.getDescription());
+		video.setThumnail(select.getImage());
+		video.setUri(select.getLink());
+		video.setAccount("");
+		video.setTypeVideo(1);
+		video.setIdRealVideo(select.getIdReal());
+		videoDao.insertVideo(video);
+		if (video.getIdVideo() > 0) {
+			Toast.makeText(this, "Subscribed", Toast.LENGTH_SHORT).show();
+		}
+	}
 
 	/**
 	 * Background Async Task to get Videos data from URL
@@ -96,30 +279,41 @@ public class BrowseVideosActivity extends Activity {
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			pDialog.show();
+			showLoading();
 		}
 
 		@Override
 		protected String doInBackground(String... args) {
-			String channelId = args[0];
-			String categoryId = args[1];
-			
-			if(!channelId.isEmpty()){
-				videos = YouTubeHelper.getVideosInChannel(channelId);
-			}
-			else if(!categoryId.isEmpty()){
-				videos = YouTubeHelper.getVideosInCategory(categoryId);
-			}
+			// Clear cache
+			imageLoader.clearCache();
+			// Demo data
+//			try {
+//				InputStream is = getResources().getAssets().open(
+//						"VideosInChannel.txt");
+//				videos = YouTubeHelper.getVideosByStream(is);
+//
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+			//
+			 if (!channelId.isEmpty()) {
+				 videos = YouTubeHelper.getVideosInChannel(channelId, orderBy, maxResult, startIndex, keyword);
+			 } else if (!categoryId.isEmpty()) {
+				 videos = YouTubeHelper.getVideosInCategory(categoryId, orderBy, maxResult, startIndex, keyword);
+			 }
 			// updating UI from Background Thread
 			runOnUiThread(new Runnable() {
 				public void run() {
-					ListItemAdapter adapter = new ListItemAdapter(
-							BrowseVideosActivity.this, R.layout.browse_video_item,
-							videos);
+					ListVideoAdapter adapter = new ListVideoAdapter(
+							BrowseVideosActivity.this,
+							R.layout.browse_video_item, videos);
 					// updating listview
+					registerForContextMenu(lvVideo);
 					lvVideo.setAdapter(adapter);
-					if(videos.size()==0){
-						Toast.makeText(getApplicationContext(), "No results", Toast.LENGTH_LONG).show();
+					if (videos.size() == 0) {
+						Toast.makeText(getApplicationContext(), "No results",
+								Toast.LENGTH_LONG).show();
 					}
 				}
 			});
@@ -130,18 +324,17 @@ public class BrowseVideosActivity extends Activity {
 		 * After completing background task Dismiss the progress dialog
 		 * **/
 		protected void onPostExecute(String args) {
-			// dismiss the dialog after getting all products
-			pDialog.dismiss();
+			hideLoading();
 		}
 
 	}
-	
-	class ListItemAdapter extends ArrayAdapter<VideoEntry> {
+
+	class ListVideoAdapter extends ArrayAdapter<VideoEntry> {
 		Context context;
 		int layoutResourceId;
 		List<VideoEntry> data = null;
 
-		public ListItemAdapter(Context context, int layoutResourceId,
+		public ListVideoAdapter(Context context, int layoutResourceId,
 				List<VideoEntry> data) {
 			super(context, layoutResourceId, data);
 			this.layoutResourceId = layoutResourceId;
@@ -161,12 +354,15 @@ public class BrowseVideosActivity extends Activity {
 
 				holder = new ListItemHolder();
 				holder.image = (ImageView) row.findViewById(R.id.image);
-				holder.progressBar = (ProgressBar) row.findViewById(R.id.progressBar);
+				holder.progressBar = (ProgressBar) row
+						.findViewById(R.id.progressBar);
 				holder.title = (TextView) row.findViewById(R.id.title);
-				holder.description = (TextView) row.findViewById(R.id.description);
+				holder.description = (TextView) row
+						.findViewById(R.id.description);
 				holder.viewCount = (TextView) row.findViewById(R.id.viewCount);
-				holder.favoriteCount = (TextView) row.findViewById(R.id.favoriteCount);
-				
+				holder.favoriteCount = (TextView) row
+						.findViewById(R.id.favoriteCount);
+
 				row.setTag(holder);
 			} else {
 				holder = (ListItemHolder) row.getTag();
@@ -176,23 +372,23 @@ public class BrowseVideosActivity extends Activity {
 			// format string
 			String title = item.getTitle();
 			String description = item.getDescription();
-			if(title.length()>50){
+			if (title.length() > 50) {
 				title = title.substring(0, 50) + "...";
 			}
-			if(description.length()>150){
+			if (description.length() > 150) {
 				description = description.substring(0, 150) + "...";
 			}
-			if(item.getImage() == null || item.getImage().isEmpty()){
-				Bitmap b = BitmapFactory.decodeResource(getResources(), R.drawable.question50);
-				holder.image.setImageBitmap(b);
-			}else{
-				new DownloadImage(holder.image, holder.progressBar).execute(item.getImage());
-			}
+
+			imageLoader.DisplayImage(item.getImage(), holder.image,
+					holder.progressBar);
+
 			holder.title.setText(title);
 			holder.description.setText(description);
-			holder.viewCount.setText(item.getViewCount() + "");
-			holder.favoriteCount.setText(item.getFavoriteCount() + "");
-			
+			holder.viewCount.setText(DataHelper.numberWithCommas(item
+					.getViewCount()));
+			holder.favoriteCount.setText(DataHelper.numberWithCommas(item
+					.getFavoriteCount()));
+
 			return row;
 		}
 
@@ -205,5 +401,104 @@ public class BrowseVideosActivity extends Activity {
 			TextView favoriteCount;
 		}
 	}
-}
 
+	/**
+	 * Background Async Task to get References from database
+	 * */
+	class loadCategories extends AsyncTask<ListView, String, String> {
+
+		/**
+		 * Before starting background thread Show Progress Dialog
+		 * */
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			showLoading();
+		}
+
+		@Override
+		protected String doInBackground(ListView... args) {
+			final ListView lvCategory = args[0];
+			ReferenceDao referenceDao = new ReferenceDao(
+					getApplicationContext());
+			categories = referenceDao.getListReference(
+					ReferenceDao.KEY_YOUTUBE_CATEGORY, null);
+			runOnUiThread(new Runnable() {
+				public void run() {
+					ListCategoryAdapter adapter = new ListCategoryAdapter(
+							BrowseVideosActivity.this,
+							R.layout.category_video_item, categories);
+					// updating listview
+					lvCategory.setAdapter(adapter);
+				}
+			});
+			return null;
+		}
+
+		/**
+		 * After completing background task Dismiss the progress dialog
+		 * **/
+		protected void onPostExecute(String args) {
+			hideLoading();
+		}
+
+	}
+
+	class ListCategoryAdapter extends ArrayAdapter<Reference> {
+		Context context;
+		int layoutResourceId;
+		List<Reference> data = null;
+
+		public ListCategoryAdapter(Context context, int layoutResourceId,
+				List<Reference> data) {
+			super(context, layoutResourceId, data);
+			this.layoutResourceId = layoutResourceId;
+			this.context = context;
+			this.data = data;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			View row = convertView;
+			ListItemHolder holder = null;
+			final Reference item = data.get(position);
+
+			if (row == null) {
+				LayoutInflater inflater = ((Activity) context)
+						.getLayoutInflater();
+				row = inflater.inflate(layoutResourceId, parent, false);
+
+				holder = new ListItemHolder();
+				holder.image = (ImageView) row.findViewById(R.id.image);
+				holder.title = (TextView) row.findViewById(R.id.title);
+				holder.description = (TextView) row
+						.findViewById(R.id.description);
+
+				row.setTag(holder);
+			} else {
+				holder = (ListItemHolder) row.getTag();
+			}
+
+			// format string
+			String title = item.getDisplay();
+			String description = item.getDisplay();
+			if (title.length() > 50) {
+				title = title.substring(0, 50) + "...";
+			}
+			if (description.length() > 150) {
+				description = description.substring(0, 150) + "...";
+			}
+			holder.image.setImageResource(R.drawable.icon_cate25);
+			holder.title.setText(title);
+			holder.description.setText(description);
+
+			return row;
+		}
+
+		class ListItemHolder {
+			ImageView image;
+			TextView title;
+			TextView description;
+		}
+	}
+}
