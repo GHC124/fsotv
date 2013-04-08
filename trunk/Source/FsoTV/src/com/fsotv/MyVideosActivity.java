@@ -18,7 +18,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnChildClickListener;
@@ -189,20 +188,7 @@ public class MyVideosActivity extends ActivityBase {
 					i--;
 				}
 			}
-			runOnUiThread(new Runnable() {
-				public void run() {
-					ExpandListAdapter adapter = new ExpandListAdapter(
-							MyVideosActivity.this, R.layout.my_video_group,
-							R.layout.my_video_item, groups);
-					// updating listview
-					registerForContextMenu(expVideo);
-					expVideo.setAdapter(adapter);
-					if (groups.size() == 0) {
-						Toast.makeText(getApplicationContext(), "No results",
-								Toast.LENGTH_LONG).show();
-					}
-				}
-			});
+			
 			return null;
 		}
 
@@ -211,6 +197,16 @@ public class MyVideosActivity extends ActivityBase {
 		 * **/
 		protected void onPostExecute(String args) {
 			hideLoading();
+			ExpandListAdapter adapter = new ExpandListAdapter(
+					MyVideosActivity.this, R.layout.my_video_group,
+					R.layout.my_video_item, groups);
+			// updating listview
+			registerForContextMenu(expVideo);
+			expVideo.setAdapter(adapter);
+			if (groups.size() == 0) {
+				Toast.makeText(getApplicationContext(), "No results",
+						Toast.LENGTH_LONG).show();
+			}
 		}
 
 	}

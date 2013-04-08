@@ -1,8 +1,5 @@
 package com.fsotv;
 
-import com.fsotv.BrowseChannelsActivity.loadChannels;
-import com.fsotv.utils.DataHelper;
-
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -16,15 +13,13 @@ import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.MediaController;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.VideoView;
 import android.widget.SeekBar;
+import android.widget.TextView;
+import android.widget.VideoView;
+
+import com.fsotv.utils.DataHelper;
 
 public class WatchVideoActivity extends ActivityBase implements
 		OnCompletionListener, SeekBar.OnSeekBarChangeListener {

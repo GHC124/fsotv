@@ -1,7 +1,5 @@
 package com.fsotv;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,34 +10,30 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.fsotv.dao.ChannelDao;
 import com.fsotv.dao.ReferenceDao;
 import com.fsotv.dao.VideoDao;
-import com.fsotv.dto.Channel;
-import com.fsotv.dto.ChannelEntry;
 import com.fsotv.dto.Reference;
 import com.fsotv.dto.Video;
 import com.fsotv.dto.VideoEntry;
 import com.fsotv.utils.DataHelper;
+import com.fsotv.utils.EndlessScrollListener;
 import com.fsotv.utils.ImageLoader;
 import com.fsotv.utils.YouTubeHelper;
 
@@ -57,7 +51,9 @@ public class BrowseVideosActivity extends ActivityBase {
 	private ImageLoader imageLoader;
 	private boolean isSubscribe = false; // Subscribe Action
 	private boolean isCategory = false; // Change category Action
-
+	private ListVideoAdapter adapter;
+	private boolean isLoading = false;
+	
 	String channelId = "";
 	String categoryId = "";
 	private String orderBy = "";
@@ -111,7 +107,23 @@ public class BrowseVideosActivity extends ActivityBase {
 				startActivity(i);
 			}
 		});
-
+		lvVideo.setOnScrollListener(new EndlessScrollListener(lvVideo){
+			@Override 
+			public void loadData(){
+				if(!isLoading){
+					isLoading = true;
+					startIndex = startIndex + maxResult;
+					new loadVideos().execute();
+				}
+			}
+		});
+		adapter = new ListVideoAdapter(
+				BrowseVideosActivity.this, R.layout.browse_video_item,
+				videos);
+		// updating listview
+		registerForContextMenu(lvVideo);
+		lvVideo.setAdapter(adapter);
+		
 		new loadVideos().execute();
 	}
 
@@ -284,8 +296,6 @@ public class BrowseVideosActivity extends ActivityBase {
 
 		@Override
 		protected String doInBackground(String... args) {
-			// Clear cache
-			imageLoader.clearCache();
 			// Demo data
 //			try {
 //				InputStream is = getResources().getAssets().open(
@@ -297,26 +307,23 @@ public class BrowseVideosActivity extends ActivityBase {
 //				e.printStackTrace();
 //			}
 			//
-			 if (!channelId.isEmpty()) {
-				 videos = YouTubeHelper.getVideosInChannel(channelId, orderBy, maxResult, startIndex, keyword);
-			 } else if (!categoryId.isEmpty()) {
-				 videos = YouTubeHelper.getVideosInCategory(categoryId, orderBy, maxResult, startIndex, keyword);
-			 }
-			// updating UI from Background Thread
-			runOnUiThread(new Runnable() {
-				public void run() {
-					ListVideoAdapter adapter = new ListVideoAdapter(
-							BrowseVideosActivity.this,
-							R.layout.browse_video_item, videos);
-					// updating listview
-					registerForContextMenu(lvVideo);
-					lvVideo.setAdapter(adapter);
-					if (videos.size() == 0) {
-						Toast.makeText(getApplicationContext(), "No results",
-								Toast.LENGTH_LONG).show();
-					}
+			 
+			 if(isLoading){
+					List<VideoEntry> items = null;
+					if (!channelId.isEmpty()) {
+						 items = YouTubeHelper.getVideosInChannel(channelId, orderBy, maxResult, startIndex, keyword);
+					 } else if (!categoryId.isEmpty()) {
+						 items = YouTubeHelper.getVideosInCategory(categoryId, orderBy, maxResult, startIndex, keyword);
+					 }
+					videos.addAll(items);
 				}
-			});
+				else{
+					if (!channelId.isEmpty()) {
+						 videos = YouTubeHelper.getVideosInChannel(channelId, orderBy, maxResult, startIndex, keyword);
+					 } else if (!categoryId.isEmpty()) {
+						 videos = YouTubeHelper.getVideosInCategory(categoryId, orderBy, maxResult, startIndex, keyword);
+					 }
+				}
 			return null;
 		}
 
@@ -325,6 +332,16 @@ public class BrowseVideosActivity extends ActivityBase {
 		 * **/
 		protected void onPostExecute(String args) {
 			hideLoading();
+			if(isLoading)
+				isLoading = false;
+			adapter.clear();
+			for (VideoEntry c : videos){
+	            adapter.add(c);
+	        }
+			adapter.notifyDataSetChanged();
+			if(videos.size()==0){
+				Toast.makeText(getApplicationContext(), "No results", Toast.LENGTH_LONG).show();
+			}
 		}
 
 	}

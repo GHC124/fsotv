@@ -155,19 +155,7 @@ public class MyChannelsActivity extends ActivityBase {
 				item.setDescription(channel.getDescribes());
 				channels.add(item);
 			}
-			runOnUiThread(new Runnable() {
-				public void run() {
-					ListItemAdapter adapter = new ListItemAdapter(
-							MyChannelsActivity.this, R.layout.my_channel_item,
-							channels);
-					// updating listview
-					registerForContextMenu(lvChannel);
-					lvChannel.setAdapter(adapter);
-					if(channels.size()==0){
-						Toast.makeText(getApplicationContext(), "No results", Toast.LENGTH_LONG).show();
-					}
-				}
-			});
+			
 			return null;
 		}
 
@@ -176,6 +164,15 @@ public class MyChannelsActivity extends ActivityBase {
 		 * **/
 		protected void onPostExecute(String args) {
 			hideLoading();
+			ListItemAdapter adapter = new ListItemAdapter(
+					MyChannelsActivity.this, R.layout.my_channel_item,
+					channels);
+			// updating listview
+			registerForContextMenu(lvChannel);
+			lvChannel.setAdapter(adapter);
+			if(channels.size()==0){
+				Toast.makeText(getApplicationContext(), "No results", Toast.LENGTH_LONG).show();
+			}
 		}
 
 	}
