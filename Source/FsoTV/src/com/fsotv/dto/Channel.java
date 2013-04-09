@@ -8,8 +8,44 @@ public class Channel {
 	private String thumnail;
 	private String describes;
 	private String idRealChannel;
+	int commentCount;
+	int videoCount;
+	int viewCount;
+	int subscriberCount;
+	
+	
+	public int getCommentCount() {
+		return commentCount;
+	}
 
-	/* get - set properties */
+	public void setCommentCount(int commentCount) {
+		this.commentCount = commentCount;
+	}
+
+	public int getVideoCount() {
+		return videoCount;
+	}
+
+	public void setVideoCount(int videoCount) {
+		this.videoCount = videoCount;
+	}
+
+	public int getViewCount() {
+		return viewCount;
+	}
+
+	public void setViewCount(int viewCount) {
+		this.viewCount = viewCount;
+	}
+
+	public int getSubscriberCount() {
+		return subscriberCount;
+	}
+
+	public void setSubscriberCount(int subscriberCount) {
+		this.subscriberCount = subscriberCount;
+	}
+
 	public String getDescribes() {
 		return describes;
 	}
@@ -64,13 +100,20 @@ public class Channel {
 	}
 
 	public Channel(int idChannel, String nameChannel, String uri,
-			String thumnail, String describes, String idRealChannel) {
+			String thumnail, String describes, String idRealChannel,
+			int commentCount, int videoCount, int viewCount, int subscriberCount) {
+		super();
 		this.idChannel = idChannel;
 		this.nameChannel = nameChannel;
 		this.uri = uri;
 		this.thumnail = thumnail;
 		this.describes = describes;
 		this.idRealChannel = idRealChannel;
+		this.commentCount = commentCount;
+		this.videoCount = videoCount;
+		this.viewCount = viewCount;
+		this.subscriberCount = subscriberCount;
 	}
 
+	
 }

@@ -50,7 +50,7 @@
         android:textColor="#343434"
         android:textSize="10sp" />
 
-    <!-- Statistic -->
+   
 	<LinearLayout android:layout_below="@id/description"
 	    android:layout_toRightOf="@id/thumbnail"
 	    android:layout_width="fill_parent"
@@ -59,6 +59,63 @@
 	      
 	</LinearLayout>
        
+	<!-- Statistic -->
+
+	<LinearLayout
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_below="@id/description"
+	    android:layout_marginRight="10dip"
+	    android:layout_toRightOf="@id/thumbnail"
+	    android:orientation="horizontal" >
+
+         <TextView
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="Videos:"
+	        android:textColor="#343434"
+	        android:textSize="10sp" />
+	     <TextView
+	        android:id="@+id/videoCount"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="123"
+	        android:textColor="#343434"
+	        android:textSize="10sp"
+	        android:layout_marginLeft="2dip"
+	        android:layout_marginRight="2dip" />
+         <TextView
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="Views:"
+	        android:textColor="#343434"
+	        android:textSize="10sp" />
+	     <TextView
+	        android:id="@+id/viewCount"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="123"
+	        android:textColor="#343434"
+	        android:textSize="10sp"
+	        android:layout_marginLeft="2dip"
+	        android:layout_marginRight="2dip" />
+	     <TextView
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="Comments:"
+	        android:textColor="#343434"
+	        android:textSize="10sp" />
+	     <TextView
+	        android:id="@+id/commentCount"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="123"
+	        android:textColor="#343434"
+	        android:textSize="10sp"
+	        android:layout_marginLeft="2dip"
+	        android:layout_marginRight="2dip" />
+	      
+	</LinearLayout>
     <!-- Rightend Duration -->
 
     <ProgressBar

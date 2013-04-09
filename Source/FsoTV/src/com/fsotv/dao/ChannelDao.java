@@ -17,7 +17,10 @@ public class ChannelDao{
 	public static final String URI = "Uri";
 	public static final String THUMNAIL = "Thumnail";
 	public static final String DESCRIBES = "Describes";
-
+	public static final String COMMENT_COUNT = "commentCount";
+	public static final String VIDEO_COUNT = "videoCount";
+	public static final String VIEW_COUNT = "viewVount";
+	
 	private SQLiteHelper sqLiteHelper;
 	
 	public ChannelDao(Context context) {
@@ -39,6 +42,9 @@ public class ChannelDao{
 					channel.setThumnail(cursor.getString(3));
 					channel.setDescribes(cursor.getString(4));
 					channel.setIdRealChannel(cursor.getString(5));
+					channel.setCommentCount(cursor.getInt(6));
+					channel.setVideoCount(cursor.getInt(7));
+					channel.setViewCount(cursor.getInt(8));
 					// Adding obj to list
 					listDto.add(channel);
 				} while (cursor.moveToNext());
@@ -61,6 +67,9 @@ public class ChannelDao{
 		values.put(THUMNAIL, channel.getThumnail());
 		values.put(DESCRIBES, channel.getDescribes());
 		values.put(ID_REAL_CHANNEL, channel.getIdRealChannel());
+		values.put(COMMENT_COUNT, channel.getCommentCount());
+		values.put(VIDEO_COUNT, channel.getVideoCount());
+		values.put(VIEW_COUNT, channel.getViewCount());
 		// Check if row already existed in database
 		int idExist = isChannelExists(db, channel.getIdRealChannel());
 		if (idExist == 0) {
@@ -85,6 +94,9 @@ public class ChannelDao{
 		values.put(THUMNAIL, channel.getThumnail());
 		values.put(DESCRIBES, channel.getDescribes());
 		values.put(ID_REAL_CHANNEL, channel.getIdRealChannel());
+		values.put(COMMENT_COUNT, channel.getCommentCount());
+		values.put(VIDEO_COUNT, channel.getVideoCount());
+		values.put(VIEW_COUNT, channel.getViewCount());
 		// updating row return
 		int update = db.update(TABLE_NAME, values, ID_CHANNEL + " = ?",
 				new String[] { String.valueOf(channel.getIdChannel()) });
@@ -100,7 +112,8 @@ public class ChannelDao{
 		Channel channel = new Channel();
 		SQLiteDatabase db = sqLiteHelper.getReadableDatabase();
 		Cursor cursor = db.query(TABLE_NAME, new String[] { ID_CHANNEL,
-				NAME_CHANNEL, URI, DESCRIBES, THUMNAIL, ID_REAL_CHANNEL }, ID_CHANNEL + "=?",
+				NAME_CHANNEL, URI, DESCRIBES, THUMNAIL, ID_REAL_CHANNEL, COMMENT_COUNT,
+				VIDEO_COUNT, VIEW_COUNT}, ID_CHANNEL + "=?",
 				new String[] { String.valueOf(id) }, null, null, null, null);
 		if (cursor != null && cursor.moveToFirst()) {
 			channel.setIdChannel(cursor.getInt(0));
@@ -109,6 +122,9 @@ public class ChannelDao{
 			channel.setDescribes(cursor.getString(3));
 			channel.setThumnail(cursor.getString(4));
 			channel.setIdRealChannel(cursor.getString(5));
+			channel.setCommentCount(cursor.getInt(6));
+			channel.setVideoCount(cursor.getInt(7));
+			channel.setViewCount(cursor.getInt(8));
 		}
 		cursor.close();
 		db.close();
