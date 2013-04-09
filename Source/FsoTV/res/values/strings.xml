@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">FSoTV</string>
+    <string name="facebook_app_id">527186760667593</string>
     <string name="developer_key">AIzaSyAJ4UvhoRFuwgDirAFYJTWEB-yeEZZN3kA</string>
     <string name="action_settings">Settings</string>
     <string name="logo_description">DirecTV logo</string>

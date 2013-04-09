@@ -280,8 +280,10 @@ public class YouTubeHelper {
 					if (contentObject.getInt("yt$format") == 6) {
 						link = contentObject.getString("url");
 						duration = contentObject.getLong("duration");
+						contentObject = null;
 						break;
 					}
+					contentObject = null;
 				}
 
 				VideoEntry video = new VideoEntry();
@@ -413,6 +415,7 @@ public class YouTubeHelper {
 			JSONObject statisticsObject = entryObject
 					.getJSONObject("yt$statistics");
 			JSONObject titleObject = entryObject.getJSONObject("title");
+			JSONArray links = entryObject.getJSONArray("link");
 			JSONObject groupObject = entryObject.getJSONObject("media$group");
 			JSONObject descriptionObject = groupObject
 					.getJSONObject("media$description");
@@ -423,6 +426,17 @@ public class YouTubeHelper {
 			String id = idObject.getString("$t");
 			String title = titleObject.getString("$t");
 			String description = descriptionObject.getString("$t");
+			String linkReal = "";
+			for (int i = 0; i < links.length(); i++) {
+				JSONObject linkObject = links.getJSONObject(i);
+				if (linkObject.getString("rel").equals("alternate")
+						&&linkObject.getString("type").equals("text/html")) {
+					linkReal = linkObject.getString("href");
+					linkObject = null;
+					break;
+				}
+				linkObject = null;
+			}
 			String link = "";
 			int duration = 0;
 			for (int i = 0; i < contents.length(); i++) {
@@ -430,8 +444,10 @@ public class YouTubeHelper {
 				if (contentObject.getInt("yt$format") == 6) {
 					link = contentObject.getString("url");
 					duration = contentObject.getInt("duration");
+					contentObject = null;
 					break;
 				}
+				contentObject = null;
 			}
 			String image = "";
 			if (thumbnails.length() > 0) {
@@ -444,11 +460,13 @@ public class YouTubeHelper {
 			video.setTitle(title);
 			video.setDescription(description);
 			video.setLink(link);
+			video.setLinkReal(linkReal);
 			video.setImage(image);
 			video.setDuration(duration);
 			video.setViewCount(viewCount);
 			video.setFavoriteCount(favoriteCount);
 
+			links = null;
 			contents = null;
 			thumbnails = null;
 			statisticsObject = null;
