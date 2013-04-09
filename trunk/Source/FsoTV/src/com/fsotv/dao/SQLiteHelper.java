@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class SQLiteHelper extends SQLiteOpenHelper {
 	
 	private static final String DATABASE_NAME = "FsoTV";
-	private static final int DATABASE_VERSION = 6;
+	private static final int DATABASE_VERSION = 7;
 	
 	public SQLiteHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -21,7 +21,9 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 		String createChannel = "CREATE TABLE " + ChannelDao.TABLE_NAME + "("
 				+ ChannelDao.ID_CHANNEL + " INTEGER PRIMARY KEY AUTOINCREMENT,"
 				+ ChannelDao.NAME_CHANNEL + " TEXT," + ChannelDao.URI + " TEXT," + ChannelDao.THUMNAIL
-				+ " TEXT," + ChannelDao.DESCRIBES + " TEXT," + ChannelDao.ID_REAL_CHANNEL + " TEXT)";
+				+ " TEXT," + ChannelDao.DESCRIBES + " TEXT," + ChannelDao.ID_REAL_CHANNEL + " TEXT,"
+				+ ChannelDao.COMMENT_COUNT + " INTEGER,"+ ChannelDao.VIDEO_COUNT + " INTEGER,"
+				+ ChannelDao.VIEW_COUNT + " INTEGER)";
 		String createVideo = "CREATE TABLE " + VideoDao.TABLE_NAME + "("
 				+ VideoDao.ID_VIDEO + " INTEGER PRIMARY KEY AUTOINCREMENT,"
 				+ VideoDao.ID_CATEGORY + " INTEGER,"

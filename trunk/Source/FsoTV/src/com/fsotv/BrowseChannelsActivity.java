@@ -158,6 +158,9 @@ public class BrowseChannelsActivity extends ActivityBase {
 			channel.setThumnail(entry.getImage());
 			channel.setUri(entry.getLink());
 			channel.setIdRealChannel(entry.getIdReal());
+			channel.setCommentCount(entry.getCommentCount());
+			channel.setVideoCount(entry.getVideoCount());
+			channel.setViewCount(entry.getViewCount());
 			channelDao.insertChannel(channel);
 			if (channel.getIdChannel() > 0) {
 				Toast.makeText(this, "Subscribed", Toast.LENGTH_SHORT).show();

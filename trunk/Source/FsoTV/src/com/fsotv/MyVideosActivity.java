@@ -187,6 +187,9 @@ public class MyVideosActivity extends ActivityBase {
 				item.setImage(video.getThumnail());
 				item.setLink(video.getUri());
 				item.setDescription(video.getDescribes());
+				item.setDuration(video.getDuration());
+				item.setViewCount(video.getViewCount());
+				item.setFavoriteCount(video.getFavoriteCount());
 				for (ListGroup g : groups) {
 					if (g.id == video.getIdCategory()) {
 						g.childs.add(item);

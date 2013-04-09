@@ -124,7 +124,8 @@ public class VideoDao{
 		Video video = new Video();
 		SQLiteDatabase db = sqLiteHelper.getReadableDatabase();
 		Cursor cursor = db.query(TABLE_NAME, new String[] { ID_CATEGORY,
-				NAME_VIDEO, URI, DESCRIBES, THUMNAIL, ACCOUNT, TYPE_VIDEO, ID_REAL_VIDEO }, ID_VIDEO + "=?",
+				NAME_VIDEO, URI, DESCRIBES, THUMNAIL, ACCOUNT, TYPE_VIDEO, 
+				ID_REAL_VIDEO, DURATION, VIEW_COUNT, FAVORITE_COUNT }, ID_VIDEO + "=?",
 				new String[] { String.valueOf(id) }, null, null, null, null);
 		if (cursor != null && cursor.moveToFirst()) {
 			video.setIdVideo(cursor.getInt(0));

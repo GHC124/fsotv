@@ -29,6 +29,7 @@ import android.widget.Toast;
 import com.fsotv.dao.ChannelDao;
 import com.fsotv.dto.Channel;
 import com.fsotv.dto.ChannelEntry;
+import com.fsotv.utils.DataHelper;
 import com.fsotv.utils.ImageLoader;
 
 public class MyChannelsActivity extends ActivityBase {
@@ -154,6 +155,9 @@ public class MyChannelsActivity extends ActivityBase {
 				item.setImage(channel.getThumnail());
 				item.setLink(channel.getUri());
 				item.setDescription(channel.getDescribes());
+				item.setCommentCount(channel.getCommentCount());
+				item.setVideoCount(channel.getVideoCount());
+				item.setViewCount(channel.getViewCount());
 				channels.add(item);
 			}
 			
@@ -205,6 +209,11 @@ public class MyChannelsActivity extends ActivityBase {
 				holder.progressBar = (ProgressBar) row.findViewById(R.id.progressBar);
 				holder.title = (TextView) row.findViewById(R.id.title);
 				holder.description = (TextView) row.findViewById(R.id.description);
+				holder.videoCount = (TextView) row
+						.findViewById(R.id.videoCount);
+				holder.viewCount = (TextView) row.findViewById(R.id.viewCount);
+				holder.commentCount = (TextView) row
+						.findViewById(R.id.commentCount);
 				
 				row.setTag(holder);
 			} else {
@@ -229,7 +238,13 @@ public class MyChannelsActivity extends ActivityBase {
 
 			holder.title.setText(title);
 			holder.description.setText(description);
-						
+			holder.videoCount.setText(DataHelper.numberWithCommas(item
+					.getVideoCount()));
+			holder.viewCount.setText(DataHelper.numberWithCommas(item
+					.getViewCount()));
+			holder.commentCount.setText(DataHelper.numberWithCommas(item
+					.getCommentCount()));
+			
 			return row;
 		}
 
@@ -238,6 +253,9 @@ public class MyChannelsActivity extends ActivityBase {
 			ProgressBar progressBar;
 			TextView title;
 			TextView description;
+			TextView viewCount;
+			TextView videoCount;
+			TextView commentCount;
 			
 		}
 	}

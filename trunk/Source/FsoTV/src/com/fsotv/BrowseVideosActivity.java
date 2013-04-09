@@ -331,6 +331,9 @@ public class BrowseVideosActivity extends ActivityBase {
 		video.setAccount("");
 		video.setTypeVideo(1);
 		video.setIdRealVideo(select.getIdReal());
+		video.setDuration(select.getDuration());
+		video.setViewCount(select.getViewCount());
+		video.setFavoriteCount(select.getFavoriteCount());
 		videoDao.insertVideo(video);
 		if (video.getIdVideo() > 0) {
 			Toast.makeText(this, "Subscribed", Toast.LENGTH_SHORT).show();
