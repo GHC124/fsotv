@@ -1,5 +1,7 @@
 package com.fsotv;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +55,7 @@ public class BrowseVideosActivity extends ActivityBase {
 	private boolean isCategory = false; // Change category Action
 	private ListVideoAdapter adapter;
 	private boolean isLoading = false;
-	
+
 	String channelId = "";
 	String categoryId = "";
 	private String orderBy = "";
@@ -113,7 +115,7 @@ public class BrowseVideosActivity extends ActivityBase {
 				if(!isLoading){
 					isLoading = true;
 					startIndex = startIndex + maxResult;
-					new loadVideos().execute();
+					new LoadVideos().execute();
 				}
 			}
 		});
@@ -124,9 +126,16 @@ public class BrowseVideosActivity extends ActivityBase {
 		registerForContextMenu(lvVideo);
 		lvVideo.setAdapter(adapter);
 		
-		new loadVideos().execute();
+		new LoadVideos().execute();
 	}
 
+	@Override
+	public void onDestroy(){
+		imageLoader.cancel();
+		
+		super.onDestroy();
+	}
+	
 	/**
 	 * Building a context menu for listview Long press on List row to see
 	 * context menu
@@ -167,6 +176,7 @@ public class BrowseVideosActivity extends ActivityBase {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
 		menu.add(0, OPTION_SEARCH, 0, "Search");
 		// Only show category dialog when browse by channel
 		if (!categoryId.isEmpty()) {
@@ -177,6 +187,7 @@ public class BrowseVideosActivity extends ActivityBase {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		super.onOptionsItemSelected(item);
 		switch (item.getItemId()) {
 		case OPTION_SEARCH:
 			if (searchDialog != null)
@@ -218,7 +229,7 @@ public class BrowseVideosActivity extends ActivityBase {
 				keyword = txtSearch.getText().toString();
 				searchDialog.dismiss();
 				// Get data again
-				new loadVideos().execute();
+				new LoadVideos().execute();
 			}
 		});
 		btnCancel.setOnClickListener(new OnClickListener() {
@@ -256,11 +267,11 @@ public class BrowseVideosActivity extends ActivityBase {
 					// Reload data
 					categoryId = item.getValue();
 					setHeader(categoryId);
-					new loadVideos().execute();
+					new LoadVideos().execute();
 				}
 			}
 		});
-		new loadCategories().execute(lvCategory);
+		new LoadCategories().execute(lvCategory);
 	}
 
 	private void subscribeVideo(int idCategory) {
@@ -283,7 +294,7 @@ public class BrowseVideosActivity extends ActivityBase {
 	/**
 	 * Background Async Task to get Videos data from URL
 	 * */
-	class loadVideos extends AsyncTask<String, String, String> {
+	class LoadVideos extends AsyncTask<String, String, String> {
 
 		/**
 		 * Before starting background thread Show Progress Dialog
@@ -297,33 +308,39 @@ public class BrowseVideosActivity extends ActivityBase {
 		@Override
 		protected String doInBackground(String... args) {
 			// Demo data
-//			try {
-//				InputStream is = getResources().getAssets().open(
-//						"VideosInChannel.txt");
-//				videos = YouTubeHelper.getVideosByStream(is);
-//
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-			//
-			 
-			 if(isLoading){
+			try {
+				InputStream is = getResources().getAssets().open(
+						"VideosInChannel.txt");
+				if(isLoading){
 					List<VideoEntry> items = null;
-					if (!channelId.isEmpty()) {
-						 items = YouTubeHelper.getVideosInChannel(channelId, orderBy, maxResult, startIndex, keyword);
-					 } else if (!categoryId.isEmpty()) {
-						 items = YouTubeHelper.getVideosInCategory(categoryId, orderBy, maxResult, startIndex, keyword);
-					 }
+					items = YouTubeHelper.getVideosByStream(is);
 					videos.addAll(items);
+				}else{
+					videos = YouTubeHelper.getVideosByStream(is);
 				}
-				else{
-					if (!channelId.isEmpty()) {
-						 videos = YouTubeHelper.getVideosInChannel(channelId, orderBy, maxResult, startIndex, keyword);
-					 } else if (!categoryId.isEmpty()) {
-						 videos = YouTubeHelper.getVideosInCategory(categoryId, orderBy, maxResult, startIndex, keyword);
-					 }
-				}
+
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			//
+//			 
+//			 if(isLoading){
+//					List<VideoEntry> items = null;
+//					if (!channelId.isEmpty()) {
+//						 items = YouTubeHelper.getVideosInChannel(channelId, orderBy, maxResult, startIndex, keyword);
+//					 } else if (!categoryId.isEmpty()) {
+//						 items = YouTubeHelper.getVideosInCategory(categoryId, orderBy, maxResult, startIndex, keyword);
+//					 }
+//					videos.addAll(items);
+//				}
+//				else{
+//					if (!channelId.isEmpty()) {
+//						 videos = YouTubeHelper.getVideosInChannel(channelId, orderBy, maxResult, startIndex, keyword);
+//					 } else if (!categoryId.isEmpty()) {
+//						 videos = YouTubeHelper.getVideosInCategory(categoryId, orderBy, maxResult, startIndex, keyword);
+//					 }
+//				}
 			return null;
 		}
 
@@ -422,7 +439,7 @@ public class BrowseVideosActivity extends ActivityBase {
 	/**
 	 * Background Async Task to get References from database
 	 * */
-	class loadCategories extends AsyncTask<ListView, String, String> {
+	class LoadCategories extends AsyncTask<ListView, String, String> {
 
 		/**
 		 * Before starting background thread Show Progress Dialog

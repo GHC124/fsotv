@@ -31,8 +31,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fsotv.BrowseVideosActivity.ListCategoryAdapter;
-import com.fsotv.BrowseVideosActivity.loadCategories;
-import com.fsotv.BrowseVideosActivity.loadVideos;
+import com.fsotv.BrowseVideosActivity.LoadCategories;
+import com.fsotv.BrowseVideosActivity.LoadVideos;
 import com.fsotv.BrowseVideosActivity.ListCategoryAdapter.ListItemHolder;
 import com.fsotv.dao.ChannelDao;
 import com.fsotv.dao.ReferenceDao;
@@ -45,77 +45,85 @@ import com.fsotv.utils.ImageLoader;
 import com.fsotv.utils.YouTubeHelper;
 
 public class BrowseChannelsActivity extends ActivityBase {
-	
-	private final int MENU_SUBSCRIBE = Menu.FIRST;	
+
+	private final int MENU_SUBSCRIBE = Menu.FIRST;
 	private final int OPTION_SEARCH = Menu.FIRST;
 	private final int OPTION_USERTYPE = Menu.FIRST + 1;
-	
+
 	private Dialog searchDialog;
 	private Dialog userTypeDialog;
-	
+
 	private ListView lvChannel;
-		
+
 	private List<ChannelEntry> channels;
 	private List<Reference> userTypes;
 	private ImageLoader imageLoader;
 	private ListChannelAdapter adapter;
+
 	private boolean isLoading = false;
 	private String keyword = "";
 	private String orderBy = "";
 	private int maxResult = 5;
 	private int startIndex = 1;
 	private String userType;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_browse_channels);
-				
-		lvChannel = (ListView)findViewById(R.id.lvChannel);
-				
+
+		lvChannel = (ListView) findViewById(R.id.lvChannel);
+
 		channels = new ArrayList<ChannelEntry>();
 		imageLoader = new ImageLoader(getApplicationContext());
 		userType = YouTubeHelper.USER_TYPE_COMEDIANS;
 		orderBy = YouTubeHelper.ORDERING_VIEWCOUNT;
 		Intent intent = getIntent();
 		Bundle extras = intent.getExtras();
-		if(extras!=null){
+		if (extras != null) {
 			userType = extras.getString("userType");
-			userType = (userType==null)?"":userType;
+			userType = (userType == null) ? "" : userType;
 		}
 		setHeader(userType);
 		setTitle("Browse Channel");
-		
+
 		// Launching new screen on Selecting Single ListItem
 		lvChannel.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				String channelId = channels.get(position).getId();
 				String channelTitle = channels.get(position).getTitle();
-				Intent i = new Intent(getApplicationContext(), BrowseVideosActivity.class);
+				Intent i = new Intent(getApplicationContext(),
+						BrowseVideosActivity.class);
 				i.putExtra("channelId", channelId);
 				i.putExtra("channelTitle", channelTitle);
 				startActivity(i);
 			}
 		});
-		lvChannel.setOnScrollListener(new EndlessScrollListener(lvChannel){
-			@Override 
-			public void loadData(){
-				if(!isLoading){
+		lvChannel.setOnScrollListener(new EndlessScrollListener(lvChannel) {
+			@Override
+			public void loadData() {
+				if (!isLoading) {
 					isLoading = true;
 					startIndex = startIndex + maxResult;
-					new loadChannels().execute();
+					new LoadChannels().execute();
 				}
 			}
 		});
-		adapter = new ListChannelAdapter(
-				BrowseChannelsActivity.this, R.layout.browse_channel_item,
-				channels);
+		adapter = new ListChannelAdapter(BrowseChannelsActivity.this,
+				R.layout.browse_channel_item, channels);
 		// updating listview
 		registerForContextMenu(lvChannel);
 		lvChannel.setAdapter(adapter);
-		
-		new loadChannels().execute();
+
+		new LoadChannels().execute();
+	}
+
+	@Override
+	protected void onDestroy() {
+		imageLoader.cancel();
+
+		super.onDestroy();
 	}
 
 	/**
@@ -151,7 +159,7 @@ public class BrowseChannelsActivity extends ActivityBase {
 			channel.setUri(entry.getLink());
 			channel.setIdRealChannel(entry.getIdReal());
 			channelDao.insertChannel(channel);
-			if(channel.getIdChannel()>0){
+			if (channel.getIdChannel() > 0) {
 				Toast.makeText(this, "Subscribed", Toast.LENGTH_SHORT).show();
 			}
 		}
@@ -161,43 +169,45 @@ public class BrowseChannelsActivity extends ActivityBase {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
 		menu.add(0, OPTION_SEARCH, 0, "Search");
 		menu.add(0, OPTION_USERTYPE, 0, "Channel Type");
 		return true;
 	}
-	
+
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item){
-		switch(item.getItemId())
-		{
+	public boolean onOptionsItemSelected(MenuItem item) {
+		super.onOptionsItemSelected(item);
+		switch (item.getItemId()) {
 		case OPTION_SEARCH:
-			if(searchDialog!=null)
+			if (searchDialog != null)
 				searchDialog.show();
-			else{
+			else {
 				createSearchDialog(BrowseChannelsActivity.this);
-				if(searchDialog!=null)
+				if (searchDialog != null)
 					searchDialog.show();
 			}
 			break;
 		case OPTION_USERTYPE:
-			if(userTypeDialog!=null)
+			if (userTypeDialog != null)
 				userTypeDialog.show();
-			else{
+			else {
 				createUserTypeDialog(BrowseChannelsActivity.this);
-				if(userTypeDialog!=null)
+				if (userTypeDialog != null)
 					userTypeDialog.show();
 			}
 			break;
 		}
-		
+
 		return super.onOptionsItemSelected(item);
 	}
-	
-	private void createSearchDialog(Context context){
+
+	private void createSearchDialog(Context context) {
 		searchDialog = new Dialog(context);
 		searchDialog.setContentView(R.layout.search_video);
 		searchDialog.setTitle("Search Video");
-		final TextView txtSearch = (TextView) searchDialog.findViewById(R.id.txtSearch);
+		final TextView txtSearch = (TextView) searchDialog
+				.findViewById(R.id.txtSearch);
 		Button btnSearch = (Button) searchDialog.findViewById(R.id.btnSearch);
 		Button btnCancel = (Button) searchDialog.findViewById(R.id.btnCancel);
 		btnSearch.setOnClickListener(new OnClickListener() {
@@ -206,7 +216,7 @@ public class BrowseChannelsActivity extends ActivityBase {
 				keyword = txtSearch.getText().toString();
 				searchDialog.dismiss();
 				// Get data again
-				new loadChannels().execute();
+				new LoadChannels().execute();
 			}
 		});
 		btnCancel.setOnClickListener(new OnClickListener() {
@@ -216,14 +226,14 @@ public class BrowseChannelsActivity extends ActivityBase {
 			}
 		});
 	}
-	
+
 	private void createUserTypeDialog(Context context) {
 		userTypeDialog = new Dialog(context);
 		userTypeDialog.setContentView(R.layout.usertype_channel);
 		userTypeDialog.setTitle("Channel Type");
 		ListView lvUserType = (ListView) userTypeDialog
 				.findViewById(R.id.lvUserType);
-		Button btnCancel = (Button)userTypeDialog.findViewById(R.id.btnCancel);
+		Button btnCancel = (Button) userTypeDialog.findViewById(R.id.btnCancel);
 		btnCancel.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -237,16 +247,16 @@ public class BrowseChannelsActivity extends ActivityBase {
 				userTypeDialog.dismiss();
 				// Reload data
 				setHeader(userType);
-				new loadChannels().execute();
+				new LoadChannels().execute();
 			}
 		});
-		new loadUserTypes().execute(lvUserType);
+		new LoadUserTypes().execute(lvUserType);
 	}
-	
+
 	/**
 	 * Background Async Task to get Channels from URL
 	 * */
-	class loadChannels extends AsyncTask<String, String, String> {
+	class LoadChannels extends AsyncTask<String, String, String> {
 
 		/**
 		 * Before starting background thread Show Progress Dialog
@@ -260,21 +270,27 @@ public class BrowseChannelsActivity extends ActivityBase {
 		@Override
 		protected String doInBackground(String... args) {
 			// Demo data
-//			try {
-//				InputStream is = getResources().getAssets().open("Channels.txt");
-//				channels = YouTubeHelper.getChannelsByStream(is);
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
+			 try {
+				 InputStream is = getResources().getAssets().open("Channels.txt");
+				 if (isLoading) {
+					 List<ChannelEntry> items = YouTubeHelper.getChannelsByStream(is);
+					 channels.addAll(items);
+				 }else{
+					channels = YouTubeHelper.getChannelsByStream(is); 
+				 }
+			 } catch (IOException e) {
+				 // TODO Auto-generated catch block
+				 e.printStackTrace();
+			 }
 			//
-			if(isLoading){
-				List<ChannelEntry> items = YouTubeHelper.getChannels(userType, orderBy, maxResult, startIndex, keyword);
-				channels.addAll(items);
-			}
-			else{
-				channels = YouTubeHelper.getChannels(userType, orderBy, maxResult, startIndex, keyword);
-			}
+//			if (isLoading) {
+//				List<ChannelEntry> items = YouTubeHelper.getChannels(userType,
+//						orderBy, maxResult, startIndex, keyword);
+//				channels.addAll(items);
+//			} else {
+//				channels = YouTubeHelper.getChannels(userType, orderBy,
+//						maxResult, startIndex, keyword);
+//			}
 			return null;
 		}
 
@@ -283,20 +299,21 @@ public class BrowseChannelsActivity extends ActivityBase {
 		 * **/
 		protected void onPostExecute(String args) {
 			hideLoading();
-			if(isLoading)
+			if (isLoading)
 				isLoading = false;
 			adapter.clear();
-			for (ChannelEntry c : channels){
-	            adapter.add(c);
-	        }
+			for (ChannelEntry c : channels) {
+				adapter.add(c);
+			}
 			adapter.notifyDataSetChanged();
-			if(channels.size()==0){
-				Toast.makeText(getApplicationContext(), "No results", Toast.LENGTH_LONG).show();
+			if (channels.size() == 0) {
+				Toast.makeText(getApplicationContext(), "No results",
+						Toast.LENGTH_LONG).show();
 			}
 		}
 
 	}
-	
+
 	class ListChannelAdapter extends ArrayAdapter<ChannelEntry> {
 		Context context;
 		int layoutResourceId;
@@ -322,12 +339,16 @@ public class BrowseChannelsActivity extends ActivityBase {
 
 				holder = new ListItemHolder();
 				holder.image = (ImageView) row.findViewById(R.id.image);
-				holder.progressBar = (ProgressBar) row.findViewById(R.id.progressBar);
+				holder.progressBar = (ProgressBar) row
+						.findViewById(R.id.progressBar);
 				holder.title = (TextView) row.findViewById(R.id.title);
-				holder.description = (TextView) row.findViewById(R.id.description);
-				holder.videoCount = (TextView) row.findViewById(R.id.videoCount);
+				holder.description = (TextView) row
+						.findViewById(R.id.description);
+				holder.videoCount = (TextView) row
+						.findViewById(R.id.videoCount);
 				holder.viewCount = (TextView) row.findViewById(R.id.viewCount);
-				holder.commentCount = (TextView) row.findViewById(R.id.commentCount);
+				holder.commentCount = (TextView) row
+						.findViewById(R.id.commentCount);
 
 				row.setTag(holder);
 			} else {
@@ -338,21 +359,25 @@ public class BrowseChannelsActivity extends ActivityBase {
 			// format string
 			String title = item.getTitle();
 			String description = item.getDescription();
-			if(title.length()>50){
+			if (title.length() > 50) {
 				title = title.substring(0, 50) + "...";
 			}
-			if(description.length()>150){
+			if (description.length() > 150) {
 				description = description.substring(0, 150) + "...";
 			}
-			
-			imageLoader.DisplayImage(item.getImage(), holder.image, holder.progressBar);
+
+			imageLoader.DisplayImage(item.getImage(), holder.image,
+					holder.progressBar);
 
 			holder.title.setText(title);
 			holder.description.setText(description);
-			holder.videoCount.setText(DataHelper.numberWithCommas(item.getVideoCount()));
-			holder.viewCount.setText(DataHelper.numberWithCommas(item.getViewCount()));
-			holder.commentCount.setText(DataHelper.numberWithCommas(item.getCommentCount()));
-			
+			holder.videoCount.setText(DataHelper.numberWithCommas(item
+					.getVideoCount()));
+			holder.viewCount.setText(DataHelper.numberWithCommas(item
+					.getViewCount()));
+			holder.commentCount.setText(DataHelper.numberWithCommas(item
+					.getCommentCount()));
+
 			return row;
 		}
 
@@ -366,11 +391,11 @@ public class BrowseChannelsActivity extends ActivityBase {
 			TextView commentCount;
 		}
 	}
-	
+
 	/**
 	 * Background Async Task to get References from database
 	 * */
-	class loadUserTypes extends AsyncTask<ListView, String, String> {
+	class LoadUserTypes extends AsyncTask<ListView, String, String> {
 
 		/**
 		 * Before starting background thread Show Progress Dialog
@@ -438,7 +463,7 @@ public class BrowseChannelsActivity extends ActivityBase {
 				holder.title = (TextView) row.findViewById(R.id.title);
 				holder.description = (TextView) row
 						.findViewById(R.id.description);
-				
+
 				row.setTag(holder);
 			} else {
 				holder = (ListItemHolder) row.getTag();

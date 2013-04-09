@@ -1,5 +1,8 @@
 package com.fsotv;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -65,14 +68,14 @@ public class VideoDetailActivity extends ActivityBase {
 		protected String doInBackground(String... args) {
 			String videoId = args[0];
 			// Demo data
-//			try {
-//				InputStream is = getAssets().open("VideoDetail.txt");
-//				video = YouTubeHelper.getVideoByStream(is);
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-			video = YouTubeHelper.getVideoDetail(videoId);
+			try {
+				InputStream is = getAssets().open("VideoDetail.txt");
+				video = YouTubeHelper.getVideoByStream(is);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			//video = YouTubeHelper.getVideoDetail(videoId);
 			// updating UI from Background Thread
 			runOnUiThread(new Runnable() {
 				public void run() {

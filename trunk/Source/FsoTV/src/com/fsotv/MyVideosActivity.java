@@ -47,7 +47,8 @@ public class MyVideosActivity extends ActivityBase {
 		setContentView(R.layout.activity_my_videos);
 
 		expVideo = (ExpandableListView) findViewById(R.id.expVideo);
-
+		registerForContextMenu(expVideo);
+		
 		groups = new ArrayList<ListGroup>();
 		imageLoader = new ImageLoader(getApplicationContext());
 
@@ -201,7 +202,6 @@ public class MyVideosActivity extends ActivityBase {
 					MyVideosActivity.this, R.layout.my_video_group,
 					R.layout.my_video_item, groups);
 			// updating listview
-			registerForContextMenu(expVideo);
 			expVideo.setAdapter(adapter);
 			if (groups.size() == 0) {
 				Toast.makeText(getApplicationContext(), "No results",

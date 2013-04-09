@@ -7,7 +7,7 @@ import android.widget.ListView;
 public class EndlessScrollListener  implements OnScrollListener {
 
 	private ListView listView;
-    private int threshold = 5;
+    private int threshold = 2;
    
     public EndlessScrollListener(ListView listView) {
     	this.listView = listView;

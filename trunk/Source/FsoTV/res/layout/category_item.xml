@@ -74,6 +74,8 @@
         android:layout_alignTop="@id/thumbnail"
         android:layout_margin="0dp"
         android:height="25dp"
-        android:padding="0dp" />
+        android:padding="0dp" 
+        android:focusable="false"
+        android:focusableInTouchMode="false"/>
 
 </RelativeLayout>

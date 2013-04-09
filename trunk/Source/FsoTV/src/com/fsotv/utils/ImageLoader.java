@@ -43,7 +43,8 @@ public class ImageLoader {
 		executorService = Executors.newFixedThreadPool(5);
 	}
 
-	public void DisplayImage(String url, ImageView imageView, ProgressBar progressBar) {
+	public void DisplayImage(String url, ImageView imageView,
+			ProgressBar progressBar) {
 		imageViews.put(imageView, url);
 		progressBars.put(progressBar, url);
 		Bitmap bitmap = memoryCache.get(url);
@@ -51,11 +52,12 @@ public class ImageLoader {
 			imageView.setImageBitmap(bitmap);
 		else {
 			queuePhoto(url, imageView, progressBar);
-			//imageView.setImageResource(stub_id);
+			// imageView.setImageResource(stub_id);
 		}
 	}
 
-	private void queuePhoto(String url, ImageView imageView, ProgressBar progressBar) {
+	private void queuePhoto(String url, ImageView imageView,
+			ProgressBar progressBar) {
 		PhotoToLoad p = new PhotoToLoad(url, imageView, progressBar);
 		executorService.submit(new PhotosLoader(p));
 	}
@@ -148,7 +150,7 @@ public class ImageLoader {
 		public String url;
 		public ImageView imageView;
 		public ProgressBar progressBar;
-		
+
 		public PhotoToLoad(String u, ImageView i, ProgressBar p) {
 			url = u;
 			imageView = i;
@@ -168,13 +170,13 @@ public class ImageLoader {
 			try {
 				if (imageViewReused(photoToLoad))
 					return;
-				if(photoToLoad.progressBar != null)
+				if (photoToLoad.progressBar != null)
 					photoToLoad.progressBar.setVisibility(View.VISIBLE);
 				Bitmap bmp = getBitmap(photoToLoad.url);
-				if(bmp != null)
+				if (bmp != null)
 					memoryCache.put(photoToLoad.url, bmp);
-				//if (imageViewReused(photoToLoad))
-				//	return;
+				// if (imageViewReused(photoToLoad))
+				// return;
 				BitmapDisplayer bd = new BitmapDisplayer(bmp, photoToLoad);
 				handler.post(bd);
 			} catch (Throwable th) {
@@ -203,13 +205,12 @@ public class ImageLoader {
 		public void run() {
 			if (imageViewReused(photoToLoad))
 				return;
-			if (bitmap != null){
+			if (bitmap != null) {
 				photoToLoad.imageView.setImageBitmap(bitmap);
-			}
-			else{
+			} else {
 				photoToLoad.imageView.setImageResource(stub_id);
 			}
-			if(photoToLoad.progressBar != null)
+			if (photoToLoad.progressBar != null)
 				photoToLoad.progressBar.setVisibility(View.GONE);
 		}
 	}
@@ -218,5 +219,13 @@ public class ImageLoader {
 		memoryCache.clear();
 		fileCache.clear();
 	}
-
+	
+	public void stopLoad(){
+		executorService.shutdown();
+	}
+	
+	public void cancel(){
+		stopLoad();
+		clearCache();
+	}
 }
