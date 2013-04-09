@@ -43,7 +43,7 @@ public class YouTubeHelper {
 	 * @return
 	 */
 	public static List<ChannelEntry> getChannels(String userType,
-			String orderBy, int maxResult, int startIndex, String keyword) {
+			String orderBy, int maxResult, int startIndex) {
 		List<ChannelEntry> channels = null;
 		InputStream is = null;
 		StringBuilder sb = new StringBuilder();
@@ -66,17 +66,7 @@ public class YouTubeHelper {
 			sb.append("&start-index=");
 			sb.append(startIndex);
 		}
-		if (keyword != null && !keyword.isEmpty()) {
-			sb.append("&q=");
-			try {
-				keyword = URLEncoder.encode(keyword, "UTF-8").replaceAll("\\+",
-						"%20");
-			} catch (UnsupportedEncodingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			sb.append(keyword);
-		}
+		
 		String newUrl = sb.toString();
 		try {
 			newUrl = DataHelper.parseUrl(newUrl);
@@ -272,6 +262,7 @@ public class YouTubeHelper {
 				JSONObject idObject = groupObject.getJSONObject("yt$videoid");
 				JSONArray thumbnails = groupObject
 						.getJSONArray("media$thumbnail");
+				JSONArray contents = groupObject.getJSONArray("media$content");
 
 				String id = idObject.getString("$t");
 				String title = titleObject.getString("$t");
@@ -283,6 +274,15 @@ public class YouTubeHelper {
 				}
 				int viewCount = statisticsObject.getInt("viewCount");
 				int favoriteCount = statisticsObject.getInt("favoriteCount");
+				long duration = 0;
+				for (int j = 0; j < contents.length(); j++) {
+					JSONObject contentObject = contents.getJSONObject(j);
+					if (contentObject.getInt("yt$format") == 6) {
+						link = contentObject.getString("url");
+						duration = contentObject.getLong("duration");
+						break;
+					}
+				}
 
 				VideoEntry video = new VideoEntry();
 				video.setId(id);
@@ -293,6 +293,7 @@ public class YouTubeHelper {
 				video.setImage(image);
 				video.setViewCount(viewCount);
 				video.setFavoriteCount(favoriteCount);
+				video.setDuration(duration);
 				videos.add(video);
 
 				thumbnails = null;

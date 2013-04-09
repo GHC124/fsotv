@@ -10,6 +10,9 @@ public class Video {
 	private String account;
 	private int typeVideo;
 	private String idRealVideo;
+	private long duration;
+	private int viewCount;
+	private int favoriteCount;
 	
 	public int getIdVideo() {
 		return idVideo;
@@ -83,20 +86,51 @@ public class Video {
 		this.idRealVideo = idRealVideo;
 	}
 
+	public long getDuration() {
+		return duration;
+	}
+
+	public void setDuration(long duration) {
+		this.duration = duration;
+	}
+
+	public int getViewCount() {
+		return viewCount;
+	}
+
+	public void setViewCount(int viewCount) {
+		this.viewCount = viewCount;
+	}
+
+	public int getFavoriteCount() {
+		return favoriteCount;
+	}
+
+	public void setFavoriteCount(int favoriteCount) {
+		this.favoriteCount = favoriteCount;
+	}
+
 	public Video() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Video(int idVideo, int idChannel, String nameVideo, String uri,
-			String thumnail, String describes, String account, int typeVideo) {
+	public Video(int idVideo, int idCategory, String nameVideo, String uri,
+			String thumnail, String describes, String account, int typeVideo,
+			String idRealVideo, long duration, int viewCount, int favoriteCount) {
+		super();
 		this.idVideo = idVideo;
-		this.idCategory = idChannel;
+		this.idCategory = idCategory;
 		this.nameVideo = nameVideo;
 		this.uri = uri;
 		this.thumnail = thumnail;
 		this.describes = describes;
 		this.account = account;
 		this.typeVideo = typeVideo;
+		this.idRealVideo = idRealVideo;
+		this.duration = duration;
+		this.viewCount = viewCount;
+		this.favoriteCount = favoriteCount;
 	}
+
 
 }

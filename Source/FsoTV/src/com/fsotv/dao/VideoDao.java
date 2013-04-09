@@ -19,6 +19,9 @@ public class VideoDao{
 	public static final String DESCRIBES = "Describes";
 	public static final String ACCOUNT = "Account";
 	public static final String TYPE_VIDEO = "typeVideo";
+	public static final String DURATION = "duration";
+	public static final String VIEW_COUNT = "viewCount";
+	public static final String FAVORITE_COUNT = "favoriteVount";
 	public static final String ID_REAL_VIDEO = "IdRealVideo";
 	
 	private SQLiteHelper sqLiteHelper;
@@ -45,6 +48,9 @@ public class VideoDao{
 					video.setAccount(cursor.getString(6));
 					video.setTypeVideo(cursor.getInt(7));
 					video.setIdRealVideo(cursor.getString(8));
+					video.setDuration(cursor.getLong(9));
+					video.setViewCount(cursor.getInt(10));
+					video.setFavoriteCount(cursor.getInt(11));
 					// Adding obj to list
 					listDto.add(video);
 				} while (cursor.moveToNext());
@@ -70,6 +76,9 @@ public class VideoDao{
 		values.put(ACCOUNT, video.getAccount());
 		values.put(TYPE_VIDEO, video.getTypeVideo());
 		values.put(ID_REAL_VIDEO, video.getIdRealVideo());
+		values.put(DURATION, video.getDuration());
+		values.put(VIEW_COUNT, video.getViewCount());
+		values.put(FAVORITE_COUNT, video.getFavoriteCount());
 		// Check if row already existed in database
 		int idExist = isVideoExists(db, video.getIdRealVideo());
 		if (idExist == 0) {
@@ -97,6 +106,9 @@ public class VideoDao{
 		values.put(ACCOUNT, video.getAccount());
 		values.put(TYPE_VIDEO, video.getTypeVideo());
 		values.put(ID_REAL_VIDEO, video.getIdRealVideo());
+		values.put(DURATION, video.getDuration());
+		values.put(VIEW_COUNT, video.getViewCount());
+		values.put(FAVORITE_COUNT, video.getFavoriteCount());
 		// updating row return
 		int update = db.update(TABLE_NAME, values, ID_CATEGORY + " = ?",
 				new String[] { String.valueOf(video.getIdVideo()) });
@@ -124,6 +136,9 @@ public class VideoDao{
 			video.setAccount(cursor.getString(6));
 			video.setTypeVideo(cursor.getInt(7));
 			video.setIdRealVideo(cursor.getString(8));
+			video.setDuration(cursor.getLong(9));
+			video.setViewCount(cursor.getInt(10));
+			video.setFavoriteCount(cursor.getInt(11));
 		}
 		cursor.close();
 		db.close();

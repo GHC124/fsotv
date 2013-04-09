@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
+import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -31,6 +32,7 @@ import com.fsotv.dao.VideoDao;
 import com.fsotv.dto.Reference;
 import com.fsotv.dto.Video;
 import com.fsotv.dto.VideoEntry;
+import com.fsotv.utils.DataHelper;
 import com.fsotv.utils.ImageLoader;
 
 public class MyVideosActivity extends ActivityBase {
@@ -40,7 +42,9 @@ public class MyVideosActivity extends ActivityBase {
 	private ExpandableListView expVideo;
 	private List<ListGroup> groups;
 	private ImageLoader imageLoader;
-
+	private VideoDao videoDao;
+	private ReferenceDao referenceDao;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -48,10 +52,12 @@ public class MyVideosActivity extends ActivityBase {
 
 		expVideo = (ExpandableListView) findViewById(R.id.expVideo);
 		registerForContextMenu(expVideo);
-		
+
 		groups = new ArrayList<ListGroup>();
 		imageLoader = new ImageLoader(getApplicationContext());
-
+		videoDao = new VideoDao(getApplicationContext());
+		referenceDao = new ReferenceDao(getApplicationContext());
+		
 		Intent intent = getIntent();
 		Bundle extras = intent.getExtras();
 		if (extras != null) {
@@ -65,7 +71,8 @@ public class MyVideosActivity extends ActivityBase {
 			@Override
 			public boolean onChildClick(ExpandableListView parent, View v,
 					int groupPosition, int childPosition, long id) {
-				VideoEntry item = groups.get(groupPosition).childs.get(childPosition);
+				VideoEntry item = groups.get(groupPosition).childs
+						.get(childPosition);
 				String videoId = item.getIdReal();
 				String videoTitle = item.getTitle();
 				Intent i = new Intent(getApplicationContext(),
@@ -73,11 +80,11 @@ public class MyVideosActivity extends ActivityBase {
 				i.putExtra("videoId", videoId);
 				i.putExtra("videoTitle", videoTitle);
 				startActivity(i);
-				
+
 				return true;
 			}
 		});
-		
+		registerForContextMenu(expVideo);
 		new loadVideos().execute();
 	}
 
@@ -99,12 +106,22 @@ public class MyVideosActivity extends ActivityBase {
 	 * */
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
-		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item
-				.getMenuInfo();
 		int menuItemId = item.getItemId();
 		// check for selected option
 		if (menuItemId == MENU_UNSUBSCRIBE) {
-			final int position = info.position;
+			ExpandableListContextMenuInfo info = (ExpandableListContextMenuInfo) item
+					.getMenuInfo();
+			int g = 0, c = 0;
+			int type = ExpandableListView
+					.getPackedPositionType(info.packedPosition);
+			if (type == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
+				g = ExpandableListView
+						.getPackedPositionGroup(info.packedPosition);
+				c = ExpandableListView
+						.getPackedPositionChild(info.packedPosition);
+			}
+			final int groupPos = g;
+			final int childPos = c;
 			AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
 					this);
 			alertDialogBuilder.setTitle("Unsubscribe Video");
@@ -115,13 +132,11 @@ public class MyVideosActivity extends ActivityBase {
 							new DialogInterface.OnClickListener() {
 								public void onClick(DialogInterface dialog,
 										int id) {
-									// VideoEntry entry = videos.get(position);
-									// VideoDao videoDao = new VideoDao(
-									// getApplicationContext());
-									// videoDao.deleteVideo(Integer.parseInt(entry
-									// .getId()));
-									// videos.remove(position);
-									// lvVideo.invalidateViews();
+									VideoEntry entry = groups.get(groupPos).childs.get(childPos);
+									videoDao.deleteVideo(Integer.parseInt(entry
+											.getId()));
+									groups.get(groupPos).childs.remove(childPos);
+									expVideo.invalidateViews();
 								}
 							})
 					.setNegativeButton("Cancel",
@@ -154,9 +169,6 @@ public class MyVideosActivity extends ActivityBase {
 
 		@Override
 		protected String doInBackground(String... args) {
-			ReferenceDao referenceDao = new ReferenceDao(
-					getApplicationContext());
-			VideoDao videoDao = new VideoDao(getApplicationContext());
 			List<Reference> listChannel = referenceDao.getListReference(
 					ReferenceDao.KEY_YOUTUBE_CATEGORY, null);
 			List<Video> listVideo = videoDao.getListVideo();
@@ -189,7 +201,7 @@ public class MyVideosActivity extends ActivityBase {
 					i--;
 				}
 			}
-			
+
 			return null;
 		}
 
@@ -278,6 +290,10 @@ public class MyVideosActivity extends ActivityBase {
 				holder.title = (TextView) view.findViewById(R.id.title);
 				holder.description = (TextView) view
 						.findViewById(R.id.description);
+				holder.viewCount = (TextView) view.findViewById(R.id.viewCount);
+				holder.favoriteCount = (TextView) view
+						.findViewById(R.id.favoriteCount);
+				holder.duration = (TextView) view.findViewById(R.id.duration);
 
 				view.setTag(holder);
 			} else {
@@ -299,11 +315,14 @@ public class MyVideosActivity extends ActivityBase {
 			imageLoader.DisplayImage(item.getImage(), holder.image,
 					holder.progressBar);
 
-			// new DownloadVideo(holder.viewCount, holder.subscriberCount,
-			// holder.image, holder.progressBar).execute(item.getIdReal());
-
 			holder.title.setText(title);
 			holder.description.setText(description);
+			holder.viewCount.setText(DataHelper.numberWithCommas(item
+					.getViewCount()));
+			holder.favoriteCount.setText(DataHelper.numberWithCommas(item
+					.getFavoriteCount()));
+			holder.duration.setText(DataHelper.secondsToTimer(item
+					.getDuration()));
 
 			return view;
 		}
@@ -374,7 +393,9 @@ public class MyVideosActivity extends ActivityBase {
 			ProgressBar progressBar;
 			TextView title;
 			TextView description;
-
+			TextView viewCount;
+			TextView favoriteCount;
+			TextView duration;
 		}
 
 		class ListGroupHolder {

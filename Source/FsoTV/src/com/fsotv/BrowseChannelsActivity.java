@@ -27,6 +27,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,10 +48,10 @@ import com.fsotv.utils.YouTubeHelper;
 public class BrowseChannelsActivity extends ActivityBase {
 
 	private final int MENU_SUBSCRIBE = Menu.FIRST;
-	private final int OPTION_SEARCH = Menu.FIRST;
-	private final int OPTION_USERTYPE = Menu.FIRST + 1;
-
-	private Dialog searchDialog;
+	private final int OPTION_SORT = Menu.FIRST + 1;
+	private final int OPTION_USERTYPE = Menu.FIRST + 2;
+	
+	private Dialog sortDialog;
 	private Dialog userTypeDialog;
 
 	private ListView lvChannel;
@@ -61,7 +62,6 @@ public class BrowseChannelsActivity extends ActivityBase {
 	private ListChannelAdapter adapter;
 
 	private boolean isLoading = false;
-	private String keyword = "";
 	private String orderBy = "";
 	private int maxResult = 5;
 	private int startIndex = 1;
@@ -170,8 +170,8 @@ public class BrowseChannelsActivity extends ActivityBase {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		menu.add(0, OPTION_SEARCH, 0, "Search");
-		menu.add(0, OPTION_USERTYPE, 0, "Channel Type");
+		menu.add(0, OPTION_SORT, 1, "Sort");
+		menu.add(0, OPTION_USERTYPE, 2, "Channel Type");
 		return true;
 	}
 
@@ -179,13 +179,13 @@ public class BrowseChannelsActivity extends ActivityBase {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		super.onOptionsItemSelected(item);
 		switch (item.getItemId()) {
-		case OPTION_SEARCH:
-			if (searchDialog != null)
-				searchDialog.show();
+		case OPTION_SORT:
+			if (sortDialog != null)
+				sortDialog.show();
 			else {
-				createSearchDialog(BrowseChannelsActivity.this);
-				if (searchDialog != null)
-					searchDialog.show();
+				createSortDialog(BrowseChannelsActivity.this);
+				if (sortDialog != null)
+					sortDialog.show();
 			}
 			break;
 		case OPTION_USERTYPE:
@@ -202,19 +202,26 @@ public class BrowseChannelsActivity extends ActivityBase {
 		return super.onOptionsItemSelected(item);
 	}
 
-	private void createSearchDialog(Context context) {
-		searchDialog = new Dialog(context);
-		searchDialog.setContentView(R.layout.search_video);
-		searchDialog.setTitle("Search Video");
-		final TextView txtSearch = (TextView) searchDialog
-				.findViewById(R.id.txtSearch);
-		Button btnSearch = (Button) searchDialog.findViewById(R.id.btnSearch);
-		Button btnCancel = (Button) searchDialog.findViewById(R.id.btnCancel);
-		btnSearch.setOnClickListener(new OnClickListener() {
+	private void createSortDialog(Context context) {
+		sortDialog = new Dialog(context);
+		sortDialog.setContentView(R.layout.sort);
+		sortDialog.setTitle("Sort");
+		final RadioButton rdViewed = (RadioButton) sortDialog
+				.findViewById(R.id.rdViewed);
+		final RadioButton rdPublished = (RadioButton) sortDialog
+				.findViewById(R.id.rdPublished);
+		Button btnSort = (Button) sortDialog.findViewById(R.id.btnSort);
+		Button btnCancel = (Button) sortDialog.findViewById(R.id.btnCancel);
+		btnSort.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				keyword = txtSearch.getText().toString();
-				searchDialog.dismiss();
+				String sort = YouTubeHelper.ORDERING_VIEWCOUNT;
+				if (rdViewed.isChecked())
+					sort = YouTubeHelper.ORDERING_VIEWCOUNT;
+				else if (rdPublished.isChecked())
+					sort = YouTubeHelper.ORDERING_PUBLISHED;
+				orderBy = sort;
+				sortDialog.dismiss();
 				// Get data again
 				new LoadChannels().execute();
 			}
@@ -222,7 +229,7 @@ public class BrowseChannelsActivity extends ActivityBase {
 		btnCancel.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				searchDialog.dismiss();
+				sortDialog.dismiss();
 			}
 		});
 	}
@@ -230,7 +237,7 @@ public class BrowseChannelsActivity extends ActivityBase {
 	private void createUserTypeDialog(Context context) {
 		userTypeDialog = new Dialog(context);
 		userTypeDialog.setContentView(R.layout.usertype_channel);
-		userTypeDialog.setTitle("Channel Type");
+		userTypeDialog.setTitle("Channel");
 		ListView lvUserType = (ListView) userTypeDialog
 				.findViewById(R.id.lvUserType);
 		Button btnCancel = (Button) userTypeDialog.findViewById(R.id.btnCancel);
@@ -270,27 +277,28 @@ public class BrowseChannelsActivity extends ActivityBase {
 		@Override
 		protected String doInBackground(String... args) {
 			// Demo data
-			 try {
-				 InputStream is = getResources().getAssets().open("Channels.txt");
-				 if (isLoading) {
-					 List<ChannelEntry> items = YouTubeHelper.getChannelsByStream(is);
-					 channels.addAll(items);
-				 }else{
-					channels = YouTubeHelper.getChannelsByStream(is); 
-				 }
-			 } catch (IOException e) {
-				 // TODO Auto-generated catch block
-				 e.printStackTrace();
-			 }
+			// try {
+			// InputStream is = getResources().getAssets().open("Channels.txt");
+			// if (isLoading) {
+			// List<ChannelEntry> items = YouTubeHelper.getChannelsByStream(is);
+			// channels.addAll(items);
+			// }else{
+			// channels = YouTubeHelper.getChannelsByStream(is);
+			// }
+			// } catch (IOException e) {
+			// // TODO Auto-generated catch block
+			// e.printStackTrace();
+			// }
 			//
-//			if (isLoading) {
-//				List<ChannelEntry> items = YouTubeHelper.getChannels(userType,
-//						orderBy, maxResult, startIndex, keyword);
-//				channels.addAll(items);
-//			} else {
-//				channels = YouTubeHelper.getChannels(userType, orderBy,
-//						maxResult, startIndex, keyword);
-//			}
+			if (isLoading) {
+				List<ChannelEntry> items = YouTubeHelper.getChannels(userType,
+						orderBy, maxResult, startIndex);
+				channels.addAll(items);
+			} else {
+				startIndex = 1;
+				channels = YouTubeHelper.getChannels(userType, orderBy,
+						maxResult, startIndex);
+			}
 			return null;
 		}
 

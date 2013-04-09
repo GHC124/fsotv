@@ -26,9 +26,11 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.fsotv.BrowseChannelsActivity.LoadChannels;
 import com.fsotv.dao.ReferenceDao;
 import com.fsotv.dao.VideoDao;
 import com.fsotv.dto.Reference;
@@ -42,8 +44,10 @@ import com.fsotv.utils.YouTubeHelper;
 public class BrowseVideosActivity extends ActivityBase {
 	private final int MENU_SUBSCRIBE = Menu.FIRST;
 	private final int OPTION_SEARCH = Menu.FIRST;
-	private final int OPTION_CATEGORY = Menu.FIRST + 1;
-
+	private final int OPTION_SORT = Menu.FIRST + 1;
+	private final int OPTION_CATEGORY = Menu.FIRST + 2;
+		
+	private Dialog sortDialog;
 	private Dialog searchDialog;
 	private Dialog categoryDialog;
 	private ListView lvVideo;
@@ -178,9 +182,10 @@ public class BrowseVideosActivity extends ActivityBase {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		menu.add(0, OPTION_SEARCH, 0, "Search");
+		menu.add(0, OPTION_SORT, 1, "Sort");
 		// Only show category dialog when browse by channel
 		if (!categoryId.isEmpty()) {
-			menu.add(0, OPTION_CATEGORY, 0, "Category");
+			menu.add(0, OPTION_CATEGORY, 2, "Category");
 		}
 		return true;
 	}
@@ -198,6 +203,15 @@ public class BrowseVideosActivity extends ActivityBase {
 					searchDialog.show();
 			}
 
+			break;
+		case OPTION_SORT:
+			if (sortDialog != null)
+				sortDialog.show();
+			else {
+				createSortDialog(BrowseVideosActivity.this);
+				if (sortDialog != null)
+					sortDialog.show();
+			}
 			break;
 		case OPTION_CATEGORY:
 			isCategory = true;
@@ -217,7 +231,7 @@ public class BrowseVideosActivity extends ActivityBase {
 
 	private void createSearchDialog(Context context) {
 		searchDialog = new Dialog(context);
-		searchDialog.setContentView(R.layout.search_video);
+		searchDialog.setContentView(R.layout.search);
 		searchDialog.setTitle("Search Video");
 		final TextView txtSearch = (TextView) searchDialog
 				.findViewById(R.id.txtSearch);
@@ -239,7 +253,39 @@ public class BrowseVideosActivity extends ActivityBase {
 			}
 		});
 	}
-
+	
+	private void createSortDialog(Context context) {
+		sortDialog = new Dialog(context);
+		sortDialog.setContentView(R.layout.sort);
+		sortDialog.setTitle("Sort");
+		final RadioButton rdViewed = (RadioButton) sortDialog
+				.findViewById(R.id.rdViewed);
+		final RadioButton rdPublished = (RadioButton) sortDialog
+				.findViewById(R.id.rdPublished);
+		Button btnSort = (Button) sortDialog.findViewById(R.id.btnSort);
+		Button btnCancel = (Button) sortDialog.findViewById(R.id.btnCancel);
+		btnSort.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				String sort = YouTubeHelper.ORDERING_VIEWCOUNT;
+				if (rdViewed.isChecked())
+					sort = YouTubeHelper.ORDERING_VIEWCOUNT;
+				else if (rdPublished.isChecked())
+					sort = YouTubeHelper.ORDERING_PUBLISHED;
+				orderBy = sort;
+				sortDialog.dismiss();
+				// Get data again
+				new LoadVideos().execute();
+			}
+		});
+		btnCancel.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				sortDialog.dismiss();
+			}
+		});
+	}
+	
 	private void createCategoryDialog(Context context) {
 		categoryDialog = new Dialog(context);
 		categoryDialog.setContentView(R.layout.category_video);
@@ -308,39 +354,40 @@ public class BrowseVideosActivity extends ActivityBase {
 		@Override
 		protected String doInBackground(String... args) {
 			// Demo data
-			try {
-				InputStream is = getResources().getAssets().open(
-						"VideosInChannel.txt");
-				if(isLoading){
-					List<VideoEntry> items = null;
-					items = YouTubeHelper.getVideosByStream(is);
-					videos.addAll(items);
-				}else{
-					videos = YouTubeHelper.getVideosByStream(is);
-				}
-
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//			try {
+//				InputStream is = getResources().getAssets().open(
+//						"VideosInChannel.txt");
+//				if(isLoading){
+//					List<VideoEntry> items = null;
+//					items = YouTubeHelper.getVideosByStream(is);
+//					videos.addAll(items);
+//				}else{
+//					videos = YouTubeHelper.getVideosByStream(is);
+//				}
+//
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 			//
 //			 
-//			 if(isLoading){
-//					List<VideoEntry> items = null;
-//					if (!channelId.isEmpty()) {
-//						 items = YouTubeHelper.getVideosInChannel(channelId, orderBy, maxResult, startIndex, keyword);
-//					 } else if (!categoryId.isEmpty()) {
-//						 items = YouTubeHelper.getVideosInCategory(categoryId, orderBy, maxResult, startIndex, keyword);
-//					 }
-//					videos.addAll(items);
-//				}
-//				else{
-//					if (!channelId.isEmpty()) {
-//						 videos = YouTubeHelper.getVideosInChannel(channelId, orderBy, maxResult, startIndex, keyword);
-//					 } else if (!categoryId.isEmpty()) {
-//						 videos = YouTubeHelper.getVideosInCategory(categoryId, orderBy, maxResult, startIndex, keyword);
-//					 }
-//				}
+			 if(isLoading){
+					List<VideoEntry> items = null;
+					if (!channelId.isEmpty()) {
+						 items = YouTubeHelper.getVideosInChannel(channelId, orderBy, maxResult, startIndex, keyword);
+					 } else if (!categoryId.isEmpty()) {
+						 items = YouTubeHelper.getVideosInCategory(categoryId, orderBy, maxResult, startIndex, keyword);
+					 }
+					videos.addAll(items);
+				}
+				else{
+					startIndex = 1;
+					if (!channelId.isEmpty()) {
+						 videos = YouTubeHelper.getVideosInChannel(channelId, orderBy, maxResult, startIndex, keyword);
+					 } else if (!categoryId.isEmpty()) {
+						 videos = YouTubeHelper.getVideosInCategory(categoryId, orderBy, maxResult, startIndex, keyword);
+					 }
+				}
 			return null;
 		}
 
@@ -396,6 +443,8 @@ public class BrowseVideosActivity extends ActivityBase {
 				holder.viewCount = (TextView) row.findViewById(R.id.viewCount);
 				holder.favoriteCount = (TextView) row
 						.findViewById(R.id.favoriteCount);
+				holder.duration = (TextView) row
+						.findViewById(R.id.duration);
 
 				row.setTag(holder);
 			} else {
@@ -422,7 +471,8 @@ public class BrowseVideosActivity extends ActivityBase {
 					.getViewCount()));
 			holder.favoriteCount.setText(DataHelper.numberWithCommas(item
 					.getFavoriteCount()));
-
+			holder.duration.setText(DataHelper.secondsToTimer(item.getDuration()));
+			
 			return row;
 		}
 
@@ -433,6 +483,7 @@ public class BrowseVideosActivity extends ActivityBase {
 			TextView description;
 			TextView viewCount;
 			TextView favoriteCount;
+			TextView duration;
 		}
 	}
 
