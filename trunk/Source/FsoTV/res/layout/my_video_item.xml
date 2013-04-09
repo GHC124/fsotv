@@ -52,7 +52,7 @@
         android:textColor="#343434"
         android:textSize="10sp" />
 
-    <!-- Statistic -->
+   
 	<LinearLayout android:layout_below="@id/description"
 	    android:layout_toRightOf="@id/thumbnail"
 	    android:layout_width="fill_parent"
@@ -60,7 +60,68 @@
 	    android:orientation="horizontal">
 	      
 	</LinearLayout>
-       
+        <!-- Statistic -->
+
+	<LinearLayout
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_below="@id/description"
+	    android:layout_marginRight="10dip"
+	    android:layout_toRightOf="@id/thumbnail"
+	    android:orientation="horizontal" >
+
+         <TextView
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text="@string/browse_video_views"
+             android:textColor="#343434"
+             android:textSize="8sp" />
+
+	     <TextView
+	        android:id="@+id/viewCount"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="123"
+	        android:textColor="#343434"
+	        android:textSize="8sp"
+	        android:layout_marginLeft="2dip"
+	        android:layout_marginRight="2dip" />
+
+	     <TextView
+	         android:layout_width="wrap_content"
+	         android:layout_height="wrap_content"
+	         android:text="@string/browse_video_favorites"
+	         android:textColor="#343434"
+	         android:textSize="8sp" />
+
+	     <TextView
+	        android:id="@+id/favoriteCount"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="123"
+	        android:textColor="#343434"
+	        android:textSize="8sp"
+	        android:layout_marginLeft="2dip"
+	        android:layout_marginRight="2dip" />
+
+	     <TextView
+	         android:layout_width="wrap_content"
+	         android:layout_height="wrap_content"
+	         android:text="@string/browse_video_duration"
+	         android:textColor="#343434"
+	         android:textSize="8sp" />
+
+	     <TextView
+	        android:id="@+id/duration"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="123"
+	        android:textColor="#343434"
+	        android:textSize="8sp"
+	        android:layout_marginLeft="2dip"
+	        android:layout_marginRight="2dip" />
+	      
+	</LinearLayout>
     <!-- Rightend Duration -->
 
     <ProgressBar

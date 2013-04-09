@@ -42,11 +42,13 @@ public class OnSwipeTouchListener implements OnTouchListener {
 
 		@Override
 		public void onShowPress(MotionEvent e) {
+			onSwipeDown();
 			super.onShowPress(e);
 		}
 
 		@Override
 		public void onLongPress(MotionEvent e) {
+			onSwipePress();
 			super.onLongPress(e);
 		}
 
@@ -99,4 +101,11 @@ public class OnSwipeTouchListener implements OnTouchListener {
 		return false;
 	}
 
+	public void onSwipeDown() {
+		
+	}
+	
+	public void onSwipePress() {
+		
+	}
 }

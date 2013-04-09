@@ -8,7 +8,7 @@ public class VideoEntry {
 	String description;
 	String link;
 	String image;
-	int duration;
+	long duration;
 	int viewCount;
 	int favoriteCount;
 	
@@ -88,11 +88,11 @@ public class VideoEntry {
 		this.favoriteCount = favoriteCount;
 	}
 
-	public int getDuration() {
+	public long getDuration() {
 		return duration;
 	}
 
-	public void setDuration(int duration) {
+	public void setDuration(long duration) {
 		this.duration = duration;
 	}
 	

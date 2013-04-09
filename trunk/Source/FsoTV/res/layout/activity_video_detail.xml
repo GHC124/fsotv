@@ -80,39 +80,26 @@
                 android:stepSize="0.1" />
 
             <TextView
-                android:id="@+id/txtvUploaded"
+                android:id="@+id/txtvDuration"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true"
-                android:text="@string/text_view_uploaded"
+                android:layout_toLeftOf="@+id/txtDuration"
+                android:text="@string/text_view_duration"
                 android:textColor="@android:color/background_light"
-                android:textSize="14sp" />
-        </RelativeLayout>
-		<LinearLayout
-            android:id="@+id/layout_description"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" >
-
-            <TextView
-                android:id="@+id/lblDuration"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left"
-                android:text="Duration"
-                android:textColor="@android:color/white"
-                android:textSize="18sp" />
+                android:textSize="14sp"
+                />
 
             <TextView
                 android:id="@+id/txtDuration"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="left"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
                 android:text="0"
                 android:textColor="@android:color/white"
                 android:textSize="14sp" />
-        </LinearLayout>
+
+        </RelativeLayout>
         <LinearLayout
             android:id="@+id/layout_description"
             android:layout_width="match_parent"
