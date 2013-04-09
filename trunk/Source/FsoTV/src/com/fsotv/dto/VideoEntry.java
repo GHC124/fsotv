@@ -7,6 +7,7 @@ public class VideoEntry {
 	String title;
 	String description;
 	String link;
+	String linkReal; // Link to watch in web
 	String image;
 	long duration;
 	int viewCount;
@@ -94,6 +95,14 @@ public class VideoEntry {
 
 	public void setDuration(long duration) {
 		this.duration = duration;
+	}
+
+	public String getLinkReal() {
+		return linkReal;
+	}
+
+	public void setLinkReal(String linkReal) {
+		this.linkReal = linkReal;
 	}
 	
 	

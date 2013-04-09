@@ -11,7 +11,6 @@ import com.fsotv.dto.VideoEntry;
 import com.fsotv.utils.DataHelper;
 import com.fsotv.utils.ImageLoader;
 import com.fsotv.utils.YouTubeHelper;
-import com.google.android.youtube.player.internal.ad;
 
 import android.app.Activity;
 import android.content.Context;

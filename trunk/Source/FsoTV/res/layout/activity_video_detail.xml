@@ -130,15 +130,24 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="15dp" >
+            android:layout_marginTop="15dp" 
+            android:orientation="vertical">
 
             <Button
-                android:id="@+id/bttWatch"
+                android:id="@+id/btnWatch"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:onClick="onWatchClick"
                 android:text="@string/button_watch" />
+            
+            <Button
+                android:id="@+id/btnFaceBook"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:onClick="onFaceBookClick"
+                android:text="Share FaceBook" />
         </LinearLayout>
     </LinearLayout>
 
