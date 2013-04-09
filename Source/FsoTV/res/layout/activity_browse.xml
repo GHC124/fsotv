@@ -32,7 +32,7 @@
                 android:layout_alignParentLeft="true"
                 android:layout_marginRight="5dip"
                 android:padding="3dip" >
-
+	
                 <ImageView
                     android:layout_width="25dip"
                     android:layout_height="25dip" 

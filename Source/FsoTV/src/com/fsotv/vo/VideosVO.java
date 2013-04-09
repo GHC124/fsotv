@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.fsotv.vo;
 
 import java.io.Serializable;

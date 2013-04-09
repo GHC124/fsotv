@@ -197,6 +197,16 @@ public class YouTubeHelper {
 		return videos;
 	}
 
+	/**
+	 * Get videos in specific category
+	 * 
+	 * @param category
+	 * @param orderBy
+	 * @param maxResult
+	 * @param startIndex
+	 * @param keyword
+	 * @return
+	 */
 	public static List<VideoEntry> getVideosInCategory(String category,
 			String orderBy, int maxResult, int startIndex, String keyword) {
 		List<VideoEntry> videos = null;

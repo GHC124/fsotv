@@ -2,11 +2,14 @@ package com.fsotv;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class ActivityBase extends Activity {
+	private final int OPTION_BACK = Menu.FIRST + 100;
 	
 	private ProgressBar phHeader;
 	private TextView tvHeader;
@@ -25,7 +28,22 @@ public class ActivityBase extends Activity {
 		
 		tvHeader.setText("");
 	}
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		menu.add(0, OPTION_BACK, 100, "Back");
+		return true;
+	}
 	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item){
+		switch(item.getItemId())
+		{
+		case OPTION_BACK:
+			finish();
+			break;
+		}
+		return true;
+	}
 	/**
 	 * Call after setContentView
 	 */

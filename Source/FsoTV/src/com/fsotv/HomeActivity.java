@@ -28,6 +28,7 @@ public class HomeActivity extends Activity implements OnClickListener {
 	private final int RESULT_CATEGORY = 1;
 	private final int CATEGORY_ADD = -1;
 
+	private TextView textView1;
 	private ViewFlipper vf;
 	private ImageView imgLeft, imgRight;
 	private List<Reference> categories;
@@ -46,7 +47,8 @@ public class HomeActivity extends Activity implements OnClickListener {
 		vf.setInAnimation(s_in); // when a view is displayed
 		vf.setOutAnimation(s_out); // when a view disappears
 		
-		vf.setOnTouchListener(new OnSwipeTouchListener() {
+		textView1 = (TextView)findViewById(R.id.textView1);
+		textView1.setOnTouchListener(new OnSwipeTouchListener() {
 			@Override
 	        public boolean onSwipeTop() {
 	            Toast.makeText(HomeActivity.this, "top", Toast.LENGTH_SHORT).show();
@@ -190,6 +192,8 @@ public class HomeActivity extends Activity implements OnClickListener {
 						LinearLayout.LayoutParams lp2 = new LinearLayout.LayoutParams(
 								LinearLayout.LayoutParams.WRAP_CONTENT,
 								LinearLayout.LayoutParams.WRAP_CONTENT);
+						lp2.leftMargin = 18;
+						lp2.rightMargin = 10;
 						tv.setLayoutParams(lp2);
 						
 						ll1.addView(tv);

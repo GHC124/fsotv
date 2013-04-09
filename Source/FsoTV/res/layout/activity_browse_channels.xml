@@ -5,7 +5,7 @@
     android:orientation="vertical"
     tools:context=".BrowseChannelsActivity" >
 
-    <include layout="@layout/header_loading"/>
+    <include layout="@layout/header_loading" />
    
     <ListView
         android:id="@+id/lvChannel"

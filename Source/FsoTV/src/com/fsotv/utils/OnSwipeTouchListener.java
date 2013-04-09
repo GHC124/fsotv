@@ -1,5 +1,6 @@
 package com.fsotv.utils;
 
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
@@ -21,7 +22,32 @@ public class OnSwipeTouchListener implements OnTouchListener {
 
 		@Override
 		public boolean onDown(MotionEvent e) {
-			return super.onDown(e);
+			return true;
+		}
+
+		@Override
+		public boolean onSingleTapUp(MotionEvent e) {
+			return super.onSingleTapUp(e);
+		}
+
+		@Override
+		public boolean onSingleTapConfirmed(MotionEvent e) {
+			return super.onSingleTapConfirmed(e);
+		}
+
+		@Override
+		public boolean onDoubleTap(MotionEvent e) {
+			return super.onDoubleTap(e);
+		}
+
+		@Override
+		public void onShowPress(MotionEvent e) {
+			super.onShowPress(e);
+		}
+
+		@Override
+		public void onLongPress(MotionEvent e) {
+			super.onLongPress(e);
 		}
 
 		@Override

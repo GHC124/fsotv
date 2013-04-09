@@ -45,7 +45,8 @@ public class MyChannelsActivity extends ActivityBase {
 		setContentView(R.layout.activity_my_channels);
 		
 		lvChannel = (ListView)findViewById(R.id.lvChannel);
-				
+		registerForContextMenu(lvChannel);
+		
 		channels = new ArrayList<ChannelEntry>();
 		imageLoader = new ImageLoader(getApplicationContext());
 		
@@ -168,7 +169,6 @@ public class MyChannelsActivity extends ActivityBase {
 					MyChannelsActivity.this, R.layout.my_channel_item,
 					channels);
 			// updating listview
-			registerForContextMenu(lvChannel);
 			lvChannel.setAdapter(adapter);
 			if(channels.size()==0){
 				Toast.makeText(getApplicationContext(), "No results", Toast.LENGTH_LONG).show();
