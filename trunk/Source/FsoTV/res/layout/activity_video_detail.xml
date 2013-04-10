@@ -64,7 +64,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@id/lblViewCount"
-                android:text="@string/text_view_views_count"
+                android:text="0"
                 android:textColor="@android:color/background_light"
                 android:textSize="13sp" />
 
@@ -142,12 +142,28 @@
                 android:text="@string/button_watch" />
             
             <Button
+                android:id="@+id/btnComments"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:onClick="onCommentsClick"
+                android:text="View Comments" />
+            
+            <Button
                 android:id="@+id/btnFaceBook"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:onClick="onFaceBookClick"
                 android:text="Share FaceBook" />
+            
+             <Button
+                android:id="@+id/btnTwitter"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:onClick="onTwitterClick"
+                android:text="Share Twitter" />
         </LinearLayout>
     </LinearLayout>
 

@@ -190,6 +190,8 @@ public class MyVideosActivity extends ActivityBase {
 				item.setDuration(video.getDuration());
 				item.setViewCount(video.getViewCount());
 				item.setFavoriteCount(video.getFavoriteCount());
+				item.setPublished(video.getPublished());
+				item.setUpdated(video.getUpdated());
 				for (ListGroup g : groups) {
 					if (g.id == video.getIdCategory()) {
 						g.childs.add(item);
@@ -297,7 +299,8 @@ public class MyVideosActivity extends ActivityBase {
 				holder.favoriteCount = (TextView) view
 						.findViewById(R.id.favoriteCount);
 				holder.duration = (TextView) view.findViewById(R.id.duration);
-
+				holder.published = (TextView) view.findViewById(R.id.published);
+				
 				view.setTag(holder);
 			} else {
 				holder = (ListItemHolder) view.getTag();
@@ -326,7 +329,9 @@ public class MyVideosActivity extends ActivityBase {
 					.getFavoriteCount()));
 			holder.duration.setText(DataHelper.secondsToTimer(item
 					.getDuration()));
-
+			holder.published.setText(DataHelper.formatDate(item
+					.getPublished()));
+			
 			return view;
 		}
 
@@ -399,6 +404,7 @@ public class MyVideosActivity extends ActivityBase {
 			TextView viewCount;
 			TextView favoriteCount;
 			TextView duration;
+			TextView published;
 		}
 
 		class ListGroupHolder {

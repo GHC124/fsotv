@@ -9,6 +9,7 @@ public class ChannelEntry {
 	String description;
 	String link;
 	String image;
+	String updated;
 	int commentCount;
 	int videoCount;
 	int viewCount;
@@ -99,6 +100,14 @@ public class ChannelEntry {
 
 	public void setSubscriberCount(int subscriberCount) {
 		this.subscriberCount = subscriberCount;
+	}
+
+	public String getUpdated() {
+		return updated;
+	}
+
+	public void setUpdated(String updated) {
+		this.updated = updated;
 	}
 
 }

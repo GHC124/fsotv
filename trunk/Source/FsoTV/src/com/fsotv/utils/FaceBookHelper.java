@@ -17,7 +17,6 @@ import com.fsotv.R;
 public class FaceBookHelper {
 	private Activity activity;
 	private SharedPreferences mPrefs;
-
 	// Your Facebook APP ID
 	private final String FACEBOOK_ACCESS_TOKEN = "facebook_access_token"; // Access
 	private final String FACEBOOK_ACCESS_EXPIRE = "facebook_access_expire"; // Expire
@@ -28,13 +27,14 @@ public class FaceBookHelper {
 
 	private boolean isLogin = false;
 	private boolean isPost = false;
-	private boolean requestPost = false; 
+	private boolean requestPost = false;
 	private String linkPost = "";
-	
-	public FaceBookHelper(Activity activity) {
+
+	public FaceBookHelper(Activity activity, SharedPreferences mPrefs) {
 		this.activity = activity;
-		facebookAppId = activity.getResources().getString(R.string.facebook_app_id);
-		mPrefs = activity.getSharedPreferences("fsotv",activity.MODE_PRIVATE);
+		this.mPrefs = mPrefs;
+		facebookAppId = activity.getResources().getString(
+				R.string.facebook_app_id);
 		facebook = new Facebook(facebookAppId);
 		mAsyncRunner = new AsyncFacebookRunner(facebook);
 	}
@@ -84,8 +84,8 @@ public class FaceBookHelper {
 					editor.commit();
 
 					isLogin = onLoginComplete(values);
-					
-					if(requestPost){
+
+					if (requestPost) {
 						postToWall(linkPost);
 					}
 				}
@@ -101,7 +101,7 @@ public class FaceBookHelper {
 				}
 
 			});
-		}else{
+		} else {
 			isLogin = true;
 		}
 		return isLogin;
@@ -111,37 +111,37 @@ public class FaceBookHelper {
 	 * Function to post to facebook wall
 	 * */
 	public boolean postToWall(String link) {
-		linkPost = link;
-		requestPost = true;
-		// Check login
-		boolean login = loginToFacebook();
-		if (login) {
-			// post on user's wall.
-			Bundle data = new Bundle();
-			data.putString("link", linkPost);
-			facebook.dialog(activity, "feed", data, new DialogListener() {
-				@Override
-				public void onFacebookError(FacebookError e) {
-					isPost = onPostFacebookError(e);
-				}
+		// linkPost = link;
+		// requestPost = true;
+		// // Check login
+		// boolean login = loginToFacebook();
+		// if (login) {
+		// post on user's wall.
+		Bundle data = new Bundle();
+		data.putString("link", linkPost);
+		facebook.dialog(activity, "feed", data, new DialogListener() {
+			@Override
+			public void onFacebookError(FacebookError e) {
+				isPost = onPostFacebookError(e);
+			}
 
-				@Override
-				public void onError(DialogError e) {
-					isPost = onPostError(e);
-				}
+			@Override
+			public void onError(DialogError e) {
+				isPost = onPostError(e);
+			}
 
-				@Override
-				public void onComplete(Bundle values) {
-					requestPost = false;
-					isPost = onPostComplete(values);
-				}
+			@Override
+			public void onComplete(Bundle values) {
+				requestPost = false;
+				isPost = onPostComplete(values);
+			}
 
-				@Override
-				public void onCancel() {
-					isPost = onPostCancel();
-				}
-			});
-		}
+			@Override
+			public void onCancel() {
+				isPost = onPostCancel();
+			}
+		});
+		// }
 		return isPost;
 	}
 

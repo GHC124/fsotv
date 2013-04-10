@@ -11,18 +11,20 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class VideoDao{
 	public static final String TABLE_NAME = "Video";
-	public static final String ID_VIDEO = "IdVideo";
-	public static final String ID_CATEGORY = "IdCategory";
-	public static final String NAME_VIDEO = "NameVideo";
-	public static final String URI = "Uri";
-	public static final String THUMNAIL = "Thumnail";
-	public static final String DESCRIBES = "Describes";
-	public static final String ACCOUNT = "Account";
+	public static final String ID_VIDEO = "idVideo";
+	public static final String ID_CATEGORY = "idCategory";
+	public static final String NAME_VIDEO = "nameVideo";
+	public static final String URI = "uri";
+	public static final String THUMNAIL = "thumnail";
+	public static final String DESCRIBES = "describes";
+	public static final String ACCOUNT = "account";
 	public static final String TYPE_VIDEO = "typeVideo";
 	public static final String DURATION = "duration";
 	public static final String VIEW_COUNT = "viewCount";
 	public static final String FAVORITE_COUNT = "favoriteVount";
-	public static final String ID_REAL_VIDEO = "IdRealVideo";
+	public static final String ID_REAL_VIDEO = "idRealVideo";
+	public static final String PUBLISHED = "published";
+	public static final String UPDATED = "updated";
 	
 	private SQLiteHelper sqLiteHelper;
 	
@@ -51,6 +53,8 @@ public class VideoDao{
 					video.setDuration(cursor.getLong(9));
 					video.setViewCount(cursor.getInt(10));
 					video.setFavoriteCount(cursor.getInt(11));
+					video.setPublished(cursor.getString(12));
+					video.setUpdated(cursor.getString(13));
 					// Adding obj to list
 					listDto.add(video);
 				} while (cursor.moveToNext());
@@ -79,6 +83,8 @@ public class VideoDao{
 		values.put(DURATION, video.getDuration());
 		values.put(VIEW_COUNT, video.getViewCount());
 		values.put(FAVORITE_COUNT, video.getFavoriteCount());
+		values.put(PUBLISHED, video.getPublished());
+		values.put(UPDATED, video.getUpdated());
 		// Check if row already existed in database
 		int idExist = isVideoExists(db, video.getIdRealVideo());
 		if (idExist == 0) {
@@ -109,6 +115,8 @@ public class VideoDao{
 		values.put(DURATION, video.getDuration());
 		values.put(VIEW_COUNT, video.getViewCount());
 		values.put(FAVORITE_COUNT, video.getFavoriteCount());
+		values.put(PUBLISHED, video.getPublished());
+		values.put(UPDATED, video.getUpdated());
 		// updating row return
 		int update = db.update(TABLE_NAME, values, ID_CATEGORY + " = ?",
 				new String[] { String.valueOf(video.getIdVideo()) });
@@ -125,7 +133,7 @@ public class VideoDao{
 		SQLiteDatabase db = sqLiteHelper.getReadableDatabase();
 		Cursor cursor = db.query(TABLE_NAME, new String[] { ID_CATEGORY,
 				NAME_VIDEO, URI, DESCRIBES, THUMNAIL, ACCOUNT, TYPE_VIDEO, 
-				ID_REAL_VIDEO, DURATION, VIEW_COUNT, FAVORITE_COUNT }, ID_VIDEO + "=?",
+				ID_REAL_VIDEO, DURATION, VIEW_COUNT, FAVORITE_COUNT, PUBLISHED, UPDATED }, ID_VIDEO + "=?",
 				new String[] { String.valueOf(id) }, null, null, null, null);
 		if (cursor != null && cursor.moveToFirst()) {
 			video.setIdVideo(cursor.getInt(0));
@@ -140,6 +148,8 @@ public class VideoDao{
 			video.setDuration(cursor.getLong(9));
 			video.setViewCount(cursor.getInt(10));
 			video.setFavoriteCount(cursor.getInt(11));
+			video.setPublished(cursor.getString(12));
+			video.setUpdated(cursor.getString(13));
 		}
 		cursor.close();
 		db.close();

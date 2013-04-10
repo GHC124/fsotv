@@ -23,6 +23,11 @@ public class DataHelper {
 		return result;
 	}
 
+	public static String formatDate(String date) {
+		String result = date;
+		return result;
+	}
+	
 	/**
 	 * Function to convert seconds time to Timer Format
 	 * Hours:Minutes:Seconds

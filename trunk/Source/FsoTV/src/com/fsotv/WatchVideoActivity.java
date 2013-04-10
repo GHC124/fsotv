@@ -7,19 +7,25 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.net.Uri;
+import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.MediaController;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.VideoView;
 
 import com.fsotv.utils.DataHelper;
+import com.fsotv.utils.YouTubeHelper;
 
 public class WatchVideoActivity extends ActivityBase implements
 		OnCompletionListener, SeekBar.OnSeekBarChangeListener {
@@ -66,7 +72,7 @@ public class WatchVideoActivity extends ActivityBase implements
 		songTotalDurationLabel = (TextView) findViewById(R.id.songTotalDurationLabel);
 
 		myVideoView = (VideoView) findViewById(R.id.videoView);
-		
+
 		Intent intent = getIntent();
 		Bundle extras = intent.getExtras();
 		if (extras != null) {
@@ -77,20 +83,18 @@ public class WatchVideoActivity extends ActivityBase implements
 			videoId = (videoId == null) ? "" : videoId;
 			videoTitle = (videoTitle == null) ? "" : videoTitle;
 			link = (link == null) ? "" : link;
-			
-			if(videoTitle.length()>50)
+
+			if (videoTitle.length() > 50)
 				videoTitle = videoTitle.substring(0, 50) + "...";
 		}
 
 		setHeader(videoTitle);
 		setTitle("Watch Video");
-		
+
 		// Listeners
 		songProgressBar.setOnSeekBarChangeListener(this);
 		myVideoView.setOnCompletionListener(this);
-
-		playVideo("http://media.socbay.com/public/media/Video/BT%20Video/9.4comaythoigian.3gp");
-
+		
 		btnPlay.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -121,7 +125,7 @@ public class WatchVideoActivity extends ActivityBase implements
 				onVolumeClick(v);
 			}
 		});
-		
+
 		btnFullScreen.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -129,6 +133,12 @@ public class WatchVideoActivity extends ActivityBase implements
 			}
 		});
 		createDialogs(this);
+		
+		// link =
+		// "http://media.socbay.com/public/media/Video/BT%20Video/9.4comaythoigian.3gp";
+
+		//playVideo(link);
+		new QueryYouTubeTask().execute(videoId);
 	}
 
 	@Override
@@ -192,19 +202,21 @@ public class WatchVideoActivity extends ActivityBase implements
 	}
 
 	public void onVolumeClick(View v) {
-		if(volumeDialog!=null)
+		if (volumeDialog != null)
 			volumeDialog.show();
 	}
-	
+
 	public void onFullScreenClick(View v) {
-		DisplayMetrics metrics = new DisplayMetrics(); getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) myVideoView.getLayoutParams();
-        params.width =  metrics.widthPixels;
-        params.height = metrics.heightPixels;
-        params.leftMargin = 0;
-        myVideoView.setLayoutParams(params);
+		DisplayMetrics metrics = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(metrics);
+		RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) myVideoView
+				.getLayoutParams();
+		params.width = metrics.widthPixels;
+		params.height = metrics.heightPixels;
+		params.leftMargin = 0;
+		myVideoView.setLayoutParams(params);
 	}
-	
+
 	private void createDialogs(Context context) {
 		volumeDialog = new Dialog(context);
 		volumeDialog.setContentView(R.layout.change_volume);
@@ -234,9 +246,9 @@ public class WatchVideoActivity extends ActivityBase implements
 		});
 	}
 
-	private void playVideo(String link) {
+	private void playVideo(Uri link) {
 		try {
-			myVideoView.setVideoURI(Uri.parse(link));
+			myVideoView.setVideoURI(link);
 			myVideoView.requestFocus();
 			myVideoView.start();
 
@@ -346,6 +358,90 @@ public class WatchVideoActivity extends ActivityBase implements
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+
+	}
+
+	/**
+	 * Task to figure out details by calling out to YouTube GData API. We only
+	 * use public methods that don't require authentication.
+	 * 
+	 */
+	private class QueryYouTubeTask extends AsyncTask<String, Integer, Uri> {
+		/**
+		 * Before starting background thread Show Progress Dialog
+		 * */
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			showLoading();
+		}
+		
+		@Override
+		protected Uri doInBackground(String... pParams) {
+			String lUriStr = null;
+			String lYouTubeFmtQuality = "17"; // 3gpp medium quality, which
+												// should be fast enough to view
+												// over EDGE connection
+			String lYouTubeVideoId = null;
+
+			try {
+				WifiManager lWifiManager = (WifiManager) WatchVideoActivity.this
+						.getSystemService(Context.WIFI_SERVICE);
+				TelephonyManager lTelephonyManager = (TelephonyManager) WatchVideoActivity.this
+						.getSystemService(Context.TELEPHONY_SERVICE);
+				// //////////////////////////
+				// if we have a fast connection (wifi or 3g), then we'll get a
+				// high quality YouTube video
+				if ((lWifiManager.isWifiEnabled()
+						&& lWifiManager.getConnectionInfo() != null && lWifiManager
+						.getConnectionInfo().getIpAddress() != 0)
+						|| ((lTelephonyManager.getNetworkType() == TelephonyManager.NETWORK_TYPE_UMTS
+								||
+								/*
+								 * icky... using literals to make backwards
+								 * compatible with 1.5 and 1.6
+								 */
+								lTelephonyManager.getNetworkType() == 9 /* HSUPA */
+								|| lTelephonyManager.getNetworkType() == 10 /* HSPA */
+								|| lTelephonyManager.getNetworkType() == 8 /* HSDPA */
+								|| lTelephonyManager.getNetworkType() == 5 /* EVDO_0 */|| lTelephonyManager
+								.getNetworkType() == 6 /* EVDO A */)
+
+						&& lTelephonyManager.getDataState() == TelephonyManager.DATA_CONNECTED)) {
+					lYouTubeFmtQuality = "18";
+				}
+				lYouTubeVideoId = pParams[0];
+				// //////////////////////////////////
+				// calculate the actual URL of the video, encoded with proper
+				// YouTube token
+				lUriStr = YouTubeHelper.calculateYouTubeUrl(
+						lYouTubeFmtQuality, true, lYouTubeVideoId);
+				Log.e("URI", lUriStr);
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			if (lUriStr != null) {
+				return Uri.parse(lUriStr);
+			} else {
+				return null;
+			}
+		}
+
+		@Override
+		protected void onPostExecute(Uri pResult) {
+			super.onPostExecute(pResult);
+			try {
+				if (pResult == null) {
+					throw new RuntimeException("Invalid NULL Url.");
+				}
+				playVideo(pResult);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			hideLoading();
+		}
 
 	}
 }
