@@ -22,8 +22,8 @@ import com.fsotv.dto.VideoEntry;
 import com.fsotv.utils.DataHelper;
 import com.fsotv.utils.FaceBookHelper;
 import com.fsotv.utils.ImageLoader;
-import com.fsotv.utils.TwitterHelper1;
-import com.fsotv.utils.TwitterHelper1.TwDialogListener;
+import com.fsotv.utils.TwitterHelper;
+import com.fsotv.utils.TwitterHelper.TwDialogListener;
 import com.fsotv.utils.YouTubeHelper;
 
 public class VideoDetailActivity extends ActivityBase {
@@ -38,7 +38,7 @@ public class VideoDetailActivity extends ActivityBase {
 	private ImageLoader imageLoader;
 	private SharedPreferences mPrefs;
 	private FaceBookHelper faceBookHelper = null;
-	private TwitterHelper1 twitterHelper = null;
+	private TwitterHelper twitterHelper = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -146,8 +146,8 @@ public class VideoDetailActivity extends ActivityBase {
 			faceBookHelper = new FaceBookHelper(this, mPrefs) {
 				@Override
 				public boolean onPostComplete(Bundle values) {
-					Toast.makeText(getApplicationContext(), "Shared",
-							Toast.LENGTH_SHORT).show();
+					//Toast.makeText(getApplicationContext(), "Shared",
+					//		Toast.LENGTH_SHORT).show();
 					return true;
 				}
 			};
@@ -159,7 +159,7 @@ public class VideoDetailActivity extends ActivityBase {
 
 	public void onTwitterClick(View v) {
 		if (twitterHelper == null) {
-			twitterHelper = new TwitterHelper1(this, mPrefs);
+			twitterHelper = new TwitterHelper(this, mPrefs);
 			twitterHelper.setListener(mTwLoginDialogListener);
 		}
 		String link = video.getLinkReal();
@@ -169,9 +169,6 @@ public class VideoDetailActivity extends ActivityBase {
 				twitterHelper.updateStatus(link);
 				Log.e("TWITTER", "post success");
 			} catch (Exception e) {
-				if (e.getMessage().toString().contains("duplicate")) {
-					Log.e("TWITTER", "duplicate");
-				}
 				e.printStackTrace();
 			}
 			twitterHelper.resetAccessToken();
@@ -190,12 +187,10 @@ public class VideoDetailActivity extends ActivityBase {
 
 		public void onComplete(String value) {
 			try {
-				twitterHelper.updateStatus("");
-				Log.e("TWITTER", "success");
+				String link = video.getLinkReal();
+				twitterHelper.updateStatus(link);
+				Log.e("TWITTER", "post success");
 			} catch (Exception e) {
-				if (e.getMessage().toString().contains("duplicate")) {
-					Log.e("TWITTER", "duplicate");
-				}
 				e.printStackTrace();
 			}
 			twitterHelper.resetAccessToken();
