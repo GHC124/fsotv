@@ -152,7 +152,7 @@ public class VideoDetailActivity1 extends ActivityBase {
 					TextView title = (TextView) findViewById(R.id.txtvTitle);
 					TextView viewCount = (TextView) findViewById(R.id.txtvViewCount);
 					TextView txtvDescriptionContent = (TextView) findViewById(R.id.txtvDescriptionContent);
-					TextView txtDuration = (TextView) findViewById(R.id.txtDuration);
+					TextView txtDuration = (TextView) findViewById(R.id.duration);
 
 					title.setText(video.getTitle());
 					viewCount.setText(DataHelper.numberWithCommas(video

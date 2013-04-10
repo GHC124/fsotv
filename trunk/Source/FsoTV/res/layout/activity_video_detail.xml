@@ -2,41 +2,41 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/fsotv_background"
+    android:fillViewport="true"
     android:orientation="vertical"
     android:paddingBottom="0dp"
     android:paddingLeft="0dp"
     android:paddingRight="0dp"
-    android:paddingTop="0dp" 
-    android:fillViewport="true">
+    android:paddingTop="0dp" >
 
-    <LinearLayout android:layout_width="match_parent"
-    	android:layout_height="match_parent"
-    	android:orientation="vertical">
-	
-        <include layout="@layout/header_loading"/>
-        
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+
+        <include layout="@layout/header_loading" />
+
         <LinearLayout
             android:id="@+id/layout_thumbnail"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_gravity="center_horizontal" >
+            android:layout_gravity="center_horizontal"
+            android:orientation="horizontal" >
 
             <ImageView
                 android:id="@+id/imgThumbnail"
                 android:layout_width="250dip"
                 android:layout_height="200dip"
                 android:layout_gravity="center"
-                android:contentDescription="@string/image_thumbnail_content_description"
-                />
-
+                android:contentDescription="@string/image_thumbnail_content_description" />
         </LinearLayout>
-		 <LinearLayout
+
+        <LinearLayout
             android:id="@+id/layout_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical" >
-            
+
             <TextView
                 android:id="@+id/txtvTitle"
                 android:layout_width="wrap_content"
@@ -46,28 +46,98 @@
                 android:textColor="@android:color/white"
                 android:textSize="20sp" />
         </LinearLayout>
-        <RelativeLayout
-            android:id="@+id/layout_brief_infos"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+        
+        <!-- Statistic -->
+
+        <LinearLayout
+            android:id="@+id/llStatistic1"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
 
             <TextView
-                android:id="@+id/lblViewCount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Views: "
+                android:text="@string/browse_video_views"
+                android:textColor="@android:color/background_light"
+                android:textSize="14sp"
+                 />
+
+            <TextView
+                android:id="@+id/viewCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="2dip"
+                android:layout_marginRight="2dip"
+                android:text="0"
                 android:textColor="@android:color/background_light"
                 android:textSize="14sp" />
 
             <TextView
-                android:id="@+id/txtvViewCount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toRightOf="@id/lblViewCount"
+                android:layout_marginLeft="10dip"
+                android:text="@string/browse_video_favorites"
+                android:textColor="@android:color/background_light"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/favoriteCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="2dip"
+                android:layout_marginRight="2dip"
                 android:text="0"
                 android:textColor="@android:color/background_light"
-                android:textSize="13sp" />
+                android:textSize="14sp" />
+        </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/llStatistic2"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/browse_video_duration"
+                android:textColor="@android:color/background_light"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="2dip"
+                android:layout_marginRight="2dip"
+                android:text="0"
+                android:textColor="@android:color/background_light"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dip"
+                android:text="Published: "
+                android:textColor="@android:color/background_light"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/published"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="2dip"
+                android:layout_marginRight="2dip"
+                android:text="0"
+                android:textColor="@android:color/background_light"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
             <RatingBar
                 android:id="@+id/rtbRate"
                 style="?android:attr/ratingBarStyleSmall"
@@ -78,28 +148,8 @@
                 android:numStars="5"
                 android:rating="3.0"
                 android:stepSize="0.1" />
-
-            <TextView
-                android:id="@+id/txtvDuration"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_toLeftOf="@+id/txtDuration"
-                android:text="@string/text_view_duration"
-                android:textColor="@android:color/background_light"
-                android:textSize="14sp"
-                />
-
-            <TextView
-                android:id="@+id/txtDuration"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true"
-                android:text="0"
-                android:textColor="@android:color/white"
-                android:textSize="14sp" />
-
-        </RelativeLayout>
+        </LinearLayout>
+        
         <LinearLayout
             android:id="@+id/layout_description"
             android:layout_width="match_parent"
@@ -130,8 +180,8 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="15dp" 
-            android:orientation="vertical">
+            android:layout_marginTop="15dp"
+            android:orientation="vertical" >
 
             <Button
                 android:id="@+id/btnWatch"
@@ -140,7 +190,7 @@
                 android:gravity="center"
                 android:onClick="onWatchClick"
                 android:text="@string/button_watch" />
-            
+
             <Button
                 android:id="@+id/btnComments"
                 android:layout_width="fill_parent"
@@ -148,7 +198,7 @@
                 android:gravity="center"
                 android:onClick="onCommentsClick"
                 android:text="View Comments" />
-            
+
             <Button
                 android:id="@+id/btnFaceBook"
                 android:layout_width="fill_parent"
@@ -156,8 +206,8 @@
                 android:gravity="center"
                 android:onClick="onFaceBookClick"
                 android:text="Share FaceBook" />
-            
-             <Button
+
+            <Button
                 android:id="@+id/btnTwitter"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"

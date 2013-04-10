@@ -143,12 +143,14 @@ public class WatchVideoActivity extends ActivityBase implements
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
 		menu.add(0, OPTION_VOLUME, 0, "Volume");
 		return true;
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		super.onOptionsItemSelected(item);
 		switch (item.getItemId()) {
 		case OPTION_VOLUME:
 			if (volumeDialog != null)

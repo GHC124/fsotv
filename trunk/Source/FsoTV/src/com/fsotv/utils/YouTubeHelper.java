@@ -568,6 +568,7 @@ public class YouTubeHelper {
 			int favoriteCount = statisticsObject.getInt("favoriteCount");
 
 			video.setId(id);
+			video.setIdReal(id);
 			video.setTitle(title);
 			video.setDescription(description);
 			video.setLink(link);

@@ -111,8 +111,8 @@ public class FaceBookHelper {
 	 * Function to post to facebook wall
 	 * */
 	public boolean postToWall(String link) {
-		// linkPost = link;
-		// requestPost = true;
+		linkPost = link;
+		requestPost = true;
 		// // Check login
 		// boolean login = loginToFacebook();
 		// if (login) {

@@ -33,7 +33,7 @@ public class CommentsActivity extends ActivityBase {
 
 	private boolean isLoading = false;
 	private String videoId = "";
-	private int maxResult = 5;
+	private int maxResult = 10;
 	private int startIndex = 1;
 
 	@Override
@@ -75,13 +75,6 @@ public class CommentsActivity extends ActivityBase {
 		new LoadComments().execute();
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.activity_comments, menu);
-		return true;
-	}
-
 	/**
 	 * Background Async Task to get Comments from URL
 	 * */
@@ -116,7 +109,7 @@ public class CommentsActivity extends ActivityBase {
 
 			if (isLoading) {
 				List<CommentEntry> items = YouTubeHelper.getComments(videoId,
-						maxResult, startIndex);
+						5, startIndex);
 				comments.addAll(items);
 			} else {
 				startIndex = 1;
