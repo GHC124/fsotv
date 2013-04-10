@@ -1,15 +1,23 @@
 package com.fsotv;
 
+import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.fsotv.BrowseChannelsActivity.LoadChannels;
 import com.fsotv.dto.VideoEntry;
 import com.fsotv.utils.DataHelper;
 import com.fsotv.utils.FaceBookHelper;
@@ -20,6 +28,12 @@ import com.fsotv.utils.YouTubeHelper;
 
 public class VideoDetailActivity extends ActivityBase {
 
+	private final int OPTION_WATCH = Menu.FIRST;
+	private final int OPTION_COMMENTS = Menu.FIRST + 1;
+	private final int OPTION_SHARE = Menu.FIRST + 2;
+	
+	private Dialog shareDialog;
+	
 	private VideoEntry video;
 	private ImageLoader imageLoader;
 	private SharedPreferences mPrefs;
@@ -50,6 +64,68 @@ public class VideoDetailActivity extends ActivityBase {
 		new loadVideo().execute(videoId);
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		menu.add(0, OPTION_WATCH, 0, "Watch");
+		menu.add(0, OPTION_COMMENTS, 1, "Comments");
+		menu.add(0, OPTION_SHARE, 2, "Share");
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		super.onOptionsItemSelected(item);
+		switch (item.getItemId()) {
+		case OPTION_WATCH:
+			onWatchClick(null);
+			break;
+		case OPTION_COMMENTS:
+			onCommentsClick(null);
+			break;
+		case OPTION_SHARE:
+			if (shareDialog != null)
+				shareDialog.show();
+			else {
+				createShareDialog(VideoDetailActivity.this);
+				if (shareDialog != null)
+					shareDialog.show();
+			}
+			break;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+	
+	private void createShareDialog(Context context) {
+		shareDialog = new Dialog(context);
+		shareDialog.setContentView(R.layout.share);
+		shareDialog.setTitle("Share");
+		final RadioButton rdFacebook = (RadioButton) shareDialog
+				.findViewById(R.id.rdFaceBook);
+		final RadioButton rdTwitter = (RadioButton) shareDialog
+				.findViewById(R.id.rdTwitter);
+		Button btnShare = (Button) shareDialog.findViewById(R.id.btnShare);
+		Button btnCancel = (Button) shareDialog.findViewById(R.id.btnCancel);
+		btnShare.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (rdFacebook.isChecked()){
+					onFaceBookClick(null);
+				}
+				else if (rdTwitter.isChecked()){
+					onTwitterClick(null);
+				}
+				shareDialog.dismiss();
+			}
+		});
+		btnCancel.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				shareDialog.dismiss();
+			}
+		});
+	}
+	
 	public void onWatchClick(View c) {
 		Intent i = new Intent(getApplicationContext(), WatchVideoActivity.class);
 		i.putExtra("videoId", video.getIdReal());
@@ -163,17 +239,23 @@ public class VideoDetailActivity extends ActivityBase {
 				public void run() {
 					ImageView img = (ImageView) findViewById(R.id.imgThumbnail);
 					TextView title = (TextView) findViewById(R.id.txtvTitle);
-					TextView viewCount = (TextView) findViewById(R.id.txtvViewCount);
+					TextView viewCount = (TextView) findViewById(R.id.viewCount);
 					TextView txtvDescriptionContent = (TextView) findViewById(R.id.txtvDescriptionContent);
-					TextView txtDuration = (TextView) findViewById(R.id.txtDuration);
-
+					TextView txtDuration = (TextView) findViewById(R.id.duration);
+					TextView txtPublished = (TextView) findViewById(R.id.published);
+					TextView txtFavorite = (TextView) findViewById(R.id.favoriteCount);
+					
 					title.setText(video.getTitle());
 					viewCount.setText(DataHelper.numberWithCommas(video
 							.getViewCount()));
 					txtvDescriptionContent.setText(video.getDescription());
 					txtDuration.setText(DataHelper.secondsToTimer(video
 							.getDuration()));
-
+					txtPublished.setText(DataHelper.formatDate(video
+							.getPublished()));
+					txtFavorite.setText(DataHelper.numberWithCommas(video
+							.getFavoriteCount()));
+					
 					imageLoader.DisplayImage(video.getImage(), img,
 							getLoadingView());
 				}

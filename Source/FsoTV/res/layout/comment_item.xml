@@ -6,26 +6,12 @@
     android:orientation="horizontal"
     android:padding="5dip" >
 
-    <!-- ListRow Left sied Thumbnail image -->
-
-    <LinearLayout
-        android:id="@+id/thumbnail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_marginRight="5dip"
-        
-        android:padding="3dip" >
-    </LinearLayout>
-
     <!-- Title -->
 
     <TextView
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@id/thumbnail"
-        android:layout_toRightOf="@id/thumbnail"
         android:text="REVO"
         android:textColor="#040404"
         android:textSize="15sp"
@@ -39,41 +25,35 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/title"
-        android:layout_marginRight="15dp"
         android:layout_marginTop="1dip"
-        android:layout_toRightOf="@id/thumbnail"
         android:text="Revo ..."
         android:textColor="#343434"
         android:textSize="10sp" />
 
     <!-- Statistic -->
 
-	<LinearLayout
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
-	    android:layout_below="@id/description"
-	    android:layout_marginRight="10dip"
-	    android:layout_toRightOf="@id/thumbnail"
-	    android:orientation="horizontal" >
-	     <TextView
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="Published:"
-	        android:textColor="#343434"
-	        android:textSize="10sp" />
-	     <TextView
-	        android:id="@+id/published"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="123"
-	        android:textColor="#343434"
-	        android:textSize="10sp"
-	        android:layout_marginLeft="2dip"
-	        android:layout_marginRight="2dip" />
-	      
-	</LinearLayout>
-       
-    <!-- Rightend Duration -->
-    <!-- Rightend Arrow -->
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/content"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Published:"
+            android:textColor="#343434"
+            android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/published"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="2dip"
+            android:layout_marginRight="2dip"
+            android:text="123"
+            android:textColor="#343434"
+            android:textSize="10sp" />
+    </LinearLayout>
 
 </RelativeLayout>
