@@ -1,37 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
- <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/RelativeLayout1"
-        android:layout_width="match_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/RelativeLayout1"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="5dip"
+    android:orientation="horizontal"
+    android:padding="5dip"
+    android:background="#000000">
+
+    <LinearLayout
+        android:layout_width="25dip"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="5dip"
-        android:orientation="horizontal" >
-     
-     	<ImageView
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_alignParentLeft="true"
-	        android:layout_centerVertical="true"
-	        android:src="@drawable/left16" 
-	        android:onClick="onBackClick"/>
-     
-        <TextView
-            android:id="@+id/tvHeader"
+        android:onClick="onBackClick"
+        android:paddingTop="10dip"
+    	android:paddingBottom="10dip">
+
+        <ImageView
+            android:id="@+id/imgBack"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:text="TextView"
-            android:textSize="20sp" />
-		
-    	<ProgressBar
-	        android:id="@+id/pbHeader"
-	        style="?android:attr/progressBarStyleSmall"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_alignParentRight="true"
-	        android:layout_centerVertical="true"
-	        android:layout_marginRight="5dip"
-	        android:gravity="right" 
-	        android:visibility="invisible"/>
-    
-    </RelativeLayout>
+            android:src="@drawable/left16" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:text="Header"
+        android:textSize="20sp" 
+        android:layout_marginLeft="30dip"
+        android:layout_marginRight="30dip"/>
+
+    <ProgressBar
+        android:id="@+id/pbHeader"
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="5dip"
+        android:gravity="right"
+        android:visibility="invisible" />
+
+</RelativeLayout>

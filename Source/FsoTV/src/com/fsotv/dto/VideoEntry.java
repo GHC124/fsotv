@@ -12,6 +12,8 @@ public class VideoEntry {
 	long duration;
 	int viewCount;
 	int favoriteCount;
+	String published;
+	String updated;
 	
 	public VideoEntry(){
 		
@@ -103,6 +105,22 @@ public class VideoEntry {
 
 	public void setLinkReal(String linkReal) {
 		this.linkReal = linkReal;
+	}
+
+	public String getPublished() {
+		return published;
+	}
+
+	public void setPublished(String published) {
+		this.published = published;
+	}
+
+	public String getUpdated() {
+		return updated;
+	}
+
+	public void setUpdated(String updated) {
+		this.updated = updated;
 	}
 	
 	

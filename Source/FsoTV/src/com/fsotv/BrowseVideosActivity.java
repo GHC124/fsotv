@@ -334,6 +334,8 @@ public class BrowseVideosActivity extends ActivityBase {
 		video.setDuration(select.getDuration());
 		video.setViewCount(select.getViewCount());
 		video.setFavoriteCount(select.getFavoriteCount());
+		video.setPublished(select.getPublished());
+		video.setUpdated(select.getUpdated());
 		videoDao.insertVideo(video);
 		if (video.getIdVideo() > 0) {
 			Toast.makeText(this, "Subscribed", Toast.LENGTH_SHORT).show();
@@ -448,7 +450,9 @@ public class BrowseVideosActivity extends ActivityBase {
 						.findViewById(R.id.favoriteCount);
 				holder.duration = (TextView) row
 						.findViewById(R.id.duration);
-
+				holder.published = (TextView) row
+						.findViewById(R.id.published);
+				
 				row.setTag(holder);
 			} else {
 				holder = (ListItemHolder) row.getTag();
@@ -470,12 +474,17 @@ public class BrowseVideosActivity extends ActivityBase {
 
 			holder.title.setText(title);
 			holder.description.setText(description);
-			holder.viewCount.setText(DataHelper.numberWithCommas(item
+			if(item.getViewCount()==-1)
+				holder.viewCount.setText("-");
+			else holder.viewCount.setText(DataHelper.numberWithCommas(item
 					.getViewCount()));
-			holder.favoriteCount.setText(DataHelper.numberWithCommas(item
+			if(item.getFavoriteCount()==-1)
+				holder.favoriteCount.setText("-");
+			else holder.favoriteCount.setText(DataHelper.numberWithCommas(item
 					.getFavoriteCount()));
 			holder.duration.setText(DataHelper.secondsToTimer(item.getDuration()));
-			
+			holder.published.setText(DataHelper.formatDate(item.getPublished()));
+
 			return row;
 		}
 
@@ -487,6 +496,7 @@ public class BrowseVideosActivity extends ActivityBase {
 			TextView viewCount;
 			TextView favoriteCount;
 			TextView duration;
+			TextView published;
 		}
 	}
 

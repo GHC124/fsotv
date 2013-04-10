@@ -13,6 +13,8 @@ public class Video {
 	private long duration;
 	private int viewCount;
 	private int favoriteCount;
+	private String published;
+	private String updated;
 	
 	public int getIdVideo() {
 		return idVideo;
@@ -108,6 +110,22 @@ public class Video {
 
 	public void setFavoriteCount(int favoriteCount) {
 		this.favoriteCount = favoriteCount;
+	}
+
+	public String getPublished() {
+		return published;
+	}
+
+	public void setPublished(String published) {
+		this.published = published;
+	}
+
+	public String getUpdated() {
+		return updated;
+	}
+
+	public void setUpdated(String updated) {
+		this.updated = updated;
 	}
 
 	public Video() {

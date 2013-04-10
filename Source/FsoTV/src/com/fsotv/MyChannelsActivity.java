@@ -158,6 +158,7 @@ public class MyChannelsActivity extends ActivityBase {
 				item.setCommentCount(channel.getCommentCount());
 				item.setVideoCount(channel.getVideoCount());
 				item.setViewCount(channel.getViewCount());
+				item.setUpdated(channel.getUpdated());
 				channels.add(item);
 			}
 			
@@ -214,6 +215,8 @@ public class MyChannelsActivity extends ActivityBase {
 				holder.viewCount = (TextView) row.findViewById(R.id.viewCount);
 				holder.commentCount = (TextView) row
 						.findViewById(R.id.commentCount);
+				holder.updated = (TextView) row
+						.findViewById(R.id.updated);
 				
 				row.setTag(holder);
 			} else {
@@ -244,6 +247,7 @@ public class MyChannelsActivity extends ActivityBase {
 					.getViewCount()));
 			holder.commentCount.setText(DataHelper.numberWithCommas(item
 					.getCommentCount()));
+			holder.updated.setText(DataHelper.formatDate(item.getUpdated()));
 			
 			return row;
 		}
@@ -256,6 +260,7 @@ public class MyChannelsActivity extends ActivityBase {
 			TextView viewCount;
 			TextView videoCount;
 			TextView commentCount;
+			TextView updated;
 			
 		}
 	}

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="app_name">FSoTV</string>
     <string name="facebook_app_id">527186760667593</string>
     <string name="developer_key">AIzaSyAJ4UvhoRFuwgDirAFYJTWEB-yeEZZN3kA</string>
@@ -52,5 +53,6 @@
     <string name="browse_video_favorites">Favorites:</string>
     <string name="browse_video_duration">Duration:</string>
     <string name="btn_sort">Sort</string>
+    <string name="title_activity_comments">Comments</string>
 
 </resources>

@@ -161,6 +161,7 @@ public class BrowseChannelsActivity extends ActivityBase {
 			channel.setCommentCount(entry.getCommentCount());
 			channel.setVideoCount(entry.getVideoCount());
 			channel.setViewCount(entry.getViewCount());
+			channel.setUpdated(entry.getUpdated());
 			channelDao.insertChannel(channel);
 			if (channel.getIdChannel() > 0) {
 				Toast.makeText(this, "Subscribed", Toast.LENGTH_SHORT).show();
@@ -360,6 +361,8 @@ public class BrowseChannelsActivity extends ActivityBase {
 				holder.viewCount = (TextView) row.findViewById(R.id.viewCount);
 				holder.commentCount = (TextView) row
 						.findViewById(R.id.commentCount);
+				holder.updated = (TextView) row
+						.findViewById(R.id.updated);
 
 				row.setTag(holder);
 			} else {
@@ -388,6 +391,7 @@ public class BrowseChannelsActivity extends ActivityBase {
 					.getViewCount()));
 			holder.commentCount.setText(DataHelper.numberWithCommas(item
 					.getCommentCount()));
+			holder.updated.setText(DataHelper.formatDate(item.getUpdated()));
 
 			return row;
 		}
@@ -400,6 +404,7 @@ public class BrowseChannelsActivity extends ActivityBase {
 			TextView viewCount;
 			TextView videoCount;
 			TextView commentCount;
+			TextView updated;
 		}
 	}
 

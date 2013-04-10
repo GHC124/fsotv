@@ -2,6 +2,7 @@ package com.fsotv;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,17 +15,20 @@ import com.fsotv.dto.VideoEntry;
 import com.fsotv.utils.DataHelper;
 import com.fsotv.utils.FaceBookHelper;
 import com.fsotv.utils.ImageLoader;
-import com.fsotv.utils.TwitterHelper1;
-import com.fsotv.utils.TwitterHelper1.TwDialogListener;
+import com.fsotv.utils.TwitterHelper;
 import com.fsotv.utils.YouTubeHelper;
 
-public class VideoDetailActivity extends ActivityBase {
+public class VideoDetailActivity1 extends ActivityBase {
 
+	private final String PREF_SHARING_FACEBOOK = "pref_sharing_facebook";	
+	private final String PREF_SHARING_TWITTER = "pref_sharing_twitter";
+	private final String PREF_SHARING_TWITTER_LINK = "pref_sharing_twitter_link";
+	
 	private VideoEntry video;
 	private ImageLoader imageLoader;
 	private SharedPreferences mPrefs;
 	private FaceBookHelper faceBookHelper = null;
-	private TwitterHelper1 twitterHelper = null;
+	private TwitterHelper twitterHelper = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +50,25 @@ public class VideoDetailActivity extends ActivityBase {
 
 		setHeader("Video");
 		setTitle("Video Detail");
+
+		// Check current action when redirected from twitter login page
+		boolean sharingTwitter = mPrefs.getBoolean(PREF_SHARING_TWITTER, false);
+		if(sharingTwitter){
+			twitterHelper = new TwitterHelper(this, mPrefs){
+				@Override
+				public void onCallBackCompleted(){
+					// Post twitter
+					String link = mPrefs.getString(PREF_SHARING_TWITTER_LINK, "");
+					if(link.isEmpty()){
+						Log.e("TWITTER", "Empty link");
+					}
+					else {
+						twitterHelper.postTwitter(link);
+					}
+				}
+			};
+			twitterHelper.twitterCallBack();
+		}
 		
 		new loadVideo().execute(videoId);
 	}
@@ -55,13 +78,6 @@ public class VideoDetailActivity extends ActivityBase {
 		i.putExtra("videoId", video.getIdReal());
 		i.putExtra("videoTitle", video.getTitle());
 		i.putExtra("link", video.getLink());
-		startActivity(i);
-	}
-	
-	public void onCommentsClick(View v){
-		Intent i = new Intent(getApplicationContext(), CommentsActivity.class);
-		i.putExtra("videoId", video.getIdReal());
-		i.putExtra("videoTitle", video.getTitle());
 		startActivity(i);
 	}
 
@@ -83,49 +99,20 @@ public class VideoDetailActivity extends ActivityBase {
 
 	public void onTwitterClick(View v) {
 		if (twitterHelper == null) {
-			twitterHelper = new TwitterHelper1(this, mPrefs);
-			twitterHelper.setListener(mTwLoginDialogListener);
+			twitterHelper = new TwitterHelper(this, mPrefs);
 		}
 		String link = video.getLinkReal();
-		twitterHelper.resetAccessToken();
-		if (twitterHelper.hasAccessToken() == true) {
-			try {
-				twitterHelper.updateStatus(link);
-				Log.e("TWITTER", "post success");
-			} catch (Exception e) {
-				if (e.getMessage().toString().contains("duplicate")) {
-					Log.e("TWITTER", "duplicate");
-				}
-				e.printStackTrace();
-			}
-			twitterHelper.resetAccessToken();
-		} else {
-			twitterHelper.authorize();
+		if(twitterHelper.isTwitterLoggedInAlready()){
+			twitterHelper.postTwitter(link);
+		}else{
+			Editor e = mPrefs.edit();
+			e.putBoolean(PREF_SHARING_TWITTER, true);
+			e.putString(PREF_SHARING_TWITTER_LINK, link);
+			e.commit();
+			twitterHelper.loginToTwitter();
 		}
-		
 	}
-	
-	private TwDialogListener mTwLoginDialogListener = new TwDialogListener() {
 
-		public void onError(String value) {
-			Log.e("TWITTER", value);
-			twitterHelper.resetAccessToken();
-		}
-
-		public void onComplete(String value) {
-			try {
-				twitterHelper.updateStatus("");
-				Log.e("TWITTER", "success");
-			} catch (Exception e) {
-				if (e.getMessage().toString().contains("duplicate")) {
-					Log.e("TWITTER", "duplicate");
-				}
-				e.printStackTrace();
-			}
-			twitterHelper.resetAccessToken();
-		}
-	};
-	
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);

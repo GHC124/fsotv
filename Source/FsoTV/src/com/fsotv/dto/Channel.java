@@ -2,18 +2,26 @@ package com.fsotv.dto;
 
 public class Channel {
 	/* properties */
-	private int idChannel;
-	private String nameChannel;
-	private String uri;
-	private String thumnail;
-	private String describes;
-	private String idRealChannel;
+	int idChannel;
+	String nameChannel;
+	String uri;
+	String thumnail;
+	String describes;
+	String idRealChannel;
 	int commentCount;
 	int videoCount;
 	int viewCount;
 	int subscriberCount;
+	String updated;
 	
-	
+	public String getUpdated() {
+		return updated;
+	}
+
+	public void setUpdated(String updated) {
+		this.updated = updated;
+	}
+
 	public int getCommentCount() {
 		return commentCount;
 	}

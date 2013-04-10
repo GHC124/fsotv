@@ -10,7 +10,7 @@
         android:id="@+id/include1"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        layout="@layout/header" />
+        layout="@layout/header_loading" />
 
     <VideoView
         android:id="@+id/videoView"
