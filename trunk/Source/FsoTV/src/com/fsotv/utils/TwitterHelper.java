@@ -81,7 +81,7 @@ public class TwitterHelper {
 		mAccessToken = mSession.getAccessToken();
 
 		configureToken();
-		
+
 		mTwitter.setOAuthConsumer(mConsumerKey, mSecretKey);
 	}
 
@@ -111,12 +111,18 @@ public class TwitterHelper {
 		return mSession.getUsername();
 	}
 
-	public void updateStatus(String status) throws Exception {
-		try {
-			mTwitter.updateStatus(status);
-		} catch (TwitterException e) {
-			throw e;
-		}
+	public void updateStatus(final String status) throws Exception {
+
+		new Thread() {
+			@Override
+			public void run() {
+				try {
+					mTwitter.updateStatus(status);
+				} catch (TwitterException e) {
+					e.printStackTrace();
+				}
+			}
+		}.start();
 	}
 
 	public void authorize() {

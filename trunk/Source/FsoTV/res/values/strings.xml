@@ -57,5 +57,6 @@
     <string name="title_activity_home_tablet">Home</string>
     <string name="title_activity_favorite_tablet">Favorite</string>
     <string name="title_activity_browse_tablet">Browse</string>
+    <string name="title_activity_videos_tablet">Videos</string>
 
 </resources>

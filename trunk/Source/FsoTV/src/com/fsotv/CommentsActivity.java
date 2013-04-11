@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fsotv.dto.CommentEntry;
+import com.fsotv.dto.VideoEntry;
 import com.fsotv.utils.DataHelper;
 import com.fsotv.utils.EndlessScrollListViewListener;
 import com.fsotv.utils.YouTubeHelper;
@@ -86,7 +87,7 @@ public class CommentsActivity extends ActivityBase {
 	/**
 	 * Background Async Task to get Comments from URL
 	 * */
-	class LoadComments extends AsyncTask<String, String, String> {
+	class LoadComments extends AsyncTask<String, String, List<CommentEntry>> {
 
 		/**
 		 * Before starting background thread Show Progress Dialog
@@ -98,48 +99,58 @@ public class CommentsActivity extends ActivityBase {
 		}
 
 		@Override
-		protected String doInBackground(String... args) {
+		protected List<CommentEntry> doInBackground(String... args) {
 			// Demo data
-			try {
-				InputStream is = getResources().getAssets()
-						.open("Comments.txt");
-				if (isLoading) {
-					List<CommentEntry> items = YouTubeHelper
-							.getCommentsByStream(is);
-					comments.addAll(items);
-				} else {
-					comments = YouTubeHelper.getCommentsByStream(is);
-				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-//			if (isLoading) {
-//				List<CommentEntry> items = YouTubeHelper.getComments(videoId,
-//						maxLoad, startIndex);
-//				comments.addAll(items);
-//			} else {
-//				startIndex = 1;
-//				comments = YouTubeHelper.getComments(videoId, maxResult,
-//						startIndex);
+//			try {
+//				InputStream is = getResources().getAssets()
+//						.open("Comments.txt");
+//				if (isLoading) {
+//					List<CommentEntry> items = YouTubeHelper
+//							.getCommentsByStream(is);
+//					comments.addAll(items);
+//				} else {
+//					comments = YouTubeHelper.getCommentsByStream(is);
+//				}
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
 //			}
+
+			if (isLoading) {
+				List<CommentEntry> items = YouTubeHelper.getComments(videoId,
+						maxLoad, startIndex);
+				return items;
+			} else {
+				startIndex = 1;
+				comments = YouTubeHelper.getComments(videoId, maxResult,
+						startIndex);
+			}
 			return null;
 		}
 
 		/**
 		 * After completing background
 		 * **/
-		protected void onPostExecute(String args) {
+		protected void onPostExecute(List<CommentEntry> result) {
 			hideLoading();
 			if (isLoading)
 				isLoading = false;
-			adapter.clear();
-			for (CommentEntry c : comments) {
-				adapter.add(c);
+			if (result != null) {
+				comments.addAll(result);
+				if (result.size() == 0) {
+					// decrease start index so we will load more items at previous position
+					startIndex = startIndex - maxResult;
+					Toast.makeText(getApplicationContext(), "No more results",
+							Toast.LENGTH_LONG).show();
+				}
 			}
-			adapter.notifyDataSetChanged();
-			if (comments.size() == 0) {
+			if (comments.size() > 0) {
+				adapter.clear();
+				for (CommentEntry c : comments) {
+					adapter.add(c);
+				}
+				adapter.notifyDataSetChanged();
+			} else {
 				Toast.makeText(getApplicationContext(), "No results",
 						Toast.LENGTH_LONG).show();
 			}

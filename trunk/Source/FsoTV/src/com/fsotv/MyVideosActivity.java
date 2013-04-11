@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
@@ -42,9 +43,6 @@ import com.fsotv.utils.ImageLoader;
  *
  */
 public class MyVideosActivity extends ActivityBase {
-
-	private final int MENU_UNSUBSCRIBE = Menu.FIRST;
-
 	private ExpandableListView expVideo;
 	private List<ListGroup> groups;
 	private ImageLoader imageLoader;
@@ -90,73 +88,46 @@ public class MyVideosActivity extends ActivityBase {
 				return true;
 			}
 		});
-		registerForContextMenu(expVideo);
+		expVideo.setOnItemLongClickListener(new OnItemLongClickListener() {
+		    @Override
+		    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+		        if (ExpandableListView.getPackedPositionType(id) == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
+		            final int groupPos = ExpandableListView.getPackedPositionGroup(id);
+		            final int childPos = ExpandableListView.getPackedPositionChild(id);
+		            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+							MyVideosActivity.this);
+					alertDialogBuilder.setTitle("Unsubscribe Video");
+					alertDialogBuilder
+							.setMessage("Do you want to unsubscribe this video?")
+							.setCancelable(false)
+							.setPositiveButton("Ok",
+									new DialogInterface.OnClickListener() {
+										public void onClick(DialogInterface dialog,
+												int id) {
+											VideoEntry entry = groups.get(groupPos).childs.get(childPos);
+											videoDao.deleteVideo(Integer.parseInt(entry
+													.getId()));
+											dialog.dismiss();
+											new loadVideos().execute();
+										}
+									})
+							.setNegativeButton("Cancel",
+									new DialogInterface.OnClickListener() {
+										public void onClick(DialogInterface dialog,
+												int id) {
+											dialog.dismiss();
+										}
+									});
+					AlertDialog alertDialog = alertDialogBuilder.create();
+					alertDialog.show();
+		            return true;
+		        }
+
+		        return false;
+		    }
+		});
+		//registerForContextMenu(expVideo);
 		new loadVideos().execute();
-	}
-
-	/**
-	 * Building a context menu for listview Long press on List row to see
-	 * context menu
-	 * */
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v,
-			ContextMenuInfo menuInfo) {
-		if (v.getId() == R.id.lvVideo) {
-			menu.setHeaderTitle("Option");
-			menu.add(Menu.NONE, MENU_UNSUBSCRIBE, 0, "Unsubscribe");
-		}
-	}
-
-	/**
-	 * Responding to context menu selected option
-	 * */
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		int menuItemId = item.getItemId();
-		// check for selected option
-		if (menuItemId == MENU_UNSUBSCRIBE) {
-			ExpandableListContextMenuInfo info = (ExpandableListContextMenuInfo) item
-					.getMenuInfo();
-			int g = 0, c = 0;
-			int type = ExpandableListView
-					.getPackedPositionType(info.packedPosition);
-			if (type == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
-				g = ExpandableListView
-						.getPackedPositionGroup(info.packedPosition);
-				c = ExpandableListView
-						.getPackedPositionChild(info.packedPosition);
-			}
-			final int groupPos = g;
-			final int childPos = c;
-			AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-					this);
-			alertDialogBuilder.setTitle("Unsubscribe Video");
-			alertDialogBuilder
-					.setMessage("Do you want to unsubscribe this video?")
-					.setCancelable(false)
-					.setPositiveButton("Ok",
-							new DialogInterface.OnClickListener() {
-								public void onClick(DialogInterface dialog,
-										int id) {
-									VideoEntry entry = groups.get(groupPos).childs.get(childPos);
-									videoDao.deleteVideo(Integer.parseInt(entry
-											.getId()));
-									groups.get(groupPos).childs.remove(childPos);
-									expVideo.invalidateViews();
-								}
-							})
-					.setNegativeButton("Cancel",
-							new DialogInterface.OnClickListener() {
-								public void onClick(DialogInterface dialog,
-										int id) {
-									dialog.cancel();
-								}
-							});
-			AlertDialog alertDialog = alertDialogBuilder.create();
-			alertDialog.show();
-		}
-
-		return true;
 	}
 
 	/**
@@ -178,7 +149,7 @@ public class MyVideosActivity extends ActivityBase {
 			List<Reference> listChannel = referenceDao.getListReference(
 					ReferenceDao.KEY_YOUTUBE_CATEGORY, null);
 			List<Video> listVideo = videoDao.getListVideo();
-
+			groups.clear();
 			for (Reference c : listChannel) {
 				ListGroup group = new ListGroup();
 				group.id = c.getId();
