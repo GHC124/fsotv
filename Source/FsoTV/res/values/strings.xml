@@ -54,5 +54,8 @@
     <string name="browse_video_duration">Duration:</string>
     <string name="btn_sort">Sort</string>
     <string name="title_activity_comments">Comments</string>
+    <string name="title_activity_home_tablet">Home</string>
+    <string name="title_activity_favorite_tablet">Favorite</string>
+    <string name="title_activity_browse_tablet">Browse</string>
 
 </resources>

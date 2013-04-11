@@ -82,7 +82,7 @@ public class YouTubeHelper {
 		String newUrl = sb.toString();
 		try {
 			newUrl = DataHelper.parseUrl(newUrl);
-			is = WebRequest.GetStream(newUrl, WebRequest.PostType.GET);
+			is = WebHelper.GetStream(newUrl, WebHelper.PostType.GET);
 		} catch (Exception ex) {
 			Log.e("getChannels", ex.toString());
 		}
@@ -168,7 +168,7 @@ public class YouTubeHelper {
 		sb.append("/users/");
 		sb.append(channelId);
 		sb.append("/uploads");
-		sb.append("?v=2&alt=json&format=6");
+		sb.append("?v=2&alt=json");
 		if (orderBy != null && !orderBy.isEmpty()) {
 			sb.append("&orderby=");
 			sb.append(orderBy);
@@ -195,7 +195,7 @@ public class YouTubeHelper {
 		String newUrl = sb.toString();
 		try {
 			newUrl = DataHelper.parseUrl(newUrl);
-			is = WebRequest.GetStream(newUrl, WebRequest.PostType.GET);
+			is = WebHelper.GetStream(newUrl, WebHelper.PostType.GET);
 		} catch (Exception ex) {
 			Log.e("getVideosInChannel", ex.toString());
 		}
@@ -225,7 +225,7 @@ public class YouTubeHelper {
 			sb.append(CategoryURL);
 			sb.append(category);
 		}
-		sb.append("?v=2&alt=json&format=6");
+		sb.append("?v=2&alt=json");
 		if (orderBy != null && !orderBy.isEmpty()) {
 			sb.append("&orderby=");
 			sb.append(orderBy);
@@ -252,7 +252,7 @@ public class YouTubeHelper {
 		String newUrl = sb.toString();
 		try {
 			newUrl = DataHelper.parseUrl(newUrl);
-			is = WebRequest.GetStream(newUrl, WebRequest.PostType.GET);
+			is = WebHelper.GetStream(newUrl, WebHelper.PostType.GET);
 		} catch (Exception ex) {
 			Log.e("getVideosInCategory", ex.toString());
 		}
@@ -372,7 +372,7 @@ public class YouTubeHelper {
 		String newUrl = sb.toString();
 		try {
 			newUrl = DataHelper.parseUrl(newUrl);
-			is = WebRequest.GetStream(newUrl, WebRequest.PostType.GET);
+			is = WebHelper.GetStream(newUrl, WebHelper.PostType.GET);
 		} catch (Exception ex) {
 			Log.e("getComments", ex.toString());
 		}
@@ -430,7 +430,7 @@ public class YouTubeHelper {
 		sb.append("?v=2&alt=json");
 		String newUrl = sb.toString();
 		try {
-			is = WebRequest.GetStream(newUrl, WebRequest.PostType.GET);
+			is = WebHelper.GetStream(newUrl, WebHelper.PostType.GET);
 		} catch (Exception ex) {
 			Log.e("getChannelDetail", ex.toString());
 		}
@@ -505,7 +505,7 @@ public class YouTubeHelper {
 		sb.append("?v=2&alt=json");
 		String newUrl = sb.toString();
 		try {
-			is = WebRequest.GetStream(newUrl, WebRequest.PostType.GET);
+			is = WebHelper.GetStream(newUrl, WebHelper.PostType.GET);
 
 		} catch (Exception ex) {
 			Log.e("getVideoDetail", ex.toString());

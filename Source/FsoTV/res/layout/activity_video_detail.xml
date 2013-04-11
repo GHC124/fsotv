@@ -197,23 +197,15 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:onClick="onCommentsClick"
-                android:text="View Comments" />
+                android:text="Comments" />
 
             <Button
-                android:id="@+id/btnFaceBook"
+                android:id="@+id/btnShare"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:onClick="onFaceBookClick"
-                android:text="Share FaceBook" />
-
-            <Button
-                android:id="@+id/btnTwitter"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:onClick="onTwitterClick"
-                android:text="Share Twitter" />
+                android:onClick="onShareClick"
+                android:text="Share" />
         </LinearLayout>
     </LinearLayout>
 

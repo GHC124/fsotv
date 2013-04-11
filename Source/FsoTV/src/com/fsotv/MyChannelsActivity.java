@@ -31,7 +31,13 @@ import com.fsotv.dto.Channel;
 import com.fsotv.dto.ChannelEntry;
 import com.fsotv.utils.DataHelper;
 import com.fsotv.utils.ImageLoader;
-
+/**
+ * Show channels that are subscribe and store in database
+ * Extend ActivityBase, allow:
+ * + Unsubscribe
+ * + View videos when click an channel
+ *
+ */
 public class MyChannelsActivity extends ActivityBase {
 	
 	private final int MENU_UNSUBSCRIBE = Menu.FIRST;	
@@ -235,10 +241,7 @@ public class MyChannelsActivity extends ActivityBase {
 			}
 
 			imageLoader.DisplayImage(item.getImage(), holder.image, holder.progressBar);
-			
-			//new DownloadChannel(holder.viewCount, holder.subscriberCount, 
-			//		holder.image, holder.progressBar).execute(item.getIdReal());
-
+		
 			holder.title.setText(title);
 			holder.description.setText(description);
 			holder.videoCount.setText(DataHelper.numberWithCommas(item

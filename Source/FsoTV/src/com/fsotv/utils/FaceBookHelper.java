@@ -28,7 +28,7 @@ public class FaceBookHelper {
 	private boolean isLogin = false;
 	private boolean isPost = false;
 	private boolean requestPost = false;
-	private String linkPost = "";
+	private String postMessage = "";
 
 	public FaceBookHelper(Activity activity, SharedPreferences mPrefs) {
 		this.activity = activity;
@@ -86,7 +86,7 @@ public class FaceBookHelper {
 					isLogin = onLoginComplete(values);
 
 					if (requestPost) {
-						postToWall(linkPost);
+						postToWall(postMessage);
 					}
 				}
 
@@ -110,15 +110,15 @@ public class FaceBookHelper {
 	/**
 	 * Function to post to facebook wall
 	 * */
-	public boolean postToWall(String link) {
-		linkPost = link;
+	public boolean postToWall(String message) {
+		postMessage = message;
 		requestPost = true;
 		// // Check login
 		// boolean login = loginToFacebook();
 		// if (login) {
 		// post on user's wall.
 		Bundle data = new Bundle();
-		data.putString("link", linkPost);
+		data.putString("link", postMessage);
 		facebook.dialog(activity, "feed", data, new DialogListener() {
 			@Override
 			public void onFacebookError(FacebookError e) {
@@ -161,7 +161,7 @@ public class FaceBookHelper {
 	}
 
 	public boolean onLoginCancel() {
-		Log.e("LOGIN FACE", "CACELED");
+		Log.e("LOGIN FACE", "Canceled");
 		return false;
 	}
 

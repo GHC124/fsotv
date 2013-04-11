@@ -5,6 +5,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+/**
+ * Extend ActivityBase, allow:
+ * + View favorite channels
+ * + View favorite videos
+ * 
+ *
+ */
 public class FavoriteActivity extends Activity {
 
 	@Override

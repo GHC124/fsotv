@@ -34,7 +34,13 @@ import com.fsotv.dto.Video;
 import com.fsotv.dto.VideoEntry;
 import com.fsotv.utils.DataHelper;
 import com.fsotv.utils.ImageLoader;
-
+/**
+ * Show videos that are subscribe and store in database
+ * Extend ActivityBase, allow:
+ * + Unsubscribe
+ * + View video detail when click an video
+ *
+ */
 public class MyVideosActivity extends ActivityBase {
 
 	private final int MENU_UNSUBSCRIBE = Menu.FIRST;

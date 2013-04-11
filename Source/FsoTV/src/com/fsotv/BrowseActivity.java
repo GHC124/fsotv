@@ -6,7 +6,13 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-
+/**
+ * Browse Activity class
+ * + Browse channels from youtube
+ * + Browse videos form youtube
+ * 
+ *
+ */
 public class BrowseActivity extends Activity {
 	
 	@Override

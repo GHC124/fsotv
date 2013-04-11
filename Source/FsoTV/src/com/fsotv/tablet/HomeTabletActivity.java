@@ -1,4 +1,4 @@
-package com.fsotv;
+package com.fsotv.tablet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,69 +6,52 @@ import java.util.List;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
-import android.opengl.Visibility;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.ViewFlipper;
 
+import com.fsotv.ActivityBase;
+import com.fsotv.BrowseVideosActivity;
+import com.fsotv.CategoryActivity;
+import com.fsotv.R;
 import com.fsotv.dao.ReferenceDao;
 import com.fsotv.dto.Reference;
-import com.fsotv.utils.OnSwipeTouchListener;
 
-/**
- * Allow:
- * + See video category
- * + Add, remove category
- * + Slide left, right to see category
- * 
- *
- */
-public class HomeActivity extends Activity implements OnClickListener {
+public class HomeTabletActivity  extends ActivityBase{
 	private final int RESULT_CATEGORY = 1;
 	private final int CATEGORY_ADD = -1;
 
-	private ViewFlipper vf;
-	private ImageView imgLeft, imgRight;
+	private HorizontalScrollView vf;
+	private LinearLayout ll;
 	private List<Reference> categories;
-	private int currentLayout = 0;
-
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_home);
+		setContentView(R.layout.activity_home_tablet);
 
 		// Get the Reference viewFlipper and set animation
-		vf = (ViewFlipper) findViewById(R.id.viewFlip_channel);
+		vf = (HorizontalScrollView) findViewById(R.id.scrollView_channel);
+		// Add layout to scrollview
+		ll = new LinearLayout(HomeTabletActivity.this);
+		ll.setOrientation(LinearLayout.HORIZONTAL);
+		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+				LinearLayout.LayoutParams.MATCH_PARENT,
+				LinearLayout.LayoutParams.MATCH_PARENT);
+		ll.setLayoutParams(lp);
+	
+		hideBack();
+		setHeader("Home");
 		
-		imgLeft = (ImageView) findViewById(R.id.imgLeft);
-		imgRight = (ImageView) findViewById(R.id.imgRight);
-		// Set onClick listener for all button
-		imgLeft.setOnClickListener(this);
-		imgRight.setOnClickListener(this);
-
 		categories = new ArrayList<Reference>();
 		new loadCategories().execute();
-	}
-
-	public void onClick(View v) {
-		if (v == imgLeft) {
-			swipeLeft();
-		} else if (v == imgRight) {
-			swipeRight();
-		} else if (v instanceof LinearLayout) {
-
-		}
 	}
 
 	@Override
@@ -82,29 +65,29 @@ public class HomeActivity extends Activity implements OnClickListener {
 		}
 	}
 
-	private void addItemToViewFilpper(Reference r) {
-		final LinearLayout ll = new LinearLayout(HomeActivity.this);
+	private void addItemToScrollView(Reference r) {
+		final LinearLayout ll1 = new LinearLayout(HomeTabletActivity.this);
 		if (Build.VERSION.SDK_INT >= 16) {
-			ll.setBackground(getResources().getDrawable(
+			ll1.setBackground(getResources().getDrawable(
 					R.drawable.channel_list_background));
 		}else{
 		}
-		ll.setOrientation(LinearLayout.VERTICAL);
-		ll.setGravity(Gravity.CENTER);
-		ll.setId(r.getId());
+		ll1.setOrientation(LinearLayout.VERTICAL);
+		ll1.setGravity(Gravity.CENTER);
+		ll1.setId(r.getId());
 		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
 				LinearLayout.LayoutParams.MATCH_PARENT,
 				LinearLayout.LayoutParams.MATCH_PARENT);
-		ll.setLayoutParams(lp);
+		ll1.setLayoutParams(lp);
 
-		LinearLayout ll1 = new LinearLayout(HomeActivity.this);
-		ll1.setOrientation(LinearLayout.VERTICAL);
+		LinearLayout ll2 = new LinearLayout(HomeTabletActivity.this);
+		ll2.setOrientation(LinearLayout.VERTICAL);
 		LinearLayout.LayoutParams lp1 = new LinearLayout.LayoutParams(
 				LinearLayout.LayoutParams.WRAP_CONTENT,
 				LinearLayout.LayoutParams.WRAP_CONTENT);
-		ll1.setLayoutParams(lp1);
+		ll2.setLayoutParams(lp1);
 
-		TextView tv = new TextView(HomeActivity.this);
+		TextView tv = new TextView(HomeTabletActivity.this);
 		tv.setTextColor(Color.parseColor("#000000"));
 		tv.setText(r.getDisplay());
 		tv.setTextSize(50);
@@ -115,24 +98,13 @@ public class HomeActivity extends Activity implements OnClickListener {
 		lp2.rightMargin = 10;
 		tv.setLayoutParams(lp2);
 
-		ll1.addView(tv);
-		ll.addView(ll1);
+		ll2.addView(tv);
+		ll1.addView(ll2);
 		// Add slide event
-		ll.setOnTouchListener(new OnSwipeTouchListener() {
+		ll1.setOnClickListener(new OnClickListener() {
+			
 			@Override
-			public boolean onSwipeLeft() {
-				swipeLeft();
-				return true;
-			}
-
-			@Override
-			public boolean onSwipeRight() {
-				swipeRight();
-				return true;
-			}
-
-			@Override
-			public void onSwipeDown() {
+			public void onClick(View v) {
 				int cateId = ll.getId();
 				if (cateId == CATEGORY_ADD) {
 					Intent i = new Intent(getApplicationContext(),
@@ -150,48 +122,9 @@ public class HomeActivity extends Activity implements OnClickListener {
 					startActivity(i);
 				}
 			}
-			
-			@Override
-			public void onSwipePress() {
-				
-			}
 		});
-
-		vf.addView(ll);
-	}
-
-	private void swipeLeft() {
-		currentLayout--;
-		if (currentLayout < 0) {
-			currentLayout = 0;
-		} else {
-			vf.setInAnimation(this, R.animator.slide_in_from_left);
-			vf.setOutAnimation(this, R.animator.slide_out_to_right);
-			vf.setDisplayedChild(currentLayout);
-			if (currentLayout == 0) {
-				imgLeft.setVisibility(View.INVISIBLE);
-			}
-			if (imgRight.getVisibility() == View.INVISIBLE) {
-				imgRight.setVisibility(View.VISIBLE);
-			}
-		}
-	}
-
-	private void swipeRight() {
-		currentLayout++;
-		if (currentLayout > categories.size() - 1) {
-			currentLayout = categories.size() - 1;
-		} else {
-			vf.setInAnimation(this, R.animator.slide_in_from_right);
-			vf.setOutAnimation(this, R.animator.slide_out_to_left);
-			vf.setDisplayedChild(currentLayout);
-			if (currentLayout == categories.size() - 1) {
-				imgRight.setVisibility(View.INVISIBLE);
-			}
-			if (imgLeft.getVisibility() == View.INVISIBLE) {
-				imgLeft.setVisibility(View.VISIBLE);
-			}
-		}
+		
+		ll.addView(ll1);
 	}
 
 	/**
@@ -205,7 +138,7 @@ public class HomeActivity extends Activity implements OnClickListener {
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			// showLoading();
+			showLoading();
 		}
 
 		@Override
@@ -223,24 +156,21 @@ public class HomeActivity extends Activity implements OnClickListener {
 		 * After completing background task Dismiss the progress dialog
 		 * **/
 		protected void onPostExecute(String args) {
+			hideLoading();
+			ll.removeAllViews();
 			vf.removeAllViews();
-			currentLayout = 0;
-			imgLeft.setVisibility(View.INVISIBLE);
 			for (Reference r : categories) {
-				addItemToViewFilpper(r);
-			}
-			if (categories.size() > 0) {
-				imgRight.setVisibility(View.VISIBLE);
+				addItemToScrollView(r);
 			}
 			Reference add = new Reference();
 			add.setId(CATEGORY_ADD);
 			add.setDisplay("+");
-			addItemToViewFilpper(add);
-
-			vf.setDisplayedChild(0);
-
 			categories.add(new Reference(-1, ReferenceDao.KEY_YOUTUBE_CATEGORY,
 					"add_new", "+", ""));
+			
+			addItemToScrollView(add);
+			
+			vf.addView(ll);
 		}
 
 	}
