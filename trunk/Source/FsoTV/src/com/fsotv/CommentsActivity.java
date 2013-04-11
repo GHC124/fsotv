@@ -21,9 +21,16 @@ import android.widget.Toast;
 
 import com.fsotv.dto.CommentEntry;
 import com.fsotv.utils.DataHelper;
-import com.fsotv.utils.EndlessScrollListener;
+import com.fsotv.utils.EndlessScrollListViewListener;
 import com.fsotv.utils.YouTubeHelper;
 
+/**
+ * Browse comments from youtube by video
+ * Extend ActivityBase, allow:
+ * + Load more items when scroll
+ * 
+ *
+ */
 public class CommentsActivity extends ActivityBase {
 
 	private ListView lvComment;
@@ -34,6 +41,7 @@ public class CommentsActivity extends ActivityBase {
 	private boolean isLoading = false;
 	private String videoId = "";
 	private int maxResult = 10;
+	private int maxLoad = 5;
 	private int startIndex = 1;
 
 	@Override
@@ -56,7 +64,7 @@ public class CommentsActivity extends ActivityBase {
 		setHeader(videoTitle);
 		setTitle("Comments");
 
-		lvComment.setOnScrollListener(new EndlessScrollListener(lvComment) {
+		lvComment.setOnScrollListener(new EndlessScrollListViewListener(lvComment) {
 			@Override
 			public void loadData() {
 				if (!isLoading) {
@@ -92,30 +100,30 @@ public class CommentsActivity extends ActivityBase {
 		@Override
 		protected String doInBackground(String... args) {
 			// Demo data
-//			try {
-//				InputStream is = getResources().getAssets()
-//						.open("Comments.txt");
-//				if (isLoading) {
-//					List<CommentEntry> items = YouTubeHelper
-//							.getCommentsByStream(is);
-//					comments.addAll(items);
-//				} else {
-//					comments = YouTubeHelper.getCommentsByStream(is);
-//				}
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-
-			if (isLoading) {
-				List<CommentEntry> items = YouTubeHelper.getComments(videoId,
-						5, startIndex);
-				comments.addAll(items);
-			} else {
-				startIndex = 1;
-				comments = YouTubeHelper.getComments(videoId, maxResult,
-						startIndex);
+			try {
+				InputStream is = getResources().getAssets()
+						.open("Comments.txt");
+				if (isLoading) {
+					List<CommentEntry> items = YouTubeHelper
+							.getCommentsByStream(is);
+					comments.addAll(items);
+				} else {
+					comments = YouTubeHelper.getCommentsByStream(is);
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
+
+//			if (isLoading) {
+//				List<CommentEntry> items = YouTubeHelper.getComments(videoId,
+//						maxLoad, startIndex);
+//				comments.addAll(items);
+//			} else {
+//				startIndex = 1;
+//				comments = YouTubeHelper.getComments(videoId, maxResult,
+//						startIndex);
+//			}
 			return null;
 		}
 

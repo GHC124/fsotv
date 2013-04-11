@@ -31,6 +31,11 @@ import com.fsotv.dto.Reference;
 import com.fsotv.utils.ImageLoader;
 import com.fsotv.utils.YouTubeHelper;
 
+/**
+ * Show category that store in database
+ * Extend ActivityBase
+ *
+ */
 public class CategoryActivity extends ActivityBase {
 
 	private ListView lvCategory;

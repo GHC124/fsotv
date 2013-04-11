@@ -1,4 +1,4 @@
-package com.fsotv;
+package com.fsotv.tablet;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,19 +11,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.View.OnClickListener;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -31,32 +31,20 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.fsotv.BrowseVideosActivity.ListCategoryAdapter;
-import com.fsotv.BrowseVideosActivity.LoadCategories;
-import com.fsotv.BrowseVideosActivity.LoadVideos;
-import com.fsotv.BrowseVideosActivity.ListCategoryAdapter.ListItemHolder;
+import com.fsotv.ActivityBase;
+import com.fsotv.BrowseVideosActivity;
+import com.fsotv.R;
 import com.fsotv.dao.ChannelDao;
 import com.fsotv.dao.ReferenceDao;
 import com.fsotv.dto.Channel;
 import com.fsotv.dto.ChannelEntry;
 import com.fsotv.dto.Reference;
 import com.fsotv.utils.DataHelper;
-import com.fsotv.utils.EndlessScrollListViewListener;
+import com.fsotv.utils.EndlessScrollGridViewListener;
 import com.fsotv.utils.ImageLoader;
 import com.fsotv.utils.YouTubeHelper;
 
-/**
- * Browse channels from youtube
- * Extend ActivityBase, allow:
- * + Subscribe channel
- * + Change user type
- * + Sort channel
- * + Load more items when scroll
- * 
- *
- */
-public class BrowseChannelsActivity extends ActivityBase {
-
+public class BrowseTabletActivity extends ActivityBase {
 	private final int MENU_SUBSCRIBE = Menu.FIRST;
 	private final int OPTION_SORT = Menu.FIRST + 1;
 	private final int OPTION_USERTYPE = Menu.FIRST + 2;
@@ -64,7 +52,7 @@ public class BrowseChannelsActivity extends ActivityBase {
 	private Dialog sortDialog;
 	private Dialog userTypeDialog;
 
-	private ListView lvChannel;
+	private GridView gvChannel;
 
 	private List<ChannelEntry> channels;
 	private List<Reference> userTypes;
@@ -77,13 +65,14 @@ public class BrowseChannelsActivity extends ActivityBase {
 	private int maxLoad = 5;
 	private int startIndex = 1;
 	private String userType;
-
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_browse_channels);
+		setContentView(R.layout.activity_browse_tablet);
+		
 
-		lvChannel = (ListView) findViewById(R.id.lvChannel);
+		gvChannel = (GridView) findViewById(R.id.gvChannel);
 
 		channels = new ArrayList<ChannelEntry>();
 		imageLoader = new ImageLoader(getApplicationContext());
@@ -95,11 +84,12 @@ public class BrowseChannelsActivity extends ActivityBase {
 			userType = extras.getString("userType");
 			userType = (userType == null) ? "" : userType;
 		}
+		hideBack();
 		setHeader(userType);
 		setTitle("Browse Channel");
 
 		// Launching new screen on Selecting Single ListItem
-		lvChannel.setOnItemClickListener(new OnItemClickListener() {
+		gvChannel.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				String channelId = channels.get(position).getId();
@@ -111,7 +101,7 @@ public class BrowseChannelsActivity extends ActivityBase {
 				startActivity(i);
 			}
 		});
-		lvChannel.setOnScrollListener(new EndlessScrollListViewListener(lvChannel) {
+		gvChannel.setOnScrollListener(new EndlessScrollGridViewListener(gvChannel) {
 			@Override
 			public void loadData() {
 				if (!isLoading) {
@@ -121,11 +111,11 @@ public class BrowseChannelsActivity extends ActivityBase {
 				}
 			}
 		});
-		adapter = new ListChannelAdapter(BrowseChannelsActivity.this,
-				R.layout.browse_channel_item, channels);
+		adapter = new ListChannelAdapter(BrowseTabletActivity.this,
+				R.layout.browse_item, channels);
 		// updating listview
-		registerForContextMenu(lvChannel);
-		lvChannel.setAdapter(adapter);
+		registerForContextMenu(gvChannel);
+		gvChannel.setAdapter(adapter);
 
 		new LoadChannels().execute();
 	}
@@ -198,7 +188,7 @@ public class BrowseChannelsActivity extends ActivityBase {
 			if (sortDialog != null)
 				sortDialog.show();
 			else {
-				createSortDialog(BrowseChannelsActivity.this);
+				createSortDialog(BrowseTabletActivity.this);
 				if (sortDialog != null)
 					sortDialog.show();
 			}
@@ -207,7 +197,7 @@ public class BrowseChannelsActivity extends ActivityBase {
 			if (userTypeDialog != null)
 				userTypeDialog.show();
 			else {
-				createUserTypeDialog(BrowseChannelsActivity.this);
+				createUserTypeDialog(BrowseTabletActivity.this);
 				if (userTypeDialog != null)
 					userTypeDialog.show();
 			}
@@ -293,16 +283,16 @@ public class BrowseChannelsActivity extends ActivityBase {
 		protected String doInBackground(String... args) {
 			// Demo data
 			 try {
-			 InputStream is = getResources().getAssets().open("Channels.txt");
-			 if (isLoading) {
-			 List<ChannelEntry> items = YouTubeHelper.getChannelsByStream(is);
-			 channels.addAll(items);
-			 }else{
-			 channels = YouTubeHelper.getChannelsByStream(is);
-			 }
-			 } catch (IOException e) {
-			 // TODO Auto-generated catch block
-			 e.printStackTrace();
+				 InputStream is = getResources().getAssets().open("Channels.txt");
+				 if (isLoading) {
+				 List<ChannelEntry> items = YouTubeHelper.getChannelsByStream(is);
+				 channels.addAll(items);
+				 }else{
+				 channels = YouTubeHelper.getChannelsByStream(is);
+				 }
+				 } catch (IOException e) {
+				 // TODO Auto-generated catch block
+				 e.printStackTrace();
 			 }
 			//
 //			if (isLoading) {
@@ -365,13 +355,6 @@ public class BrowseChannelsActivity extends ActivityBase {
 				holder.progressBar = (ProgressBar) row
 						.findViewById(R.id.progressBar);
 				holder.title = (TextView) row.findViewById(R.id.title);
-				holder.description = (TextView) row
-						.findViewById(R.id.description);
-				holder.videoCount = (TextView) row
-						.findViewById(R.id.videoCount);
-				holder.viewCount = (TextView) row.findViewById(R.id.viewCount);
-				holder.commentCount = (TextView) row
-						.findViewById(R.id.commentCount);
 				holder.updated = (TextView) row
 						.findViewById(R.id.updated);
 
@@ -384,24 +367,13 @@ public class BrowseChannelsActivity extends ActivityBase {
 			// format string
 			String title = item.getTitle();
 			String description = item.getDescription();
-			if (title.length() > 50) {
-				title = title.substring(0, 50) + "...";
+			if (title.length() > 25) {
+				title = title.substring(0, 25) + "...";
 			}
-			if (description.length() > 150) {
-				description = description.substring(0, 150) + "...";
-			}
-
+			
 			imageLoader.DisplayImage(item.getImage(), holder.image,
 					holder.progressBar);
-
 			holder.title.setText(title);
-			holder.description.setText(description);
-			holder.videoCount.setText(DataHelper.numberWithCommas(item
-					.getVideoCount()));
-			holder.viewCount.setText(DataHelper.numberWithCommas(item
-					.getViewCount()));
-			holder.commentCount.setText(DataHelper.numberWithCommas(item
-					.getCommentCount()));
 			holder.updated.setText(DataHelper.formatDate(item.getUpdated()));
 
 			return row;
@@ -411,10 +383,6 @@ public class BrowseChannelsActivity extends ActivityBase {
 			ImageView image;
 			ProgressBar progressBar;
 			TextView title;
-			TextView description;
-			TextView viewCount;
-			TextView videoCount;
-			TextView commentCount;
 			TextView updated;
 		}
 	}
@@ -443,7 +411,7 @@ public class BrowseChannelsActivity extends ActivityBase {
 			runOnUiThread(new Runnable() {
 				public void run() {
 					ListUserTypeAdapter adapter = new ListUserTypeAdapter(
-							BrowseChannelsActivity.this,
+							BrowseTabletActivity.this,
 							R.layout.usertype_channel_item, userTypes);
 					// updating listview
 					lvUserType.setAdapter(adapter);

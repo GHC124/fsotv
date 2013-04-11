@@ -19,7 +19,7 @@ import org.apache.http.protocol.HttpContext;
 
 import android.util.Log;
 
-public class WebRequest {
+public class WebHelper {
 	public enum PostType {
 		GET, POST;
 	}

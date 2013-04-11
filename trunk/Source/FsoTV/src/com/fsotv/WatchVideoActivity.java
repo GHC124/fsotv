@@ -26,7 +26,13 @@ import android.widget.VideoView;
 
 import com.fsotv.utils.DataHelper;
 import com.fsotv.utils.YouTubeHelper;
-
+/**
+ * Watch video
+ * Extend ActivityBase, allow:
+ * + Start, stop
+ * + Go back 30'
+ * + Change volume
+ */
 public class WatchVideoActivity extends ActivityBase implements
 		OnCompletionListener, SeekBar.OnSeekBarChangeListener {
 	private final int OPTION_VOLUME = Menu.FIRST;
@@ -232,6 +238,7 @@ public class WatchVideoActivity extends ActivityBase implements
 					boolean fromUser) {
 				seekVolume = progress;
 				updateVolume();
+				volumeDialog.dismiss();
 			}
 
 			@Override

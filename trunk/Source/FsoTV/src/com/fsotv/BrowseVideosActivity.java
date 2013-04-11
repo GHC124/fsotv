@@ -37,10 +37,20 @@ import com.fsotv.dto.Reference;
 import com.fsotv.dto.Video;
 import com.fsotv.dto.VideoEntry;
 import com.fsotv.utils.DataHelper;
-import com.fsotv.utils.EndlessScrollListener;
+import com.fsotv.utils.EndlessScrollListViewListener;
 import com.fsotv.utils.ImageLoader;
 import com.fsotv.utils.YouTubeHelper;
-
+/**
+ * Browse videos from youtube
+ * Extend ActivityBase, allow:
+ * + Subscribe video
+ * + Search keyword
+ * + Change category
+ * + Sort video
+ * + Load more items when scroll
+ * 
+ *
+ */
 public class BrowseVideosActivity extends ActivityBase {
 	private final int MENU_SUBSCRIBE = Menu.FIRST;
 	private final int OPTION_SEARCH = Menu.FIRST;
@@ -64,6 +74,7 @@ public class BrowseVideosActivity extends ActivityBase {
 	String categoryId = "";
 	private String orderBy = "";
 	private int maxResult = 5;
+	private int maxLoad = 5;
 	private int startIndex = 1;
 	String keyword = "";
 
@@ -113,7 +124,7 @@ public class BrowseVideosActivity extends ActivityBase {
 				startActivity(i);
 			}
 		});
-		lvVideo.setOnScrollListener(new EndlessScrollListener(lvVideo){
+		lvVideo.setOnScrollListener(new EndlessScrollListViewListener(lvVideo){
 			@Override 
 			public void loadData(){
 				if(!isLoading){
@@ -359,40 +370,43 @@ public class BrowseVideosActivity extends ActivityBase {
 		@Override
 		protected String doInBackground(String... args) {
 			// Demo data
-//			try {
-//				InputStream is = getResources().getAssets().open(
-//						"VideosInChannel.txt");
-//				if(isLoading){
-//					List<VideoEntry> items = null;
-//					items = YouTubeHelper.getVideosByStream(is);
-//					videos.addAll(items);
-//				}else{
-//					videos = YouTubeHelper.getVideosByStream(is);
-//				}
-//
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
+			try {
+				InputStream is = getResources().getAssets().open(
+						"VideosInChannel.txt");
+				if(isLoading){
+					List<VideoEntry> items = null;
+					items = YouTubeHelper.getVideosByStream(is);
+					videos.addAll(items);
+				}else{
+					videos = YouTubeHelper.getVideosByStream(is);
+				}
+
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			//
 //			 
-			 if(isLoading){
-					List<VideoEntry> items = null;
-					if (!channelId.isEmpty()) {
-						 items = YouTubeHelper.getVideosInChannel(channelId, orderBy, maxResult, startIndex, keyword);
-					 } else if (!categoryId.isEmpty()) {
-						 items = YouTubeHelper.getVideosInCategory(categoryId, orderBy, maxResult, startIndex, keyword);
-					 }
-					videos.addAll(items);
-				}
-				else{
-					startIndex = 1;
-					if (!channelId.isEmpty()) {
-						 videos = YouTubeHelper.getVideosInChannel(channelId, orderBy, maxResult, startIndex, keyword);
-					 } else if (!categoryId.isEmpty()) {
-						 videos = YouTubeHelper.getVideosInCategory(categoryId, orderBy, maxResult, startIndex, keyword);
-					 }
-				}
+//			if (isLoading) {
+//				List<VideoEntry> items = null;
+//				if (!channelId.isEmpty()) {
+//					items = YouTubeHelper.getVideosInChannel(channelId,
+//							orderBy, maxLoad, startIndex, keyword);
+//				} else if (!categoryId.isEmpty()) {
+//					items = YouTubeHelper.getVideosInCategory(categoryId,
+//							orderBy, maxLoad, startIndex, keyword);
+//				}
+//				videos.addAll(items);
+//			} else {
+//				startIndex = 1;
+//				if (!channelId.isEmpty()) {
+//					videos = YouTubeHelper.getVideosInChannel(channelId,
+//							orderBy, maxResult, startIndex, keyword);
+//				} else if (!categoryId.isEmpty()) {
+//					videos = YouTubeHelper.getVideosInCategory(categoryId,
+//							orderBy, maxResult, startIndex, keyword);
+//				}
+//			}
 			return null;
 		}
 

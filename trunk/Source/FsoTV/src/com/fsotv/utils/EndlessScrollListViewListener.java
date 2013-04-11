@@ -4,16 +4,16 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.ListView;
 
-public class EndlessScrollListener  implements OnScrollListener {
+public class EndlessScrollListViewListener  implements OnScrollListener {
 
 	private ListView listView;
     private int threshold = 2;
    
-    public EndlessScrollListener(ListView listView) {
+    public EndlessScrollListViewListener(ListView listView) {
     	this.listView = listView;
     }
    
-    public EndlessScrollListener(ListView listView, int threshold) {
+    public EndlessScrollListViewListener(ListView listView, int threshold) {
     	this.listView = listView;
     	this.threshold = threshold;
     }

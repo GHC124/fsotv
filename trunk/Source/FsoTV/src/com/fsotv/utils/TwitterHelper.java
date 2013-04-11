@@ -81,6 +81,8 @@ public class TwitterHelper {
 		mAccessToken = mSession.getAccessToken();
 
 		configureToken();
+		
+		mTwitter.setOAuthConsumer(mConsumerKey, mSecretKey);
 	}
 
 	public void setListener(TwDialogListener listener) {
@@ -89,7 +91,6 @@ public class TwitterHelper {
 
 	private void configureToken() {
 		if (mAccessToken != null) {
-			mTwitter.setOAuthConsumer(mConsumerKey, mSecretKey);
 			mTwitter.setOAuthAccessToken(mAccessToken);
 		}
 	}

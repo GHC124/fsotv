@@ -1,6 +1,11 @@
 package com.fsotv.utils;
 
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import android.widget.ArrayAdapter;
 
@@ -19,12 +24,23 @@ public class DataHelper {
 	}
 
 	public static String numberWithCommas(long x) {
-		String result = (x + "").replace("/\\B(?=(\\d{3})+(?!\\d))/g", ",");
+		DecimalFormat myFormatter = new DecimalFormat("#,###");
+		String result = myFormatter.format(x);
 		return result;
 	}
 
-	public static String formatDate(String date) {
-		String result = date;
+	public static String formatDate(String time) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+		SimpleDateFormat output = new SimpleDateFormat("yyyy-MM-dd");
+		Date d;
+		String result = time;
+		try {
+			d = sdf.parse(time);
+			result = output.format(d);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		
 		return result;
 	}
 	
