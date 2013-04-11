@@ -68,7 +68,7 @@
                 android:layout_marginRight="2dip"
                 android:text="10/10/10"
                 android:textColor="#343434"
-                android:textSize="10sp" />
+                android:textSize="12sp" />
         </LinearLayout>
 
         <!-- Rightend Duration -->

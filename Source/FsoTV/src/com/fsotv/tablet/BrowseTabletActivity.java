@@ -61,7 +61,7 @@ public class BrowseTabletActivity extends ActivityBase {
 
 	private boolean isLoading = false;
 	private String orderBy = "";
-	private int maxResult = 5;
+	private int maxResult = 15;
 	private int maxLoad = 5;
 	private int startIndex = 1;
 	private String userType;
@@ -95,7 +95,7 @@ public class BrowseTabletActivity extends ActivityBase {
 				String channelId = channels.get(position).getId();
 				String channelTitle = channels.get(position).getTitle();
 				Intent i = new Intent(getApplicationContext(),
-						BrowseVideosActivity.class);
+						VideosTabletActivity.class);
 				i.putExtra("channelId", channelId);
 				i.putExtra("channelTitle", channelTitle);
 				startActivity(i);
@@ -112,7 +112,7 @@ public class BrowseTabletActivity extends ActivityBase {
 			}
 		});
 		adapter = new ListChannelAdapter(BrowseTabletActivity.this,
-				R.layout.browse_item, channels);
+				R.layout.browse_tablet_item, channels);
 		// updating listview
 		registerForContextMenu(gvChannel);
 		gvChannel.setAdapter(adapter);
@@ -268,7 +268,7 @@ public class BrowseTabletActivity extends ActivityBase {
 	/**
 	 * Background Async Task to get Channels from URL
 	 * */
-	class LoadChannels extends AsyncTask<String, String, String> {
+	class LoadChannels extends AsyncTask<String, String, List<ChannelEntry>> {
 
 		/**
 		 * Before starting background thread Show Progress Dialog
@@ -280,46 +280,56 @@ public class BrowseTabletActivity extends ActivityBase {
 		}
 
 		@Override
-		protected String doInBackground(String... args) {
+		protected List<ChannelEntry> doInBackground(String... args) {
 			// Demo data
-			 try {
-				 InputStream is = getResources().getAssets().open("Channels.txt");
-				 if (isLoading) {
-				 List<ChannelEntry> items = YouTubeHelper.getChannelsByStream(is);
-				 channels.addAll(items);
-				 }else{
-				 channels = YouTubeHelper.getChannelsByStream(is);
-				 }
-				 } catch (IOException e) {
-				 // TODO Auto-generated catch block
-				 e.printStackTrace();
-			 }
+//			 try {
+//				 InputStream is = getResources().getAssets().open("Channels.txt");
+//				 if (isLoading) {
+//				 List<ChannelEntry> items = YouTubeHelper.getChannelsByStream(is);
+//				 channels.addAll(items);
+//				 }else{
+//				 channels = YouTubeHelper.getChannelsByStream(is);
+//				 }
+//				 } catch (IOException e) {
+//				 // TODO Auto-generated catch block
+//				 e.printStackTrace();
+//			 }
 			//
-//			if (isLoading) {
-//				List<ChannelEntry> items = YouTubeHelper.getChannels(userType,
-//						orderBy, maxLoad, startIndex);
-//				channels.addAll(items);
-//			} else {
-//				startIndex = 1;
-//				channels = YouTubeHelper.getChannels(userType, orderBy,
-//						maxResult, startIndex);
-//			}
+			if (isLoading) {
+				List<ChannelEntry> items = YouTubeHelper.getChannels(userType,
+						orderBy, maxLoad, startIndex);
+				return items;
+			} else {
+				startIndex = 1;
+				channels = YouTubeHelper.getChannels(userType, orderBy,
+						maxResult, startIndex);
+			}
 			return null;
 		}
 
 		/**
 		 * After completing background
 		 * **/
-		protected void onPostExecute(String args) {
+		protected void onPostExecute(List<ChannelEntry> result) {
 			hideLoading();
 			if (isLoading)
 				isLoading = false;
-			adapter.clear();
-			for (ChannelEntry c : channels) {
-				adapter.add(c);
+			if (result != null) {
+				channels.addAll(result);
+				if (result.size() == 0) {
+					// decrease start index so we will load more items at previous position
+					startIndex = startIndex - maxResult;
+					Toast.makeText(getApplicationContext(), "No more results",
+							Toast.LENGTH_LONG).show();
+				}
 			}
-			adapter.notifyDataSetChanged();
-			if (channels.size() == 0) {
+			if (channels.size() > 0) {
+				adapter.clear();
+				for (ChannelEntry c : channels) {
+					adapter.add(c);
+				}
+				adapter.notifyDataSetChanged();
+			} else {
 				Toast.makeText(getApplicationContext(), "No results",
 						Toast.LENGTH_LONG).show();
 			}
@@ -366,7 +376,6 @@ public class BrowseTabletActivity extends ActivityBase {
 			ChannelEntry item = data.get(position);
 			// format string
 			String title = item.getTitle();
-			String description = item.getDescription();
 			if (title.length() > 25) {
 				title = title.substring(0, 25) + "...";
 			}

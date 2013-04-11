@@ -1,7 +1,7 @@
-package com.fsotv;
+package com.fsotv.tablet;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,8 +9,10 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -21,8 +23,11 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -30,34 +35,43 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.fsotv.BrowseChannelsActivity.LoadChannels;
+import com.facebook.android.FacebookError;
+import com.fsotv.ActivityBase;
+import com.fsotv.CommentsActivity;
+import com.fsotv.R;
+import com.fsotv.VideoDetailActivity;
+import com.fsotv.WatchVideoActivity;
 import com.fsotv.dao.ReferenceDao;
 import com.fsotv.dao.VideoDao;
-import com.fsotv.dto.ChannelEntry;
 import com.fsotv.dto.Reference;
 import com.fsotv.dto.Video;
 import com.fsotv.dto.VideoEntry;
 import com.fsotv.utils.DataHelper;
 import com.fsotv.utils.EndlessScrollListViewListener;
+import com.fsotv.utils.FaceBookHelper;
 import com.fsotv.utils.ImageLoader;
+import com.fsotv.utils.TwitterHelper;
 import com.fsotv.utils.YouTubeHelper;
-/**
- * Browse videos from youtube
- * Extend ActivityBase, allow:
- * + Subscribe video
- * + Search keyword
- * + Change category
- * + Sort video
- * + Load more items when scroll
- * 
- *
- */
-public class BrowseVideosActivity extends ActivityBase {
+import com.fsotv.utils.TwitterHelper.TwDialogListener;
+
+public class VideosTabletActivity extends ActivityBase {
 	private final int MENU_SUBSCRIBE = Menu.FIRST;
 	private final int OPTION_SEARCH = Menu.FIRST;
 	private final int OPTION_SORT = Menu.FIRST + 1;
 	private final int OPTION_CATEGORY = Menu.FIRST + 2;
 		
+	private final int OPTION_WATCH = Menu.FIRST + 3;
+	private final int OPTION_COMMENTS = Menu.FIRST + 4;
+	private final int OPTION_SHARE = Menu.FIRST + 5;
+
+	private Dialog shareDialog;
+
+	private VideoEntry video;
+	private SharedPreferences mPrefs;
+	private FaceBookHelper faceBookHelper = null;
+	private TwitterHelper twitterHelper = null;
+	private String postMessage = "";
+	
 	private Dialog sortDialog;
 	private Dialog searchDialog;
 	private Dialog categoryDialog;
@@ -71,21 +85,39 @@ public class BrowseVideosActivity extends ActivityBase {
 	private ListVideoAdapter adapter;
 	private boolean isLoading = false;
 
-	String channelId = "";
-	String categoryId = "";
+	private ImageView imgThumbnail;
+	private TextView lblTitle;
+	private TextView lblDescription;
+	private TextView lblDuration;
+	private TextView lblPublished;
+	private TextView lblViewCount;
+	private TextView lblFavoriteCount;
+	
+	private String channelId = "";
+	private String categoryId = "";
 	private String orderBy = "";
 	private int maxResult = 5;
 	private int maxLoad = 5;
 	private int startIndex = 1;
-	String keyword = "";
+	private String keyword = "";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_browse_videos);
+		setContentView(R.layout.activity_videos_tablet);
+		
+		mPrefs = getSharedPreferences("fsotv_oauth", MODE_PRIVATE);
 
 		lvVideo = (ListView) findViewById(R.id.lvVideo);
-
+		imgThumbnail = (ImageView) findViewById(R.id.imgThumbnail);
+		lblTitle = (TextView) findViewById(R.id.txtvTitle);
+		lblDescription = (TextView) findViewById(R.id.txtvDescriptionContent);
+		lblDuration = (TextView) findViewById(R.id.duration);
+		lblPublished = (TextView) findViewById(R.id.published);
+		lblViewCount = (TextView) findViewById(R.id.viewCount);
+		lblFavoriteCount = (TextView) findViewById(R.id.favoriteCount);
+		
+		video = new VideoEntry();
 		imageLoader = new ImageLoader(getApplicationContext());
 		videos = new ArrayList<VideoEntry>();
 
@@ -119,10 +151,7 @@ public class BrowseVideosActivity extends ActivityBase {
 					int position, long id) {
 				VideoEntry item = videos.get(position);
 				String videoId = item.getId();
-				Intent i = new Intent(getApplicationContext(),
-						VideoDetailActivity.class);
-				i.putExtra("videoId", videoId);
-				startActivity(i);
+				new loadVideo().execute(videoId);
 			}
 		});
 		lvVideo.setOnScrollListener(new EndlessScrollListViewListener(lvVideo){
@@ -136,7 +165,7 @@ public class BrowseVideosActivity extends ActivityBase {
 			}
 		});
 		adapter = new ListVideoAdapter(
-				BrowseVideosActivity.this, R.layout.browse_video_item,
+				VideosTabletActivity.this, R.layout.video_tablet_item,
 				videos);
 		// updating listview
 		registerForContextMenu(lvVideo);
@@ -181,7 +210,7 @@ public class BrowseVideosActivity extends ActivityBase {
 			if (categoryDialog != null)
 				categoryDialog.show();
 			else {
-				createCategoryDialog(BrowseVideosActivity.this);
+				createCategoryDialog(VideosTabletActivity.this);
 				if (categoryDialog != null)
 					categoryDialog.show();
 			}
@@ -199,6 +228,11 @@ public class BrowseVideosActivity extends ActivityBase {
 		if (!categoryId.isEmpty()) {
 			menu.add(0, OPTION_CATEGORY, 2, "Category");
 		}
+		
+		menu.add(0, OPTION_WATCH, 0, "Watch");
+		menu.add(0, OPTION_COMMENTS, 1, "Comments");
+		menu.add(0, OPTION_SHARE, 2, "Share");
+		
 		return true;
 	}
 
@@ -210,7 +244,7 @@ public class BrowseVideosActivity extends ActivityBase {
 			if (searchDialog != null)
 				searchDialog.show();
 			else {
-				createSearchDialog(BrowseVideosActivity.this);
+				createSearchDialog(VideosTabletActivity.this);
 				if (searchDialog != null)
 					searchDialog.show();
 			}
@@ -220,7 +254,7 @@ public class BrowseVideosActivity extends ActivityBase {
 			if (sortDialog != null)
 				sortDialog.show();
 			else {
-				createSortDialog(BrowseVideosActivity.this);
+				createSortDialog(VideosTabletActivity.this);
 				if (sortDialog != null)
 					sortDialog.show();
 			}
@@ -230,11 +264,27 @@ public class BrowseVideosActivity extends ActivityBase {
 			if (categoryDialog != null)
 				categoryDialog.show();
 			else {
-				createCategoryDialog(BrowseVideosActivity.this);
+				createCategoryDialog(VideosTabletActivity.this);
 				if (categoryDialog != null)
 					categoryDialog.show();
 			}
 
+			break;
+			
+		case OPTION_WATCH:
+			onWatchClick(null);
+			break;
+		case OPTION_COMMENTS:
+			onCommentsClick(null);
+			break;
+		case OPTION_SHARE:
+			if (shareDialog != null)
+				shareDialog.show();
+			else {
+				createShareDialog(VideosTabletActivity.this);
+				if (shareDialog != null)
+					shareDialog.show();
+			}
 			break;
 		}
 
@@ -353,7 +403,191 @@ public class BrowseVideosActivity extends ActivityBase {
 			Toast.makeText(this, "Subscribed", Toast.LENGTH_SHORT).show();
 		}
 	}
+	
+	private void createShareDialog(Context context) {
+		if (isLoading) {
+			Toast.makeText(getApplicationContext(), "Loading data",
+					Toast.LENGTH_SHORT).show();
+			return;
+		}
 
+		shareDialog = new Dialog(context);
+		shareDialog.setContentView(R.layout.share);
+		shareDialog.setTitle("Share");
+		final RadioButton rdFacebook = (RadioButton) shareDialog
+				.findViewById(R.id.rdFaceBook);
+		final RadioButton rdTwitter = (RadioButton) shareDialog
+				.findViewById(R.id.rdTwitter);
+		final EditText txtMessage = (EditText) shareDialog
+				.findViewById(R.id.txtMessage);
+		final TextView lblPost = (TextView) shareDialog
+				.findViewById(R.id.lblPost);
+		txtMessage.setText(video.getLinkReal());
+		Button btnShare = (Button) shareDialog.findViewById(R.id.btnShare);
+		Button btnCancel = (Button) shareDialog.findViewById(R.id.btnCancel);
+		rdFacebook.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				if(isChecked)
+					lblPost.setText("Link:");
+			}
+		});
+		rdTwitter.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				if(isChecked)
+					lblPost.setText("Message:");
+			}
+		});
+		btnShare.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				postMessage = txtMessage.getText().toString();
+				if (postMessage.isEmpty()) {
+					Toast.makeText(getApplicationContext(), "Input message",
+							Toast.LENGTH_SHORT).show();
+					return;
+				}
+				if (rdFacebook.isChecked()) {
+					// Check link
+					try {
+						URL url = new URL(postMessage);
+						url = null;
+					} catch (MalformedURLException e) {
+						Toast.makeText(getApplicationContext(), "Input link",
+								Toast.LENGTH_SHORT).show();
+						return;
+					}
+					onFaceBookClick(null);
+				} else if (rdTwitter.isChecked()) {
+					
+					onTwitterClick(null);
+				}
+				shareDialog.dismiss();
+			}
+		});
+		btnCancel.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				shareDialog.dismiss();
+			}
+		});
+	}
+
+	public void onWatchClick(View c) {
+		if (isLoading) {
+			Toast.makeText(getApplicationContext(), "Loading data",
+					Toast.LENGTH_SHORT).show();
+			return;
+		}
+		Intent i = new Intent(getApplicationContext(), WatchVideoActivity.class);
+		i.putExtra("videoId", video.getIdReal());
+		i.putExtra("videoTitle", video.getTitle());
+		i.putExtra("link", video.getLink());
+		startActivity(i);
+	}
+
+	public void onCommentsClick(View v) {
+		if (isLoading) {
+			Toast.makeText(getApplicationContext(), "Loading data",
+					Toast.LENGTH_SHORT).show();
+			return;
+		}
+		Intent i = new Intent(getApplicationContext(), CommentsActivity.class);
+		i.putExtra("videoId", video.getIdReal());
+		i.putExtra("videoTitle", video.getTitle());
+		startActivity(i);
+	}
+
+	public void onShareClick(View v) {
+		if (shareDialog != null)
+			shareDialog.show();
+		else {
+			createShareDialog(VideosTabletActivity.this);
+			if (shareDialog != null)
+				shareDialog.show();
+		}
+	}
+
+	public void onFaceBookClick(View v) {
+		if (faceBookHelper == null) {
+			faceBookHelper = new FaceBookHelper(this, mPrefs) {
+				@Override
+				public boolean onPostComplete(Bundle values) {
+					if (values.containsKey("post_id")) {
+						Toast.makeText(getApplicationContext(), "Shared",
+								Toast.LENGTH_SHORT).show();
+					}
+					return true;
+				}
+
+				@Override
+				public boolean onPostFacebookError(FacebookError e) {
+					Toast.makeText(getApplicationContext(),
+							"Fail to post message. Please, try again!",
+							Toast.LENGTH_SHORT).show();
+					return false;
+				}
+			};
+		}
+		faceBookHelper.postToWall(postMessage);
+
+	}
+
+	public void onTwitterClick(View v) {
+		if (twitterHelper == null) {
+			twitterHelper = new TwitterHelper(this, mPrefs);
+			twitterHelper.setListener(mTwLoginDialogListener);
+		}
+		twitterHelper.resetAccessToken();
+		if (twitterHelper.hasAccessToken() == true) {
+			try {
+				twitterHelper.updateStatus(postMessage);
+				Log.e("TWITTER", "post success");
+				Toast.makeText(getApplicationContext(), "Shared",
+						Toast.LENGTH_SHORT).show();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			twitterHelper.resetAccessToken();
+		} else {
+			twitterHelper.authorize();
+		}
+
+	}
+
+	private TwDialogListener mTwLoginDialogListener = new TwDialogListener() {
+
+		public void onError(String value) {
+			Log.e("TWITTER", value);
+			Toast.makeText(getApplicationContext(),
+					"Fail to post message. Please, try again!",
+					Toast.LENGTH_SHORT).show();
+			twitterHelper.resetAccessToken();
+		}
+
+		public void onComplete(String value) {
+			try {
+				twitterHelper.updateStatus(postMessage);
+				Log.e("TWITTER", "post success");
+				Toast.makeText(getApplicationContext(), "Shared",
+						Toast.LENGTH_SHORT).show();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			twitterHelper.resetAccessToken();
+		}
+	};
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		faceBookHelper.authorizeCallback(requestCode, resultCode, data);
+	}
+
+	
 	/**
 	 * Background Async Task to get Videos data from URL
 	 * */
@@ -471,9 +705,6 @@ public class BrowseVideosActivity extends ActivityBase {
 				holder.title = (TextView) row.findViewById(R.id.title);
 				holder.description = (TextView) row
 						.findViewById(R.id.description);
-				holder.viewCount = (TextView) row.findViewById(R.id.viewCount);
-				holder.favoriteCount = (TextView) row
-						.findViewById(R.id.favoriteCount);
 				holder.duration = (TextView) row
 						.findViewById(R.id.duration);
 				holder.published = (TextView) row
@@ -491,8 +722,8 @@ public class BrowseVideosActivity extends ActivityBase {
 			if (title.length() > 50) {
 				title = title.substring(0, 50) + "...";
 			}
-			if (description.length() > 150) {
-				description = description.substring(0, 150) + "...";
+			if (description.length() > 100) {
+				description = description.substring(0, 100) + "...";
 			}
 
 			imageLoader.DisplayImage(item.getImage(), holder.image,
@@ -500,14 +731,6 @@ public class BrowseVideosActivity extends ActivityBase {
 
 			holder.title.setText(title);
 			holder.description.setText(description);
-			if(item.getViewCount()==-1)
-				holder.viewCount.setText("-");
-			else holder.viewCount.setText(DataHelper.numberWithCommas(item
-					.getViewCount()));
-			if(item.getFavoriteCount()==-1)
-				holder.favoriteCount.setText("-");
-			else holder.favoriteCount.setText(DataHelper.numberWithCommas(item
-					.getFavoriteCount()));
 			holder.duration.setText(DataHelper.secondsToTimer(item.getDuration()));
 			holder.published.setText(DataHelper.formatDate(item.getPublished()));
 
@@ -519,13 +742,64 @@ public class BrowseVideosActivity extends ActivityBase {
 			ProgressBar progressBar;
 			TextView title;
 			TextView description;
-			TextView viewCount;
-			TextView favoriteCount;
 			TextView duration;
 			TextView published;
 		}
 	}
 
+
+	/**
+	 * Background Async Task to get Videos data from URL
+	 * */
+	class loadVideo extends AsyncTask<String, String, String> {
+
+		/**
+		 * Before starting background thread Show Progress Dialog
+		 * */
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			showLoading();
+			isLoading = true;
+		}
+
+		@Override
+		protected String doInBackground(String... args) {
+			String videoId = args[0];
+			// Demo data
+			// try {
+			// InputStream is = getAssets().open("VideoDetail.txt");
+			// video = YouTubeHelper.getVideoByStream(is);
+			// } catch (IOException e) {
+			// // TODO Auto-generated catch block
+			// e.printStackTrace();
+			// }
+			//
+			video = YouTubeHelper.getVideoDetail(videoId);
+
+			return null;
+		}
+
+		/**
+		 * After completing background task Dismiss the progress dialog
+		 * **/
+		protected void onPostExecute(String args) {
+			hideLoading();
+
+			lblTitle.setText(video.getTitle());
+			lblDescription.setText(video.getDescription());
+			lblDuration.setText(DataHelper.secondsToTimer(video.getDuration()));
+			lblPublished.setText(DataHelper.formatDate(video.getPublished()));
+			lblViewCount.setText(DataHelper.numberWithCommas(video.getViewCount()));
+			lblFavoriteCount.setText(DataHelper.numberWithCommas(video.getFavoriteCount()));
+			
+			imageLoader.DisplayImage(video.getImage(), imgThumbnail, null);
+
+			isLoading = false;
+		}
+
+	}
+	
 	/**
 	 * Background Async Task to get References from database
 	 * */
@@ -550,7 +824,7 @@ public class BrowseVideosActivity extends ActivityBase {
 			runOnUiThread(new Runnable() {
 				public void run() {
 					ListCategoryAdapter adapter = new ListCategoryAdapter(
-							BrowseVideosActivity.this,
+							VideosTabletActivity.this,
 							R.layout.category_video_item, categories);
 					// updating listview
 					lvCategory.setAdapter(adapter);

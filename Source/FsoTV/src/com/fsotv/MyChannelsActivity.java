@@ -119,13 +119,15 @@ public class MyChannelsActivity extends ActivityBase {
 									channelDao.deleteChannel(Integer.parseInt(entry.getId()));
 									channels.remove(position);
 									lvChannel.invalidateViews();
+									
+									dialog.dismiss();
 								}
 							})
 					.setNegativeButton("Cancel",
 							new DialogInterface.OnClickListener() {
 								public void onClick(DialogInterface dialog,
 										int id) {
-									dialog.cancel();
+									dialog.dismiss();
 								}
 							});
 			AlertDialog alertDialog = alertDialogBuilder.create();

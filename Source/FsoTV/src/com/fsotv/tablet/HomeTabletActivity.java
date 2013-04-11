@@ -105,7 +105,7 @@ public class HomeTabletActivity  extends ActivityBase{
 			
 			@Override
 			public void onClick(View v) {
-				int cateId = ll.getId();
+				int cateId = ll1.getId();
 				if (cateId == CATEGORY_ADD) {
 					Intent i = new Intent(getApplicationContext(),
 							CategoryActivity.class);

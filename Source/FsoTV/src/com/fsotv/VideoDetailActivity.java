@@ -17,6 +17,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioButton;
@@ -125,11 +127,27 @@ public class VideoDetailActivity extends ActivityBase {
 				.findViewById(R.id.rdTwitter);
 		final EditText txtMessage = (EditText) shareDialog
 				.findViewById(R.id.txtMessage);
-		final TextView lblPost = (EditText) shareDialog
+		final TextView lblPost = (TextView) shareDialog
 				.findViewById(R.id.lblPost);
 		txtMessage.setText(video.getLinkReal());
 		Button btnShare = (Button) shareDialog.findViewById(R.id.btnShare);
 		Button btnCancel = (Button) shareDialog.findViewById(R.id.btnCancel);
+		rdFacebook.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				if(isChecked)
+					lblPost.setText("Link:");
+			}
+		});
+		rdTwitter.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				if(isChecked)
+					lblPost.setText("Message:");
+			}
+		});
 		btnShare.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -140,7 +158,6 @@ public class VideoDetailActivity extends ActivityBase {
 					return;
 				}
 				if (rdFacebook.isChecked()) {
-					lblPost.setText("Link:");
 					// Check link
 					try {
 						URL url = new URL(postMessage);
@@ -152,7 +169,7 @@ public class VideoDetailActivity extends ActivityBase {
 					}
 					onFaceBookClick(null);
 				} else if (rdTwitter.isChecked()) {
-					lblPost.setText("Message:");
+					
 					onTwitterClick(null);
 				}
 				shareDialog.dismiss();
@@ -296,13 +313,13 @@ public class VideoDetailActivity extends ActivityBase {
 		protected String doInBackground(String... args) {
 			String videoId = args[0];
 			// Demo data
-			try {
-				InputStream is = getAssets().open("VideoDetail.txt");
-				video = YouTubeHelper.getVideoByStream(is);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			// try {
+			// InputStream is = getAssets().open("VideoDetail.txt");
+			// video = YouTubeHelper.getVideoByStream(is);
+			// } catch (IOException e) {
+			// // TODO Auto-generated catch block
+			// e.printStackTrace();
+			// }
 			//
 			video = YouTubeHelper.getVideoDetail(videoId);
 
@@ -315,7 +332,7 @@ public class VideoDetailActivity extends ActivityBase {
 		protected void onPostExecute(String args) {
 			hideLoading();
 
-			ImageView img = (ImageView) findViewById(R.id.imgThumbnail);
+			final ImageView img = (ImageView) findViewById(R.id.imgThumbnail);
 			TextView title = (TextView) findViewById(R.id.txtvTitle);
 			TextView viewCount = (TextView) findViewById(R.id.viewCount);
 			TextView txtvDescriptionContent = (TextView) findViewById(R.id.txtvDescriptionContent);
@@ -332,7 +349,7 @@ public class VideoDetailActivity extends ActivityBase {
 			txtFavorite.setText(DataHelper.numberWithCommas(video
 					.getFavoriteCount()));
 
-			imageLoader.DisplayImage(video.getImage(), img, getLoadingView());
+			imageLoader.DisplayImage(video.getImage(), img, null);
 
 			isLoading = false;
 		}

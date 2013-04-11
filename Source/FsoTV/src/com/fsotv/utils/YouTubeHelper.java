@@ -95,6 +95,9 @@ public class YouTubeHelper {
 		try {
 			JSONObject json = JsonHelper.getJSONFromStream(is);
 			JSONObject feed = json.getJSONObject("feed");
+			if(feed.isNull("entry")){
+				return channels;
+			}
 			JSONArray entries = feed.getJSONArray("entry");
 			for (int i = 0; i < entries.length(); i++) {
 				JSONObject entryObject = entries.getJSONObject(i);
@@ -265,6 +268,9 @@ public class YouTubeHelper {
 		try {
 			JSONObject json = JsonHelper.getJSONFromStream(is);
 			JSONObject feed = json.getJSONObject("feed");
+			if(feed.isNull("entry")){
+				return videos;
+			}
 			JSONArray entries = feed.getJSONArray("entry");
 			for (int i = 0; i < entries.length(); i++) {
 				JSONObject entryObject = entries.getJSONObject(i);
@@ -385,6 +391,9 @@ public class YouTubeHelper {
 		try {
 			JSONObject json = JsonHelper.getJSONFromStream(is);
 			JSONObject feed = json.getJSONObject("feed");
+			if(feed.isNull("entry")){
+				return comments;
+			}
 			JSONArray entries = feed.getJSONArray("entry");
 			for (int i = 0; i < entries.length(); i++) {
 				JSONObject entryObject = entries.getJSONObject(i);

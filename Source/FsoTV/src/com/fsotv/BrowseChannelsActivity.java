@@ -46,21 +46,17 @@ import com.fsotv.utils.ImageLoader;
 import com.fsotv.utils.YouTubeHelper;
 
 /**
- * Browse channels from youtube
- * Extend ActivityBase, allow:
- * + Subscribe channel
- * + Change user type
- * + Sort channel
- * + Load more items when scroll
+ * Browse channels from youtube Extend ActivityBase, allow: + Subscribe channel
+ * + Change user type + Sort channel + Load more items when scroll
  * 
- *
+ * 
  */
 public class BrowseChannelsActivity extends ActivityBase {
 
 	private final int MENU_SUBSCRIBE = Menu.FIRST;
 	private final int OPTION_SORT = Menu.FIRST + 1;
 	private final int OPTION_USERTYPE = Menu.FIRST + 2;
-	
+
 	private Dialog sortDialog;
 	private Dialog userTypeDialog;
 
@@ -111,7 +107,8 @@ public class BrowseChannelsActivity extends ActivityBase {
 				startActivity(i);
 			}
 		});
-		lvChannel.setOnScrollListener(new EndlessScrollListViewListener(lvChannel) {
+		lvChannel.setOnScrollListener(new EndlessScrollListViewListener(
+				lvChannel) {
 			@Override
 			public void loadData() {
 				if (!isLoading) {
@@ -278,7 +275,7 @@ public class BrowseChannelsActivity extends ActivityBase {
 	/**
 	 * Background Async Task to get Channels from URL
 	 * */
-	class LoadChannels extends AsyncTask<String, String, String> {
+	class LoadChannels extends AsyncTask<String, String, List<ChannelEntry>> {
 
 		/**
 		 * Before starting background thread Show Progress Dialog
@@ -290,46 +287,56 @@ public class BrowseChannelsActivity extends ActivityBase {
 		}
 
 		@Override
-		protected String doInBackground(String... args) {
+		protected List<ChannelEntry> doInBackground(String... args) {
 			// Demo data
-			 try {
-			 InputStream is = getResources().getAssets().open("Channels.txt");
-			 if (isLoading) {
-			 List<ChannelEntry> items = YouTubeHelper.getChannelsByStream(is);
-			 channels.addAll(items);
-			 }else{
-			 channels = YouTubeHelper.getChannelsByStream(is);
-			 }
-			 } catch (IOException e) {
-			 // TODO Auto-generated catch block
-			 e.printStackTrace();
-			 }
+			// try {
+			// InputStream is = getResources().getAssets().open("Channels.txt");
+			// if (isLoading) {
+			// List<ChannelEntry> items = YouTubeHelper.getChannelsByStream(is);
+			// channels.addAll(items);
+			// }else{
+			// channels = YouTubeHelper.getChannelsByStream(is);
+			// }
+			// } catch (IOException e) {
+			// // TODO Auto-generated catch block
+			// e.printStackTrace();
+			// }
 			//
-//			if (isLoading) {
-//				List<ChannelEntry> items = YouTubeHelper.getChannels(userType,
-//						orderBy, maxLoad, startIndex);
-//				channels.addAll(items);
-//			} else {
-//				startIndex = 1;
-//				channels = YouTubeHelper.getChannels(userType, orderBy,
-//						maxResult, startIndex);
-//			}
+			if (isLoading) {
+				List<ChannelEntry> items = YouTubeHelper.getChannels(userType,
+						orderBy, maxLoad, startIndex);
+				return items;
+			} else {
+				startIndex = 1;
+				channels = YouTubeHelper.getChannels(userType, orderBy,
+						maxResult, startIndex);
+			}
 			return null;
 		}
 
 		/**
 		 * After completing background
 		 * **/
-		protected void onPostExecute(String args) {
+		protected void onPostExecute(List<ChannelEntry> result) {
 			hideLoading();
 			if (isLoading)
 				isLoading = false;
-			adapter.clear();
-			for (ChannelEntry c : channels) {
-				adapter.add(c);
+			if (result != null) {
+				channels.addAll(result);
+				if (result.size() == 0) {
+					// decrease start index so we will load more items at previous position
+					startIndex = startIndex - maxResult;
+					Toast.makeText(getApplicationContext(), "No more results",
+							Toast.LENGTH_LONG).show();
+				}
 			}
-			adapter.notifyDataSetChanged();
-			if (channels.size() == 0) {
+			if (channels.size() > 0) {
+				adapter.clear();
+				for (ChannelEntry c : channels) {
+					adapter.add(c);
+				}
+				adapter.notifyDataSetChanged();
+			} else {
 				Toast.makeText(getApplicationContext(), "No results",
 						Toast.LENGTH_LONG).show();
 			}
@@ -372,8 +379,7 @@ public class BrowseChannelsActivity extends ActivityBase {
 				holder.viewCount = (TextView) row.findViewById(R.id.viewCount);
 				holder.commentCount = (TextView) row
 						.findViewById(R.id.commentCount);
-				holder.updated = (TextView) row
-						.findViewById(R.id.updated);
+				holder.updated = (TextView) row.findViewById(R.id.updated);
 
 				row.setTag(holder);
 			} else {
