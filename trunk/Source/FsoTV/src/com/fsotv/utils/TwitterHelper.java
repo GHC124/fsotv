@@ -302,8 +302,8 @@ public class TwitterHelper {
 		final float[] DIMENSIONS_LANDSCAPE = { 460, 260 };
 		final float[] DIMENSIONS_PORTRAIT = { 280, 420 };
 		final FrameLayout.LayoutParams FILL = new FrameLayout.LayoutParams(
-				ViewGroup.LayoutParams.FILL_PARENT,
-				ViewGroup.LayoutParams.FILL_PARENT);
+				ViewGroup.LayoutParams.MATCH_PARENT,
+				ViewGroup.LayoutParams.MATCH_PARENT);
 		final int MARGIN = 4;
 		final int PADDING = 2;
 		private String mUrl;
@@ -346,6 +346,8 @@ public class TwitterHelper {
 			addContentView(mContent, new FrameLayout.LayoutParams(
 					(int) (dimensions[0] * scale + 0.5f), (int) (dimensions[1]
 							* scale + 0.5f)));
+			
+			//addContentView(mContent, FILL);
 		}
 
 		private void setUpTitle() {

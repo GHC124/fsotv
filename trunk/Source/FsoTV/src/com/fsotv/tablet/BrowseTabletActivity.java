@@ -329,6 +329,10 @@ public class BrowseTabletActivity extends ActivityBase {
 					adapter.add(c);
 				}
 				adapter.notifyDataSetChanged();
+				if(result == null){
+					// Scroll to top if refresh list from beginning
+					gvChannel.setSelection(0);
+				}
 			} else {
 				Toast.makeText(getApplicationContext(), "No results",
 						Toast.LENGTH_LONG).show();

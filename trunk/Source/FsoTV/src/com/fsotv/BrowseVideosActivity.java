@@ -88,7 +88,8 @@ public class BrowseVideosActivity extends ActivityBase {
 
 		imageLoader = new ImageLoader(getApplicationContext());
 		videos = new ArrayList<VideoEntry>();
-
+		orderBy = YouTubeHelper.ORDERING_VIEWCOUNT;
+		
 		String channelTitle = "";
 		String header = "";
 		Intent intent = getIntent();
@@ -433,6 +434,10 @@ public class BrowseVideosActivity extends ActivityBase {
 					adapter.add(c);
 				}
 				adapter.notifyDataSetChanged();
+				if(result == null){
+					// Scroll to top if refresh list from beginning
+					lvVideo.setSelectionAfterHeaderView();
+				}
 			} else {
 				Toast.makeText(getApplicationContext(), "No results",
 						Toast.LENGTH_LONG).show();

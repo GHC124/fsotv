@@ -30,4 +30,14 @@
         android:gravity="right"
         android:visibility="invisible" />
 
+    <ImageButton
+        android:id="@+id/imgAction"
+        android:layout_width="50dip"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="35dp"
+        android:layout_toLeftOf="@+id/pbHeader"
+        android:src="@drawable/bottom16"
+        android:onClick="onActionClick" />
+    
 </RelativeLayout>

@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/list_selector"
+    
     android:orientation="horizontal"
     android:padding="5dip" >
 
@@ -33,7 +33,7 @@
         android:layout_alignTop="@id/thumbnail"
         android:layout_toRightOf="@id/thumbnail"
         android:text="REVO"
-        android:textColor="#040404"
+        
         android:textSize="20dip"
         android:textStyle="bold"
         android:typeface="sans" />
@@ -49,7 +49,7 @@
         android:layout_marginTop="1dip"
         android:layout_toRightOf="@id/thumbnail"
         android:text="Revo ..."
-        android:textColor="#343434"
+        
         android:textSize="14dip" />
 
     <!-- Statistic -->
@@ -67,7 +67,7 @@
              android:layout_width="wrap_content"
              android:layout_height="wrap_content"
              android:text="@string/browse_video_duration"
-             android:textColor="#343434"
+             
              android:textSize="12sp" />
 
         <TextView
@@ -77,14 +77,14 @@
             android:layout_marginLeft="2dip"
             android:layout_marginRight="2dip"
             android:text="123"
-            android:textColor="#343434"
+           
             android:textSize="12sp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Published: "
-            android:textColor="#343434"
+            
             android:textSize="12sp" />
 
         <TextView
@@ -94,7 +94,7 @@
             android:layout_marginLeft="2dip"
             android:layout_marginRight="2dip"
             android:text="123"
-            android:textColor="#343434"
+            
             android:textSize="12sp" />
     </LinearLayout>
     

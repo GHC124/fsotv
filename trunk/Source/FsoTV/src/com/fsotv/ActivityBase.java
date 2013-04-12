@@ -65,6 +65,14 @@ public class ActivityBase extends Activity {
 		finish();
 	}
 
+	/**
+	 * Override this method to show option dialog
+	 * @param v
+	 */
+	public void onActionClick(View v){
+		
+	}
+	
 	protected void showBack() {
 		if (imgBack != null)
 			imgBack.setVisibility(View.VISIBLE);

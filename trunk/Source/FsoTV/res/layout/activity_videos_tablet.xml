@@ -18,12 +18,17 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true" >
         </ListView>
-
+		<TextView android:id="@+id/lblEmpty"
+            android:layout_width="2dip"
+            android:layout_height="fill_parent"
+            android:layout_toRightOf="@id/lvVideo"
+            android:textIsSelectable="false"
+            android:background="#ffffff"/>
         <ScrollView
-            android:id="@+id/scrollView1"
+            android:id="@+id/svDetail"
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
-            android:layout_toRightOf="@id/lvVideo" >
+            android:layout_toRightOf="@id/lblEmpty" >
 
             <LinearLayout
                 android:layout_width="match_parent"

@@ -1,7 +1,5 @@
-package com.fsotv;
+package com.fsotv.tablet;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +9,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -19,20 +16,15 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.fsotv.ActivityBase;
+import com.fsotv.CommentsActivity;
+import com.fsotv.R;
 import com.fsotv.dto.CommentEntry;
-import com.fsotv.dto.VideoEntry;
 import com.fsotv.utils.DataHelper;
 import com.fsotv.utils.EndlessScrollListViewListener;
 import com.fsotv.utils.YouTubeHelper;
 
-/**
- * Browse comments from youtube by video
- * Extend ActivityBase, allow:
- * + Load more items when scroll
- * 
- *
- */
-public class CommentsActivity extends ActivityBase {
+public class CommentsTabletActivity  extends ActivityBase {
 
 	private ListView lvComment;
 
@@ -48,7 +40,7 @@ public class CommentsActivity extends ActivityBase {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_comments);
+		setContentView(R.layout.activity_comments_tablet);
 
 		lvComment = (ListView) findViewById(R.id.lvComment);
 
@@ -75,8 +67,8 @@ public class CommentsActivity extends ActivityBase {
 				}
 			}
 		});
-		adapter = new ListCommentAdapter(CommentsActivity.this,
-				R.layout.comment_item, comments);
+		adapter = new ListCommentAdapter(CommentsTabletActivity.this,
+				R.layout.comment_tablet_item, comments);
 		// updating listview
 		registerForContextMenu(lvComment);
 		lvComment.setAdapter(adapter);
@@ -199,11 +191,11 @@ public class CommentsActivity extends ActivityBase {
 			// format string
 			String title = item.getTitle();
 			String content = item.getContent();
-			if (title.length() > 50) {
-				title = title.substring(0, 50) + "...";
+			if (title.length() > 100) {
+				title = title.substring(0, 100) + "...";
 			}
-			if (content.length() > 150) {
-				content = content.substring(0, 150) + "...";
+			if (content.length() > 350) {
+				content = content.substring(0, 350) + "...";
 			}
 
 			holder.title.setText(title);

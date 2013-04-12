@@ -91,6 +91,10 @@
             android:name="com.fsotv.tablet.VideosTabletActivity"
             android:label="@string/title_activity_videos_tablet" >
         </activity>
+        <activity
+            android:name="com.fsotv.tablet.CommentsTabletActivity"
+            android:label="@string/title_activity_comments_tablet" >
+        </activity>
     </application>
 
 </manifest>
