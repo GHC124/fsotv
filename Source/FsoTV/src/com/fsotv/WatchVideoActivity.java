@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
+import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
@@ -101,6 +102,7 @@ public class WatchVideoActivity extends ActivityBase implements
 		songProgressBar.setOnSeekBarChangeListener(this);
 		myVideoView.setOnCompletionListener(this);
 		
+		
 		btnPlay.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -140,11 +142,10 @@ public class WatchVideoActivity extends ActivityBase implements
 		});
 		createDialogs(this);
 		
-		// link =
-		// "http://media.socbay.com/public/media/Video/BT%20Video/9.4comaythoigian.3gp";
-
-		//playVideo(link);
-		new QueryYouTubeTask().execute(videoId);
+		link = "http://media.socbay.com/public/media/Video/BT%20Video/9.4comaythoigian.3gp";
+		//link = "http://channelz.mp3.zdn.vn/zv/18ad76b91fb1aebded76268c499b1378/516794d0/2011/10/27/b/3/b3e91796f29f1f1e268e8da49ecdffb4.mp4";
+		playVideo(Uri.parse(link));
+		//new QueryYouTubeTask().execute(videoId);
 	}
 
 	@Override
@@ -256,21 +257,28 @@ public class WatchVideoActivity extends ActivityBase implements
 	}
 
 	private void playVideo(Uri link) {
+		showLoading();
 		try {
 			myVideoView.setVideoURI(link);
 			myVideoView.requestFocus();
-			myVideoView.start();
+			myVideoView.setOnPreparedListener(new OnPreparedListener()
+            {
+                public void onPrepared(MediaPlayer mp)
+                {
+                	myVideoView.start();
+        			// Changing Button Image to pause image
+        			btnPlay.setImageResource(R.drawable.btn_pause);
 
-			// Changing Button Image to pause image
-			btnPlay.setImageResource(R.drawable.btn_pause);
+        			// set Progress bar values
+        			songProgressBar.setProgress(0);
+        			songProgressBar.setMax(100);
 
-			// set Progress bar values
-			songProgressBar.setProgress(0);
-			songProgressBar.setMax(100);
-
-			// Updating progress bar
-			updateProgressBar();
-
+        			// Updating progress bar
+        			updateProgressBar();
+        			
+        			hideLoading();
+                }
+            });           
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

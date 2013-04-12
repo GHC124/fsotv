@@ -32,6 +32,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -85,6 +86,7 @@ public class VideosTabletActivity extends ActivityBase {
 	private ListVideoAdapter adapter;
 	private boolean isLoading = false;
 
+	private ScrollView svDetail;
 	private ImageView imgThumbnail;
 	private TextView lblTitle;
 	private TextView lblDescription;
@@ -109,6 +111,7 @@ public class VideosTabletActivity extends ActivityBase {
 		mPrefs = getSharedPreferences("fsotv_oauth", MODE_PRIVATE);
 
 		lvVideo = (ListView) findViewById(R.id.lvVideo);
+		svDetail = (ScrollView)findViewById(R.id.svDetail);
 		imgThumbnail = (ImageView) findViewById(R.id.imgThumbnail);
 		lblTitle = (TextView) findViewById(R.id.txtvTitle);
 		lblDescription = (TextView) findViewById(R.id.txtvDescriptionContent);
@@ -170,7 +173,9 @@ public class VideosTabletActivity extends ActivityBase {
 		// updating listview
 		registerForContextMenu(lvVideo);
 		lvVideo.setAdapter(adapter);
-		
+		// Invisible detail
+		svDetail.setVisibility(View.INVISIBLE);
+		// Load videos
 		new LoadVideos().execute();
 	}
 
@@ -495,7 +500,7 @@ public class VideosTabletActivity extends ActivityBase {
 					Toast.LENGTH_SHORT).show();
 			return;
 		}
-		Intent i = new Intent(getApplicationContext(), CommentsActivity.class);
+		Intent i = new Intent(getApplicationContext(), CommentsTabletActivity.class);
 		i.putExtra("videoId", video.getIdReal());
 		i.putExtra("videoTitle", video.getTitle());
 		startActivity(i);
@@ -667,6 +672,18 @@ public class VideosTabletActivity extends ActivityBase {
 					adapter.add(c);
 				}
 				adapter.notifyDataSetChanged();
+				if(result == null){
+					// Scroll to top if refresh list from beginning
+					lvVideo.setSelectionAfterHeaderView();
+				}
+				// Load first video
+				if(result == null){
+					if(svDetail.getVisibility() == View.INVISIBLE){
+						svDetail.setVisibility(View.VISIBLE);
+					}
+					String videoId = videos.get(0).getId();
+					new loadVideo().execute(videoId);
+				}
 			} else {
 				Toast.makeText(getApplicationContext(), "No results",
 						Toast.LENGTH_LONG).show();

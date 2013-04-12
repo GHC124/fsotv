@@ -25,7 +25,12 @@ public class DataHelper {
 
 	public static String numberWithCommas(long x) {
 		DecimalFormat myFormatter = new DecimalFormat("#,###");
-		String result = myFormatter.format(x);
+		String result = "";
+		try {
+			result = myFormatter.format(x);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return result;
 	}
 
@@ -40,21 +45,20 @@ public class DataHelper {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		
+
 		return result;
 	}
-	
+
 	/**
-	 * Function to convert seconds time to Timer Format
-	 * Hours:Minutes:Seconds
+	 * Function to convert seconds time to Timer Format Hours:Minutes:Seconds
 	 * */
 	public static String secondsToTimer(long secs) {
-		int hours = (int)( secs / 3600);
-		int remainder = (int)(secs % 3600);
-		int minutes =  remainder / 60;
+		int hours = (int) (secs / 3600);
+		int remainder = (int) (secs % 3600);
+		int minutes = remainder / 60;
 		int seconds = remainder % 60;
 		String disHour = (hours < 10 ? "0" : "") + hours;
-		String disMinu = (minutes < 10 ? "0": "") + minutes;
+		String disMinu = (minutes < 10 ? "0" : "") + minutes;
 		String disSec = (seconds < 10 ? "0" : "") + seconds;
 		return disHour + ":" + disMinu + ":" + disSec;
 	}

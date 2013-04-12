@@ -336,6 +336,10 @@ public class BrowseChannelsActivity extends ActivityBase {
 					adapter.add(c);
 				}
 				adapter.notifyDataSetChanged();
+				if(result == null){
+					// Scroll to top if refresh list from beginning
+					lvChannel.setSelectionAfterHeaderView();
+				}
 			} else {
 				Toast.makeText(getApplicationContext(), "No results",
 						Toast.LENGTH_LONG).show();

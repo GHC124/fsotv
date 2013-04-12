@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_marginRight="5dip"
-        
+        android:orientation="vertical"
         android:padding="3dip" >
 
         <ImageView
@@ -22,6 +22,7 @@
             android:layout_width="50dip"
             android:layout_height="50dip"
             />
+        
     </LinearLayout>
 
     <!-- Title -->
@@ -33,6 +34,7 @@
         android:layout_alignTop="@id/thumbnail"
         android:layout_toRightOf="@id/thumbnail"
         android:text="REVO"
+        android:maxLines="2"
         android:textColor="#040404"
         android:textSize="15dip"
         android:textStyle="bold"
@@ -49,6 +51,7 @@
         android:layout_marginTop="1dip"
         android:layout_toRightOf="@id/thumbnail"
         android:text="Revo ..."
+        android:maxLines="4"
         android:textColor="#343434"
         android:textSize="10dip" />
 

@@ -66,7 +66,7 @@ public class HomeTabletActivity  extends ActivityBase{
 	}
 
 	private void addItemToScrollView(Reference r) {
-		final LinearLayout ll1 = new LinearLayout(HomeTabletActivity.this);
+		LinearLayout ll1 = new LinearLayout(HomeTabletActivity.this);
 		if (Build.VERSION.SDK_INT >= 16) {
 			ll1.setBackground(getResources().getDrawable(
 					R.drawable.channel_list_background));
@@ -105,14 +105,14 @@ public class HomeTabletActivity  extends ActivityBase{
 			
 			@Override
 			public void onClick(View v) {
-				int cateId = ll1.getId();
+				int cateId = v.getId();
 				if (cateId == CATEGORY_ADD) {
 					Intent i = new Intent(getApplicationContext(),
 							CategoryActivity.class);
 					startActivityForResult(i, RESULT_CATEGORY);
 				} else {
 					Intent i = new Intent(getApplicationContext(),
-							BrowseVideosActivity.class);
+							VideosTabletActivity.class);
 					for (Reference r : categories) {
 						if (r.getId() == cateId) {
 							i.putExtra("categoryId", r.getValue());
