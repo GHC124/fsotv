@@ -2,28 +2,37 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/list_selector"
     android:orientation="horizontal"
     android:padding="5dip" >
 
     <!-- ListRow Left sied Thumbnail image -->
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/thumbnail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_marginRight="5dip"
-        android:orientation="vertical"
-        android:padding="3dip" >
-
+        >
+	       
         <ImageView
             android:id="@+id/image"
             android:layout_width="50dip"
             android:layout_height="50dip"
+            android:layout_alignParentTop="true"
             />
-        
-    </LinearLayout>
+            	
+        <TextView
+            android:id="@+id/duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="00:00:00"
+            android:textColor="#000000"
+            android:textSize="8sp"
+            android:background="#ffffff"
+            android:layout_marginTop="35dip"
+            android:layout_marginLeft="2dip" />
+    </RelativeLayout>
 
     <!-- Title -->
 
@@ -34,9 +43,9 @@
         android:layout_alignTop="@id/thumbnail"
         android:layout_toRightOf="@id/thumbnail"
         android:text="REVO"
-        android:maxLines="2"
-        android:textColor="#040404"
-        android:textSize="15dip"
+        android:maxLines="1"
+        android:textColor="#ffffff"
+        android:textSize="11dip"
         android:textStyle="bold"
         android:typeface="sans" />
 
@@ -51,9 +60,9 @@
         android:layout_marginTop="1dip"
         android:layout_toRightOf="@id/thumbnail"
         android:text="Revo ..."
-        android:maxLines="4"
-        android:textColor="#343434"
-        android:textSize="10dip" />
+        android:maxLines="2"
+        android:textColor="#ffffff"
+        android:textSize="9dip" />
 
     <!-- Statistic -->
 
@@ -70,7 +79,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/browse_video_views"
-            android:textColor="#343434"
+            android:textColor="#ffffff"
             android:textSize="8sp" />
 
         <TextView
@@ -80,58 +89,13 @@
             android:layout_marginLeft="2dip"
             android:layout_marginRight="2dip"
             android:text="123"
-            android:textColor="#343434"
+            android:textColor="#ffffff"
             android:textSize="8sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/browse_video_favorites"
-            android:textColor="#343434"
-            android:textSize="8sp" />
-
-        <TextView
-            android:id="@+id/favoriteCount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="2dip"
-            android:layout_marginRight="2dip"
-            android:text="123"
-            android:textColor="#343434"
-            android:textSize="8sp" />
-
-       
-    </LinearLayout>
-    <LinearLayout
-        android:id="@+id/llStatistic2"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/llStatistic1"
-        android:layout_marginRight="10dip"
-        android:layout_toRightOf="@id/thumbnail"
-        android:orientation="horizontal" >
-         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/browse_video_duration"
-            android:textColor="#343434"
-            android:textSize="8sp" />
-
-        <TextView
-            android:id="@+id/duration"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="2dip"
-            android:layout_marginRight="2dip"
-            android:text="123"
-            android:textColor="#343434"
-            android:textSize="8sp" />
-
-        <TextView
+		<TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Published: "
-            android:textColor="#343434"
+            android:textColor="#ffffff"
             android:textSize="8sp" />
 
         <TextView
@@ -141,10 +105,11 @@
             android:layout_marginLeft="2dip"
             android:layout_marginRight="2dip"
             android:text="123"
-            android:textColor="#343434"
+            android:textColor="#ffffff"
             android:textSize="8sp" />
+       
     </LinearLayout>
-    
+   
     <!-- Rightend Duration -->
 
     <ProgressBar

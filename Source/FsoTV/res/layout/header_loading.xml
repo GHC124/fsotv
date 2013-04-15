@@ -3,45 +3,78 @@
     android:id="@+id/RelativeLayout1"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="5dip"
+    android:background="#000000"
     android:orientation="horizontal"
-    android:padding="5dip"
-    android:background="#000000">
+    >
 
     <LinearLayout
-        android:layout_width="25dip"
+        android:id="@+id/ll1"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:gravity="center"
         android:onClick="onBackClick"
-        android:paddingTop="10dip"
-    	android:paddingBottom="10dip">
+        android:orientation="horizontal"
+        android:paddingBottom="5dip"
+        android:paddingTop="5dip" >
 
         <ImageView
             android:id="@+id/imgBack"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/left16" />
+
+        <ImageView
+            android:layout_width="32dip"
+            android:layout_height="32dip"
+            android:src="@drawable/youtube32" />
     </LinearLayout>
 
     <TextView
         android:id="@+id/tvHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
+        android:layout_marginLeft="10dip"
+        android:layout_marginRight="50dip"
+        android:layout_toRightOf="@id/ll1"
         android:text="Header"
-        android:textSize="20sp" 
-        android:layout_marginLeft="30dip"
-        android:layout_marginRight="30dip"/>
+        android:textSize="18sp"
+        android:textColor="#ffffff" />
 
     <ProgressBar
-        android:id="@+id/pbHeader"
-        style="?android:attr/progressBarStyleSmall"
+            android:id="@+id/pbHeader"
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/ll2"
+            android:visibility="invisible" />
+    
+    <LinearLayout
+        android:id="@+id/ll2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
+        android:gravity="center"
         android:layout_centerVertical="true"
-        android:layout_marginRight="5dip"
-        android:gravity="right"
-        android:visibility="invisible" />
+        android:orientation="horizontal" >
+        
+		 <ImageView
+            android:layout_width="32dip"
+            android:layout_height="32dip"
+            android:src="@drawable/search32"
+            android:layout_marginRight="5dip" />
+		 <ImageView
+            android:layout_width="32dip"
+            android:layout_height="32dip"
+            android:src="@drawable/option32" 
+            android:layout_marginRight="5dip"/>
+        
+    </LinearLayout>
 
+    <TextView android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:layout_below="@id/ll1"
+        android:background="#ffffff"/>    
 </RelativeLayout>
