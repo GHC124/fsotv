@@ -8,9 +8,58 @@
 	
     <include layout="@layout/header_loading"/>
     
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="2dip"
+         >
+
+        <TextView
+            android:id="@+id/tvVideos"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="5dip"
+            android:paddingBottom="5dip"
+            android:paddingLeft="5dip"
+            android:paddingRight="5dip"
+            android:layout_marginRight="2dip"
+            android:text="Videos"
+            android:background="@drawable/action_item"
+            />
+
+        <TextView
+            android:id="@+id/tvSort"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/tvVideos"
+            android:paddingTop="5dip"
+            android:paddingBottom="5dip"
+            android:paddingLeft="5dip"
+            android:paddingRight="5dip"
+            android:layout_marginRight="2dip"
+            android:text="Most viewed"
+            android:background="@drawable/action_item"
+            />
+        
+         <TextView
+            android:id="@+id/tvTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/tvSort"
+            android:paddingTop="5dip"
+            android:paddingBottom="5dip"
+            android:paddingLeft="5dip"
+            android:paddingRight="5dip"
+            android:layout_marginRight="2dip"
+            android:text="All time"
+            android:background="@drawable/action_item"
+            />
+
+    </RelativeLayout>
+    
     <ListView android:id="@+id/lvVideo"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_marginTop="5dip"/>
+        />
 	
 </LinearLayout>

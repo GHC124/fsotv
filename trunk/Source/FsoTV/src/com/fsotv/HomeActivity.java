@@ -1,11 +1,16 @@
 package com.fsotv;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.opengl.Visibility;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -27,13 +32,12 @@ import com.fsotv.dto.Reference;
 import com.fsotv.utils.OnSwipeTouchListener;
 
 /**
- * Allow:
- * + See video category
- * + Add, remove category
- * + Slide left, right to see category
+ * Allow: + See video category + Add, remove category + Slide left, right to see
+ * category
  * 
- *
+ * 
  */
+@SuppressLint("NewApi")
 public class HomeActivity extends Activity implements OnClickListener {
 	private final int RESULT_CATEGORY = 1;
 	private final int CATEGORY_ADD = -1;
@@ -50,7 +54,7 @@ public class HomeActivity extends Activity implements OnClickListener {
 
 		// Get the Reference viewFlipper and set animation
 		vf = (ViewFlipper) findViewById(R.id.viewFlip_channel);
-		
+
 		imgLeft = (ImageView) findViewById(R.id.imgLeft);
 		imgRight = (ImageView) findViewById(R.id.imgRight);
 		// Set onClick listener for all button
@@ -85,9 +89,30 @@ public class HomeActivity extends Activity implements OnClickListener {
 	private void addItemToViewFilpper(Reference r) {
 		final LinearLayout ll = new LinearLayout(HomeActivity.this);
 		if (Build.VERSION.SDK_INT >= 16) {
-			ll.setBackground(getResources().getDrawable(
-					R.drawable.channel_list_background));
-		}else{
+			if (r.getValue() != null) {
+				switch (r.getId()) {
+				case 1: {
+					ll.setBackground(getResources().getDrawable(
+							R.drawable.popular));
+					break;
+				}
+				case 2: {
+					ll.setBackground(getResources().getDrawable(
+							R.drawable.music));
+					break;
+				}
+				case 3: {
+					ll.setBackground(getResources().getDrawable(
+							R.drawable.newyoutube));
+					break;
+				}
+				default:
+					ll.setBackground(getResources().getDrawable(
+							R.drawable.newyoutube));
+					break;
+				}
+			}
+		} else {
 		}
 		ll.setOrientation(LinearLayout.VERTICAL);
 		ll.setGravity(Gravity.CENTER);
@@ -104,8 +129,37 @@ public class HomeActivity extends Activity implements OnClickListener {
 				LinearLayout.LayoutParams.WRAP_CONTENT);
 		ll1.setLayoutParams(lp1);
 
+		ImageView imgView = new ImageView(HomeActivity.this);
+		if (r.getValue() != null) {
+			switch (r.getId()) {
+			case 1: {
+				imgView.setImageDrawable(getResources().getDrawable(
+						R.drawable.popular1));
+				break;
+			}
+			case 2: {
+				imgView.setImageDrawable(getResources().getDrawable(
+						R.drawable.music1));
+				break;
+			}
+			case 3: {
+				imgView.setImageDrawable(getResources().getDrawable(
+						R.drawable.newyoutube1));
+				break;
+			}
+			default:
+				break;
+			}
+		}
+		// if (r.getValue() != null && r.getValue().equals("Comedy")) {
+		//
+		// } else if (r.getValue() != null) {
+		// imgView.setImageDrawable(getResources().getDrawable(
+		// R.drawable.youtube));
+		// }
+
 		TextView tv = new TextView(HomeActivity.this);
-		tv.setTextColor(Color.parseColor("#000000"));
+		tv.setTextColor(Color.parseColor("#FFFFFF"));
 		tv.setText(r.getDisplay());
 		tv.setTextSize(50);
 		LinearLayout.LayoutParams lp2 = new LinearLayout.LayoutParams(
@@ -115,6 +169,7 @@ public class HomeActivity extends Activity implements OnClickListener {
 		lp2.rightMargin = 10;
 		tv.setLayoutParams(lp2);
 
+		ll1.addView(imgView);
 		ll1.addView(tv);
 		ll.addView(ll1);
 		// Add slide event
@@ -150,10 +205,10 @@ public class HomeActivity extends Activity implements OnClickListener {
 					startActivity(i);
 				}
 			}
-			
+
 			@Override
 			public void onSwipePress() {
-				
+
 			}
 		});
 

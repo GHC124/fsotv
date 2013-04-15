@@ -17,6 +17,7 @@ import com.fsotv.tablet.FavoriteTabletActivity;
 import com.fsotv.tablet.HomeTabletActivity;
 import com.fsotv.utils.DialogHelper;
 import com.fsotv.utils.InternetConnection;
+import com.fsotv.utils.YouTubeHelper;
 
 /**
  * Main activity
@@ -27,6 +28,8 @@ public class MainActivity extends TabActivity {
 	// This device is tablet
 	public static boolean IsTablet = false;
 
+	private TabHost tabHost;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -43,12 +46,12 @@ public class MainActivity extends TabActivity {
 		IsTablet = isTabletDevice(this);
 		Log.e("IsTablet", IsTablet ? "True" : "False");
 
-		TabHost tabHost = getTabHost();
+		tabHost = getTabHost();
 
 		// Tab Home, setting Title and Icon for the Tab
 		TabSpec homeSpec = tabHost.newTabSpec("Home");
 		homeSpec.setIndicator("Home",
-				getResources().getDrawable(R.drawable.icon_home));
+				getResources().getDrawable(R.drawable.tab_home));
 		Intent homeIntent = new Intent();
 		if (IsTablet) {
 			homeIntent.setClass(this, HomeTabletActivity.class);
@@ -60,7 +63,7 @@ public class MainActivity extends TabActivity {
 		// Tab Browse, setting Title and Icon for the Tab
 		TabSpec browseSpec = tabHost.newTabSpec("Browse");
 		browseSpec.setIndicator("Browse",
-				getResources().getDrawable(R.drawable.icon_browse));
+				getResources().getDrawable(R.drawable.tab_browse));
 		Intent browseIntent = new Intent();
 		if (IsTablet) {
 			browseIntent.setClass(this, BrowseTabletActivity.class);
@@ -72,7 +75,7 @@ public class MainActivity extends TabActivity {
 		// Tab Favorite, setting Title and Icon for the Tab
 		TabSpec favoriteSpec = tabHost.newTabSpec("Favorite");
 		favoriteSpec.setIndicator("Favorite",
-				getResources().getDrawable(R.drawable.icon_record));
+				getResources().getDrawable(R.drawable.tab_favorite));
 		Intent favoriteIntent = new Intent();
 		if (IsTablet) {
 			favoriteIntent.setClass(this, FavoriteTabletActivity.class);
@@ -90,9 +93,20 @@ public class MainActivity extends TabActivity {
 
 			@Override
 			public void onTabChanged(String tabId) {
-				Log.e("TAB", tabId + "");
+				if(tabId.equals("Browse")){
+					Intent i = new Intent(getApplicationContext(), BrowseVideosActivity.class);
+					i.putExtra("categoryId", YouTubeHelper.CATEGORY_FILM);
+					startActivity(i);
+				}
 			}
 		});
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		
+		tabHost.setCurrentTab(0);
 	}
 
 	private boolean isTabletDevice(Context activityContext) {

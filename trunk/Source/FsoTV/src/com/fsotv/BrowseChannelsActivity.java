@@ -69,7 +69,7 @@ public class BrowseChannelsActivity extends ActivityBase {
 
 	private boolean isLoading = false;
 	private String orderBy = "";
-	private int maxResult = 5;
+	private int maxResult = 15;
 	private int maxLoad = 5;
 	private int startIndex = 1;
 	private String userType;
@@ -380,11 +380,7 @@ public class BrowseChannelsActivity extends ActivityBase {
 						.findViewById(R.id.description);
 				holder.videoCount = (TextView) row
 						.findViewById(R.id.videoCount);
-				holder.viewCount = (TextView) row.findViewById(R.id.viewCount);
-				holder.commentCount = (TextView) row
-						.findViewById(R.id.commentCount);
-				holder.updated = (TextView) row.findViewById(R.id.updated);
-
+				
 				row.setTag(holder);
 			} else {
 				holder = (ListItemHolder) row.getTag();
@@ -397,8 +393,8 @@ public class BrowseChannelsActivity extends ActivityBase {
 			if (title.length() > 50) {
 				title = title.substring(0, 50) + "...";
 			}
-			if (description.length() > 150) {
-				description = description.substring(0, 150) + "...";
+			if (description.length() > 100) {
+				description = description.substring(0, 100) + "...";
 			}
 
 			imageLoader.DisplayImage(item.getImage(), holder.image,
@@ -408,11 +404,7 @@ public class BrowseChannelsActivity extends ActivityBase {
 			holder.description.setText(description);
 			holder.videoCount.setText(DataHelper.numberWithCommas(item
 					.getVideoCount()));
-			holder.viewCount.setText(DataHelper.numberWithCommas(item
-					.getViewCount()));
-			holder.commentCount.setText(DataHelper.numberWithCommas(item
-					.getCommentCount()));
-			holder.updated.setText(DataHelper.formatDate(item.getUpdated()));
+			
 
 			return row;
 		}
@@ -422,10 +414,7 @@ public class BrowseChannelsActivity extends ActivityBase {
 			ProgressBar progressBar;
 			TextView title;
 			TextView description;
-			TextView viewCount;
 			TextView videoCount;
-			TextView commentCount;
-			TextView updated;
 		}
 	}
 

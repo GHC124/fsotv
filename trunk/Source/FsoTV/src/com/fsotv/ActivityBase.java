@@ -67,25 +67,29 @@ public class ActivityBase extends Activity {
 
 	/**
 	 * Override this method to show option dialog
+	 * 
 	 * @param v
 	 */
-	public void onActionClick(View v){
-		
+	public void onActionClick(View v) {
+
 	}
-	
+
 	protected void showBack() {
 		if (imgBack != null)
 			imgBack.setVisibility(View.VISIBLE);
 	}
-	
+
 	protected void hideBack() {
 		if (imgBack != null)
 			imgBack.setVisibility(View.INVISIBLE);
 	}
 
 	protected void setHeader(String text) {
-		if (tvHeader != null)
+		if (tvHeader != null) {
+			if (text.length() > 50)
+				text = text.substring(0, 50);
 			tvHeader.setText(text);
+		}
 	}
 
 	protected void showLoading() {

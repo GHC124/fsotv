@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -57,11 +58,15 @@ public class BrowseVideosActivity extends ActivityBase {
 	private final int OPTION_SEARCH = Menu.FIRST;
 	private final int OPTION_SORT = Menu.FIRST + 1;
 	private final int OPTION_CATEGORY = Menu.FIRST + 2;
-		
-	private Dialog sortDialog;
-	private Dialog searchDialog;
-	private Dialog categoryDialog;
+	
+	private DialogBase typeDialog;
+	private DialogBase sortDialog;
+	private DialogBase searchDialog;
+	private DialogBase categoryDialog;
 	private ListView lvVideo;
+	private TextView tvVideos;
+	private TextView tvSort;
+	private TextView tvTime;
 	private List<VideoEntry> videos;
 	private VideoEntry select;
 	private List<Reference> categories;
@@ -74,7 +79,7 @@ public class BrowseVideosActivity extends ActivityBase {
 	String channelId = "";
 	String categoryId = "";
 	private String orderBy = "";
-	private int maxResult = 5;
+	private int maxResult = 15;
 	private int maxLoad = 5;
 	private int startIndex = 1;
 	String keyword = "";
@@ -85,7 +90,10 @@ public class BrowseVideosActivity extends ActivityBase {
 		setContentView(R.layout.activity_browse_videos);
 
 		lvVideo = (ListView) findViewById(R.id.lvVideo);
-
+		tvVideos = (TextView)findViewById(R.id.tvVideos);
+		tvSort = (TextView)findViewById(R.id.tvSort);
+		tvTime = (TextView)findViewById(R.id.tvTime);
+		
 		imageLoader = new ImageLoader(getApplicationContext());
 		videos = new ArrayList<VideoEntry>();
 		orderBy = YouTubeHelper.ORDERING_VIEWCOUNT;
@@ -113,7 +121,28 @@ public class BrowseVideosActivity extends ActivityBase {
 
 		setHeader(header);
 		setTitle("Browse Video");
-
+		
+		/*
+		 * Add click action to control
+		 */
+		tvVideos.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onOptionClick(v);
+			}
+		});
+		tvSort.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onOptionClick(v);
+			}
+		});
+		tvTime.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onOptionClick(v);
+			}
+		});
 		// Launching new screen on Selecting Single ListItem
 		lvVideo.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view,
@@ -242,8 +271,42 @@ public class BrowseVideosActivity extends ActivityBase {
 		return super.onOptionsItemSelected(item);
 	}
 
+	public void onOptionClick(View v){
+		Log.e("ID", v.getId() + "");
+		switch(v.getId())
+		{
+		case R.id.tvVideos:
+			if (typeDialog != null)
+				typeDialog.show();
+			else {
+				createTypeDialog(BrowseVideosActivity.this);
+				if (typeDialog != null)
+					typeDialog.show();
+			}
+			break;
+		}
+	}
+	
+	private void createTypeDialog(Context context) {
+		typeDialog = new DialogBase(context);
+		typeDialog.setContentView(R.layout.type);
+		typeDialog.setHeader("Videos");
+		final TextView txtVideos = (TextView) typeDialog
+				.findViewById(R.id.tvVideos);
+		final TextView txtChannels = (TextView) typeDialog
+				.findViewById(R.id.tvChannels);
+		txtVideos.setVisibility(View.GONE);
+		txtChannels.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent i = new Intent(getApplicationContext(), BrowseChannelsActivity.class);
+				startActivity(i);
+			}
+		});
+	}
+	
 	private void createSearchDialog(Context context) {
-		searchDialog = new Dialog(context);
+		searchDialog = new DialogBase(context);
 		searchDialog.setContentView(R.layout.search);
 		searchDialog.setTitle("Search Video");
 		final TextView txtSearch = (TextView) searchDialog
@@ -268,7 +331,7 @@ public class BrowseVideosActivity extends ActivityBase {
 	}
 	
 	private void createSortDialog(Context context) {
-		sortDialog = new Dialog(context);
+		sortDialog = new DialogBase(context);
 		sortDialog.setContentView(R.layout.sort);
 		sortDialog.setTitle("Sort");
 		final RadioButton rdViewed = (RadioButton) sortDialog
@@ -300,7 +363,7 @@ public class BrowseVideosActivity extends ActivityBase {
 	}
 	
 	private void createCategoryDialog(Context context) {
-		categoryDialog = new Dialog(context);
+		categoryDialog = new DialogBase(context);
 		categoryDialog.setContentView(R.layout.category_video);
 		categoryDialog.setTitle("Category");
 		ListView lvCategory = (ListView) categoryDialog
@@ -477,8 +540,6 @@ public class BrowseVideosActivity extends ActivityBase {
 				holder.description = (TextView) row
 						.findViewById(R.id.description);
 				holder.viewCount = (TextView) row.findViewById(R.id.viewCount);
-				holder.favoriteCount = (TextView) row
-						.findViewById(R.id.favoriteCount);
 				holder.duration = (TextView) row
 						.findViewById(R.id.duration);
 				holder.published = (TextView) row
@@ -493,8 +554,8 @@ public class BrowseVideosActivity extends ActivityBase {
 			// format string
 			String title = item.getTitle();
 			String description = item.getDescription();
-			if (title.length() > 50) {
-				title = title.substring(0, 50) + "...";
+			if (title.length() > 40) {
+				title = title.substring(0, 40) + "...";
 			}
 			if (description.length() > 150) {
 				description = description.substring(0, 150) + "...";
@@ -509,10 +570,6 @@ public class BrowseVideosActivity extends ActivityBase {
 				holder.viewCount.setText("-");
 			else holder.viewCount.setText(DataHelper.numberWithCommas(item
 					.getViewCount()));
-			if(item.getFavoriteCount()==-1)
-				holder.favoriteCount.setText("-");
-			else holder.favoriteCount.setText(DataHelper.numberWithCommas(item
-					.getFavoriteCount()));
 			holder.duration.setText(DataHelper.secondsToTimer(item.getDuration()));
 			holder.published.setText(DataHelper.formatDate(item.getPublished()));
 
@@ -525,7 +582,6 @@ public class BrowseVideosActivity extends ActivityBase {
 			TextView title;
 			TextView description;
 			TextView viewCount;
-			TextView favoriteCount;
 			TextView duration;
 			TextView published;
 		}
