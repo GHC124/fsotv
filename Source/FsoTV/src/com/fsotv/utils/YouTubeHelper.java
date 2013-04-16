@@ -24,7 +24,15 @@ import android.util.Log;
 import com.fsotv.dto.ChannelEntry;
 import com.fsotv.dto.CommentEntry;
 import com.fsotv.dto.VideoEntry;
-
+/**
+ * YouTube Helper class. Allow:
+ * + Get channels by type
+ * + Get video by category, channelId
+ * + Get channel detail
+ * + Get video detail
+ * + Get comments by videoId
+ * 
+ */
 public class YouTubeHelper {
 	// Constants
 	public final static String CATEGORY_EDUCATION = "Education";
@@ -43,6 +51,10 @@ public class YouTubeHelper {
 	public final static String CHANNEL_MOST_SUBSCRIBED = "most_subscribed";
 	public final static String ORDERING_PUBLISHED = "published";
 	public final static String ORDERING_VIEWCOUNT = "viewCount";
+	public final static String TIME_TODAY = "today";
+	public final static String TIME_THIS_WEEK = "this_week";
+	public final static String TIME_THIS_MONTH = "this_month";
+	public final static String TIME_ALL_TIME = "all_time";
 
 	private final static String InforURL = "http://www.youtube.com/get_video_info?&video_id=";
 	private final static String GdataURL = "http://gdata.youtube.com/feeds/api";
@@ -55,7 +67,7 @@ public class YouTubeHelper {
 	 * @return
 	 */
 	public static List<ChannelEntry> getChannels(String userType,
-			String orderBy, int maxResult, int startIndex) {
+			String orderBy, int maxResult, int startIndex, String time) {
 		List<ChannelEntry> channels = null;
 		InputStream is = null;
 		StringBuilder sb = new StringBuilder();
@@ -78,7 +90,10 @@ public class YouTubeHelper {
 			sb.append("&start-index=");
 			sb.append(startIndex);
 		}
-
+		if (time != null && !time.isEmpty()) {
+			sb.append("&time=");
+			sb.append(time);
+		}
 		String newUrl = sb.toString();
 		try {
 			newUrl = DataHelper.parseUrl(newUrl);
@@ -163,7 +178,7 @@ public class YouTubeHelper {
 	 * 
 	 */
 	public static List<VideoEntry> getVideosInChannel(String channelId,
-			String orderBy, int maxResult, int startIndex, String keyword) {
+			String orderBy, int maxResult, int startIndex, String keyword, String time) {
 		List<VideoEntry> videos = null;
 		InputStream is = null;
 		StringBuilder sb = new StringBuilder();
@@ -195,6 +210,10 @@ public class YouTubeHelper {
 			}
 			sb.append(keyword);
 		}
+		if (time != null && !time.isEmpty()) {
+			sb.append("&time=");
+			sb.append(time);
+		}
 		String newUrl = sb.toString();
 		try {
 			newUrl = DataHelper.parseUrl(newUrl);
@@ -217,7 +236,7 @@ public class YouTubeHelper {
 	 * @return
 	 */
 	public static List<VideoEntry> getVideosInCategory(String category,
-			String orderBy, int maxResult, int startIndex, String keyword) {
+			String orderBy, int maxResult, int startIndex, String keyword, String time) {
 		List<VideoEntry> videos = null;
 		InputStream is = null;
 		StringBuilder sb = new StringBuilder();
@@ -252,6 +271,10 @@ public class YouTubeHelper {
 			}
 			sb.append(keyword);
 		}
+		if (time != null && !time.isEmpty()) {
+			sb.append("&time=");
+			sb.append(time);
+		}
 		String newUrl = sb.toString();
 		try {
 			newUrl = DataHelper.parseUrl(newUrl);
@@ -262,7 +285,11 @@ public class YouTubeHelper {
 		videos = getVideosByStream(is);
 		return videos;
 	}
-
+	/**
+	 * Get videos by stream
+	 * @param is
+	 * @return
+	 */
 	public static List<VideoEntry> getVideosByStream(InputStream is) {
 		List<VideoEntry> videos = new ArrayList<VideoEntry>();
 		try {
@@ -356,7 +383,13 @@ public class YouTubeHelper {
 
 		return videos;
 	}
-
+	/**
+	 * Get comments by videoId
+	 * @param videoId
+	 * @param maxResult
+	 * @param startIndex
+	 * @return
+	 */
 	public static List<CommentEntry> getComments(String videoId,
 			int maxResult, int startIndex) {
 		List<CommentEntry> comments = null;

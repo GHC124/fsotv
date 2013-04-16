@@ -38,7 +38,7 @@ import android.widget.Toast;
 
 import com.facebook.android.FacebookError;
 import com.fsotv.ActivityBase;
-import com.fsotv.CommentsActivity;
+import com.fsotv.VideoCommentsActivity;
 import com.fsotv.R;
 import com.fsotv.VideoDetailActivity;
 import com.fsotv.WatchVideoActivity;
@@ -102,7 +102,8 @@ public class VideosTabletActivity extends ActivityBase {
 	private int maxLoad = 5;
 	private int startIndex = 1;
 	private String keyword = "";
-
+	private String time = "";
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -303,7 +304,6 @@ public class VideosTabletActivity extends ActivityBase {
 		final TextView txtSearch = (TextView) searchDialog
 				.findViewById(R.id.txtSearch);
 		Button btnSearch = (Button) searchDialog.findViewById(R.id.btnSearch);
-		Button btnCancel = (Button) searchDialog.findViewById(R.id.btnCancel);
 		btnSearch.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -313,12 +313,7 @@ public class VideosTabletActivity extends ActivityBase {
 				new LoadVideos().execute();
 			}
 		});
-		btnCancel.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				searchDialog.dismiss();
-			}
-		});
+		
 	}
 	
 	private void createSortDialog(Context context) {
@@ -330,7 +325,6 @@ public class VideosTabletActivity extends ActivityBase {
 		final RadioButton rdPublished = (RadioButton) sortDialog
 				.findViewById(R.id.rdPublished);
 		Button btnSort = (Button) sortDialog.findViewById(R.id.btnSort);
-		Button btnCancel = (Button) sortDialog.findViewById(R.id.btnCancel);
 		btnSort.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -345,12 +339,7 @@ public class VideosTabletActivity extends ActivityBase {
 				new LoadVideos().execute();
 			}
 		});
-		btnCancel.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				sortDialog.dismiss();
-			}
-		});
+		
 	}
 	
 	private void createCategoryDialog(Context context) {
@@ -359,13 +348,7 @@ public class VideosTabletActivity extends ActivityBase {
 		categoryDialog.setTitle("Category");
 		ListView lvCategory = (ListView) categoryDialog
 				.findViewById(R.id.lvCategory);
-		Button btnCancel = (Button) categoryDialog.findViewById(R.id.btnCancel);
-		btnCancel.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				categoryDialog.dismiss();
-			}
-		});
+		
 		lvCategory.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
@@ -429,7 +412,6 @@ public class VideosTabletActivity extends ActivityBase {
 				.findViewById(R.id.lblPost);
 		txtMessage.setText(video.getLinkReal());
 		Button btnShare = (Button) shareDialog.findViewById(R.id.btnShare);
-		Button btnCancel = (Button) shareDialog.findViewById(R.id.btnCancel);
 		rdFacebook.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			
 			@Override
@@ -473,12 +455,7 @@ public class VideosTabletActivity extends ActivityBase {
 				shareDialog.dismiss();
 			}
 		});
-		btnCancel.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				shareDialog.dismiss();
-			}
-		});
+	
 	}
 
 	public void onWatchClick(View c) {
@@ -631,20 +608,20 @@ public class VideosTabletActivity extends ActivityBase {
 				List<VideoEntry> items = null;
 				if (!channelId.isEmpty()) {
 					items = YouTubeHelper.getVideosInChannel(channelId,
-							orderBy, maxLoad, startIndex, keyword);
+							orderBy, maxLoad, startIndex, keyword, time);
 				} else if (!categoryId.isEmpty()) {
 					items = YouTubeHelper.getVideosInCategory(categoryId,
-							orderBy, maxLoad, startIndex, keyword);
+							orderBy, maxLoad, startIndex, keyword, time);
 				}
 				return items;
 			} else {
 				startIndex = 1;
 				if (!channelId.isEmpty()) {
 					videos = YouTubeHelper.getVideosInChannel(channelId,
-							orderBy, maxResult, startIndex, keyword);
+							orderBy, maxResult, startIndex, keyword, time);
 				} else if (!categoryId.isEmpty()) {
 					videos = YouTubeHelper.getVideosInCategory(categoryId,
-							orderBy, maxResult, startIndex, keyword);
+							orderBy, maxResult, startIndex, keyword, time);
 				}
 			}
 			return null;

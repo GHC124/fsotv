@@ -1,7 +1,7 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/fsotv_background"
+    android:background="#edf0f6"
     android:fillViewport="true"
     android:orientation="vertical"
     android:paddingBottom="0dp"
@@ -9,204 +9,215 @@
     android:paddingRight="0dp"
     android:paddingTop="0dp" >
 
+    <include layout="@layout/header" />
+
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical" >
-
-        <include layout="@layout/header_loading" />
-
-        <LinearLayout
-            android:id="@+id/layout_thumbnail"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:orientation="horizontal" >
-
-            <ImageView
-                android:id="@+id/imgThumbnail"
-                android:layout_width="250dip"
-                android:layout_height="200dip"
-                android:layout_gravity="center"
-                android:contentDescription="@string/image_thumbnail_content_description" />
-        </LinearLayout>
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="0dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="10dp" >
 
         <LinearLayout
-            android:id="@+id/layout_title"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical" >
+            android:layout_height="wrap_content" >
 
             <TextView
                 android:id="@+id/txtvTitle"
-                android:layout_width="wrap_content"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/text_view_title"
-                android:textColor="@android:color/white"
-                android:textSize="20sp" />
-        </LinearLayout>
-        
-        <!-- Statistic -->
-
-        <LinearLayout
-            android:id="@+id/llStatistic1"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/browse_video_views"
-                android:textColor="@android:color/background_light"
-                android:textSize="14sp"
-                 />
-
-            <TextView
-                android:id="@+id/viewCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="2dip"
-                android:layout_marginRight="2dip"
-                android:text="0"
-                android:textColor="@android:color/background_light"
-                android:textSize="14sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dip"
-                android:text="@string/browse_video_favorites"
-                android:textColor="@android:color/background_light"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/favoriteCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="2dip"
-                android:layout_marginRight="2dip"
-                android:text="0"
-                android:textColor="@android:color/background_light"
-                android:textSize="14sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/llStatistic2"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/browse_video_duration"
-                android:textColor="@android:color/background_light"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/duration"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="2dip"
-                android:layout_marginRight="2dip"
-                android:text="0"
-                android:textColor="@android:color/background_light"
-                android:textSize="14sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dip"
-                android:text="Published: "
-                android:textColor="@android:color/background_light"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/published"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="2dip"
-                android:layout_marginRight="2dip"
-                android:text="0"
-                android:textColor="@android:color/background_light"
-                android:textSize="14sp" />
+                android:textColor="@android:color/black"
+                android:textSize="20sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent" >
+
+                <ImageView
+                    android:id="@+id/imgThumbnail"
+                    android:layout_width="140dip"
+                    android:layout_height="110dip"
+                    android:layout_below="@id/txtvTitle"
+                    android:onClick="onWatchClick"/>
+				<ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="35dip"
+                    android:layout_marginLeft="50dip"
+                    android:background="@drawable/play32" 
+                    android:onClick="onWatchClick"/>
+                <TextView
+                    android:id="@+id/tvView"
+                    android:layout_width="60dp"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/txtvTitle"
+                    android:layout_marginLeft="10dp"
+                    android:layout_toRightOf="@id/imgThumbnail"
+                    android:text="@string/browse_video_views"
+                    android:textColor="#000000"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/viewCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/txtvTitle"
+                    android:layout_toRightOf="@id/tvView"
+                    android:text="0"
+                    android:textColor="#000000"
+                    android:textIsSelectable="false"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tvFavorite"
+                    android:layout_width="60dp"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/tvView"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_toRightOf="@id/imgThumbnail"
+                    android:text="@string/browse_video_favorites"
+                    android:textColor="#000000"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/favoriteCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/viewCount"
+                    android:layout_marginTop="5dp"
+                    android:layout_toRightOf="@id/tvFavorite"
+                    android:text="0"
+                    android:textColor="#000000"
+                    android:textIsSelectable="false"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tvDuration"
+                    android:layout_width="60dp"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/tvFavorite"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_toRightOf="@id/imgThumbnail"
+                    android:text="@string/browse_video_duration"
+                    android:textColor="#000000"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/duration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/favoriteCount"
+                    android:layout_marginTop="5dp"
+                    android:layout_toRightOf="@id/tvDuration"
+                    android:text="0"
+                    android:textColor="#000000"
+                    android:textIsSelectable="false"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tvPublishDay"
+                    android:layout_width="60dp"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/tvDuration"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_toRightOf="@id/imgThumbnail"
+                    android:text="@string/browse_video_publishday"
+                    android:textColor="#000000"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/published"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/duration"
+                    android:layout_marginTop="5dp"
+                    android:layout_toRightOf="@id/tvPublishDay"
+                    android:text=""
+                    android:textColor="#000000"
+                    android:textIsSelectable="false"
+                    android:textSize="12sp" />
+
+                <LinearLayout android:layout_below="@id/published"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_alignParentRight="true" 
+                    >
+
+                    <ImageButton
+                        android:id="@+id/imgFaceBook"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="5dip"
+                        android:background="@null"
+                        android:onClick="onShareClick"
+                        android:src="@drawable/facebook32" />
+
+                    <ImageButton
+                        android:id="@+id/imgTwitter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@null"
+                        android:onClick="onShareClick"
+                        android:src="@drawable/twitter32" />
+                </LinearLayout>
+            </RelativeLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-            <RatingBar
-                android:id="@+id/rtbRate"
-                style="?android:attr/ratingBarStyleSmall"
+            android:gravity="center" >
+
+            <ImageView
+                android:id="@+id/imgLineSeparator"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/txtvViewCount"
-                android:isIndicator="true"
-                android:numStars="5"
-                android:rating="3.0"
-                android:stepSize="0.1" />
+                android:background="@drawable/line_separator"
+                android:contentDescription="" />
         </LinearLayout>
-        
-        <LinearLayout
-            android:id="@+id/layout_description"
+
+        <TabHost
+            android:id="@+id/tabhost"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:layout_height="match_parent" >
 
-            <TextView
-                android:id="@+id/txtvDescription"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left"
-                android:text="@string/text_view_description"
-                android:textColor="@android:color/white"
-                android:textSize="18sp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical" >
 
-            <TextView
-                android:id="@+id/txtvDescriptionContent"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left"
-                android:text="@string/text_view_description"
-                android:textColor="@android:color/white"
-                android:textSize="14sp" />
-        </LinearLayout>
+                <TabWidget
+                    android:id="@android:id/tabs"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dip"
+                    android:layout_gravity="top"
+                    >
+                </TabWidget>
 
-        <LinearLayout
-            android:id="@+id/layout_command"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="15dp"
-            android:orientation="vertical" >
-
-            <Button
-                android:id="@+id/btnWatch"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:onClick="onWatchClick"
-                android:text="@string/button_watch" />
-
-            <Button
-                android:id="@+id/btnComments"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:onClick="onCommentsClick"
-                android:text="Comments" />
-
-            <Button
-                android:id="@+id/btnShare"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:onClick="onShareClick"
-                android:text="Share" />
-        </LinearLayout>
+                <FrameLayout
+                    android:id="@android:id/tabcontent"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" >
+                </FrameLayout>
+            </LinearLayout>
+        </TabHost>
     </LinearLayout>
 
-</ScrollView>
+</LinearLayout>

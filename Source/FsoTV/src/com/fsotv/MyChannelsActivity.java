@@ -39,10 +39,13 @@ import com.fsotv.utils.ImageLoader;
  *
  */
 public class MyChannelsActivity extends ActivityBase {
-	
-	private final int MENU_UNSUBSCRIBE = Menu.FIRST;	
-	
+	// Menus
+	private final int MENU_UNSUBSCRIBE = Menu.FIRST;
+	// Views
+	private DialogBase typeDialog;
+	private TextView tvChannels;
 	private ListView lvChannel;
+	// Properties
 	private List<ChannelEntry> channels;
 	private ImageLoader imageLoader;
 	
@@ -52,6 +55,7 @@ public class MyChannelsActivity extends ActivityBase {
 		setContentView(R.layout.activity_my_channels);
 		
 		lvChannel = (ListView)findViewById(R.id.lvChannel);
+		tvChannels = (TextView)findViewById(R.id.tvChannels);
 		registerForContextMenu(lvChannel);
 		
 		channels = new ArrayList<ChannelEntry>();
@@ -64,7 +68,15 @@ public class MyChannelsActivity extends ActivityBase {
 		}
 		setHeader("Channels");
 		setTitle("My Channels");
-		
+		/*
+		 * Add click action to control
+		 */
+		tvChannels.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onOptionClick(v);
+			}
+		});
 		// Launching new screen on Selecting Single ListItem
 		lvChannel.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view,
@@ -136,7 +148,47 @@ public class MyChannelsActivity extends ActivityBase {
 
 		return true;
 	}
-
+	/**
+	 * Hander click event when user select search, sort, category, time
+	 * @param v
+	 */
+	public void onOptionClick(View v){
+		switch(v.getId())
+		{
+		case R.id.tvChannels:
+			if (typeDialog != null)
+				typeDialog.show();
+			else {
+				createTypeDialog(MyChannelsActivity.this);
+				if (typeDialog != null)
+					typeDialog.show();
+			}
+			break;
+		}
+	}
+	/**
+	 * Create dialog that allow user to change to channels
+	 * @param context
+	 */
+	private void createTypeDialog(Context context) {
+		typeDialog = new DialogBase(context);
+		typeDialog.setContentView(R.layout.type);
+		typeDialog.setHeader("Channels");
+		final TextView txtVideos = (TextView) typeDialog
+				.findViewById(R.id.tvVideos);
+		final TextView txtChannels = (TextView) typeDialog
+				.findViewById(R.id.tvChannels);
+		txtChannels.setVisibility(View.GONE);
+		txtVideos.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				typeDialog.dismiss();
+				Intent i = new Intent(getApplicationContext(), MyVideosActivity.class);
+				i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(i);
+			}
+		});
+	}
 	/**
 	 * Background Async Task to get Channels from URL
 	 * */
@@ -189,7 +241,10 @@ public class MyChannelsActivity extends ActivityBase {
 		}
 
 	}
-	
+	/**
+	 * Adapter to populate Channels to listView
+	 *
+	 */
 	class ListItemAdapter extends ArrayAdapter<ChannelEntry> {
 		Context context;
 		int layoutResourceId;
@@ -220,11 +275,7 @@ public class MyChannelsActivity extends ActivityBase {
 				holder.description = (TextView) row.findViewById(R.id.description);
 				holder.videoCount = (TextView) row
 						.findViewById(R.id.videoCount);
-				holder.viewCount = (TextView) row.findViewById(R.id.viewCount);
-				holder.commentCount = (TextView) row
-						.findViewById(R.id.commentCount);
-				holder.updated = (TextView) row
-						.findViewById(R.id.updated);
+				
 				
 				row.setTag(holder);
 			} else {
@@ -248,11 +299,6 @@ public class MyChannelsActivity extends ActivityBase {
 			holder.description.setText(description);
 			holder.videoCount.setText(DataHelper.numberWithCommas(item
 					.getVideoCount()));
-			holder.viewCount.setText(DataHelper.numberWithCommas(item
-					.getViewCount()));
-			holder.commentCount.setText(DataHelper.numberWithCommas(item
-					.getCommentCount()));
-			holder.updated.setText(DataHelper.formatDate(item.getUpdated()));
 			
 			return row;
 		}
@@ -262,11 +308,7 @@ public class MyChannelsActivity extends ActivityBase {
 			ProgressBar progressBar;
 			TextView title;
 			TextView description;
-			TextView viewCount;
 			TextView videoCount;
-			TextView commentCount;
-			TextView updated;
-			
 		}
 	}
 }

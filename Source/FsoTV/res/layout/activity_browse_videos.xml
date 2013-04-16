@@ -4,14 +4,16 @@
     android:layout_height="match_parent"
     android:padding="0dip"
     android:orientation="vertical"
+    android:background="#edf0f6"
     tools:context=".BrowseVideosActivity" >
 	
-    <include layout="@layout/header_loading"/>
+    <include layout="@layout/header_search"/>
     
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingBottom="2dip"
+       
          >
 
         <TextView
@@ -26,12 +28,26 @@
             android:text="Videos"
             android:background="@drawable/action_item"
             />
-
+		
+        <TextView
+            android:id="@+id/tvCategory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/tvVideos"
+            android:paddingTop="5dip"
+            android:paddingBottom="5dip"
+            android:paddingLeft="5dip"
+            android:paddingRight="5dip"
+            android:layout_marginRight="2dip"
+            android:text="Film"
+            android:background="@drawable/action_item"
+            />
+        
         <TextView
             android:id="@+id/tvSort"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/tvVideos"
+            android:layout_toRightOf="@id/tvCategory"
             android:paddingTop="5dip"
             android:paddingBottom="5dip"
             android:paddingLeft="5dip"

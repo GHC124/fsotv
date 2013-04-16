@@ -1,7 +1,5 @@
 package com.fsotv;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,14 +9,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.View.OnClickListener;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -31,10 +28,6 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.fsotv.BrowseVideosActivity.ListCategoryAdapter;
-import com.fsotv.BrowseVideosActivity.LoadCategories;
-import com.fsotv.BrowseVideosActivity.LoadVideos;
-import com.fsotv.BrowseVideosActivity.ListCategoryAdapter.ListItemHolder;
 import com.fsotv.dao.ChannelDao;
 import com.fsotv.dao.ReferenceDao;
 import com.fsotv.dto.Channel;
@@ -52,26 +45,34 @@ import com.fsotv.utils.YouTubeHelper;
  * 
  */
 public class BrowseChannelsActivity extends ActivityBase {
-
+	// Menus
 	private final int MENU_SUBSCRIBE = Menu.FIRST;
 	private final int OPTION_SORT = Menu.FIRST + 1;
 	private final int OPTION_USERTYPE = Menu.FIRST + 2;
-
-	private Dialog sortDialog;
-	private Dialog userTypeDialog;
-
+	private final int OPTION_TIME = Menu.FIRST + 3;
+		
+	// Views
+	private DialogBase typeDialog;
+	private DialogBase sortDialog;
+	private DialogBase timeDialog;
+	private DialogBase userTypeDialog;
 	private ListView lvChannel;
-
+	private TextView tvChannels;
+	private TextView tvUserType;
+	private TextView tvSort;
+	private TextView tvTime;
+	// Properties
 	private List<ChannelEntry> channels;
 	private List<Reference> userTypes;
 	private ImageLoader imageLoader;
 	private ListChannelAdapter adapter;
-
+	// Sort
 	private boolean isLoading = false;
 	private String orderBy = "";
-	private int maxResult = 15;
+	private int maxResult = 10;
 	private int maxLoad = 5;
 	private int startIndex = 1;
+	private String time = "";
 	private String userType;
 
 	@Override
@@ -80,11 +81,18 @@ public class BrowseChannelsActivity extends ActivityBase {
 		setContentView(R.layout.activity_browse_channels);
 
 		lvChannel = (ListView) findViewById(R.id.lvChannel);
-
+		tvChannels = (TextView)findViewById(R.id.tvChannels);
+		tvUserType = (TextView)findViewById(R.id.tvUserType);
+		tvSort = (TextView)findViewById(R.id.tvSort);
+		tvTime = (TextView)findViewById(R.id.tvTime);
+		
+		// Init data
 		channels = new ArrayList<ChannelEntry>();
 		imageLoader = new ImageLoader(getApplicationContext());
 		userType = YouTubeHelper.USER_TYPE_COMEDIANS;
 		orderBy = YouTubeHelper.ORDERING_VIEWCOUNT;
+		time = YouTubeHelper.TIME_ALL_TIME;
+		
 		Intent intent = getIntent();
 		Bundle extras = intent.getExtras();
 		if (extras != null) {
@@ -92,6 +100,7 @@ public class BrowseChannelsActivity extends ActivityBase {
 			userType = (userType == null) ? "" : userType;
 		}
 		setHeader(userType);
+		tvUserType.setText(userType);
 		setTitle("Browse Channel");
 
 		// Launching new screen on Selecting Single ListItem
@@ -105,6 +114,33 @@ public class BrowseChannelsActivity extends ActivityBase {
 				i.putExtra("channelId", channelId);
 				i.putExtra("channelTitle", channelTitle);
 				startActivity(i);
+			}
+		});
+		/*
+		 * Add click action to control
+		 */
+		tvChannels.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onOptionClick(v);
+			}
+		});
+		tvUserType.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onOptionClick(v);
+			}
+		});
+		tvSort.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onOptionClick(v);
+			}
+		});
+		tvTime.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onOptionClick(v);
 			}
 		});
 		lvChannel.setOnScrollListener(new EndlessScrollListViewListener(
@@ -184,6 +220,7 @@ public class BrowseChannelsActivity extends ActivityBase {
 		super.onCreateOptionsMenu(menu);
 		menu.add(0, OPTION_SORT, 1, "Sort");
 		menu.add(0, OPTION_USERTYPE, 2, "Channel Type");
+		menu.add(0, OPTION_TIME, 3, "Time");
 		return true;
 	}
 
@@ -200,6 +237,15 @@ public class BrowseChannelsActivity extends ActivityBase {
 					sortDialog.show();
 			}
 			break;
+		case OPTION_TIME:
+			if (timeDialog != null)
+				timeDialog.show();
+			else {
+				createTimeDialog(BrowseChannelsActivity.this);
+				if (timeDialog != null)
+					timeDialog.show();
+			}
+			break;
 		case OPTION_USERTYPE:
 			if (userTypeDialog != null)
 				userTypeDialog.show();
@@ -210,55 +256,164 @@ public class BrowseChannelsActivity extends ActivityBase {
 			}
 			break;
 		}
+		
 
 		return super.onOptionsItemSelected(item);
 	}
-
+	/**
+	 * Hander click event when user select search, sort, category, time
+	 * @param v
+	 */
+	public void onOptionClick(View v){
+		switch(v.getId())
+		{
+		case R.id.tvChannels:
+			if (typeDialog != null)
+				typeDialog.show();
+			else {
+				createTypeDialog(BrowseChannelsActivity.this);
+				if (typeDialog != null)
+					typeDialog.show();
+			}
+			break;
+		case R.id.tvUserType:
+			if (userTypeDialog != null)
+				userTypeDialog.show();
+			else {
+				createUserTypeDialog(BrowseChannelsActivity.this);
+				if (userTypeDialog != null)
+					userTypeDialog.show();
+			}
+			break;
+		case R.id.tvSort:
+			if (sortDialog != null)
+				sortDialog.show();
+			else {
+				createSortDialog(BrowseChannelsActivity.this);
+				if (sortDialog != null)
+					sortDialog.show();
+			}
+			break;
+		case R.id.tvTime:
+			if (timeDialog != null)
+				timeDialog.show();
+			else {
+				createTimeDialog(BrowseChannelsActivity.this);
+				if (timeDialog != null)
+					timeDialog.show();
+			}
+			break;
+		}
+	}
+	/**
+	 * Create dialog that allow user to change to channels
+	 * @param context
+	 */
+	private void createTypeDialog(Context context) {
+		typeDialog = new DialogBase(context);
+		typeDialog.setContentView(R.layout.type);
+		typeDialog.setHeader("Channels");
+		final TextView txtVideos = (TextView) typeDialog
+				.findViewById(R.id.tvVideos);
+		final TextView txtChannels = (TextView) typeDialog
+				.findViewById(R.id.tvChannels);
+		txtChannels.setVisibility(View.GONE);
+		txtVideos.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				typeDialog.dismiss();
+				Intent i = new Intent(getApplicationContext(), BrowseVideosActivity.class);
+				i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(i);
+			}
+		});
+	}
+	/**
+	 * Create dialog that allow user to sort videos
+	 * @param context
+	 */
 	private void createSortDialog(Context context) {
-		sortDialog = new Dialog(context);
+		sortDialog = new DialogBase(context);
 		sortDialog.setContentView(R.layout.sort);
-		sortDialog.setTitle("Sort");
+		sortDialog.setHeader("Sort");
 		final RadioButton rdViewed = (RadioButton) sortDialog
 				.findViewById(R.id.rdViewed);
 		final RadioButton rdPublished = (RadioButton) sortDialog
 				.findViewById(R.id.rdPublished);
 		Button btnSort = (Button) sortDialog.findViewById(R.id.btnSort);
-		Button btnCancel = (Button) sortDialog.findViewById(R.id.btnCancel);
 		btnSort.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				String sort = YouTubeHelper.ORDERING_VIEWCOUNT;
-				if (rdViewed.isChecked())
-					sort = YouTubeHelper.ORDERING_VIEWCOUNT;
-				else if (rdPublished.isChecked())
-					sort = YouTubeHelper.ORDERING_PUBLISHED;
-				orderBy = sort;
+				String display = "";
+				if (rdViewed.isChecked()){
+					orderBy = YouTubeHelper.ORDERING_VIEWCOUNT;
+					display = rdViewed.getText().toString();
+				}
+				else if (rdPublished.isChecked()){
+					orderBy = YouTubeHelper.ORDERING_PUBLISHED;
+					display = rdPublished.getText().toString();
+				}
 				sortDialog.dismiss();
 				// Get data again
+				tvSort.setText(display);
 				new LoadChannels().execute();
 			}
 		});
-		btnCancel.setOnClickListener(new OnClickListener() {
+	}
+	/**
+	 * Create dialog that allow user to change time of videos
+	 * @param context
+	 */
+	private void createTimeDialog(Context context) {
+		timeDialog = new DialogBase(context);
+		timeDialog.setContentView(R.layout.time);
+		timeDialog.setHeader("Time");
+		final RadioButton rdToday = (RadioButton) timeDialog
+				.findViewById(R.id.rdToday);
+		final RadioButton rdThisWeek = (RadioButton) timeDialog
+				.findViewById(R.id.rdThisWeek);
+		final RadioButton rdThisMonth = (RadioButton) timeDialog
+				.findViewById(R.id.rdThisMonth);
+		final RadioButton rdAllTime = (RadioButton) timeDialog
+				.findViewById(R.id.rdAllTime);
+		Button btnOk = (Button) timeDialog.findViewById(R.id.btnOk);
+		btnOk.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				sortDialog.dismiss();
+				String display = "";
+				if (rdToday.isChecked()){
+					time = YouTubeHelper.TIME_TODAY;
+					display = rdToday.getText().toString();
+				}
+				else if (rdThisWeek.isChecked()){
+					time = YouTubeHelper.TIME_THIS_WEEK;
+					display = rdThisWeek.getText().toString();
+				}
+				else if (rdThisMonth.isChecked()){
+					time = YouTubeHelper.TIME_THIS_MONTH;
+					display = rdThisMonth.getText().toString();
+				}
+				else if (rdAllTime.isChecked()){
+					time = YouTubeHelper.TIME_ALL_TIME;
+					display = rdAllTime.getText().toString();
+				}
+				timeDialog.dismiss();
+				// Get data again
+				tvTime.setText(display);
+				new LoadChannels().execute();
 			}
 		});
 	}
-
+	/**
+	 * Create dialog that allow user to change type of channel
+	 * @param context
+	 */
 	private void createUserTypeDialog(Context context) {
-		userTypeDialog = new Dialog(context);
+		userTypeDialog = new DialogBase(context);
 		userTypeDialog.setContentView(R.layout.usertype_channel);
-		userTypeDialog.setTitle("Channel");
+		userTypeDialog.setHeader("Channel");
 		ListView lvUserType = (ListView) userTypeDialog
 				.findViewById(R.id.lvUserType);
-		Button btnCancel = (Button) userTypeDialog.findViewById(R.id.btnCancel);
-		btnCancel.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				userTypeDialog.dismiss();
-			}
-		});
 		lvUserType.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
@@ -266,6 +421,7 @@ public class BrowseChannelsActivity extends ActivityBase {
 				userTypeDialog.dismiss();
 				// Reload data
 				setHeader(userType);
+				tvUserType.setText(userType);
 				new LoadChannels().execute();
 			}
 		});
@@ -288,28 +444,14 @@ public class BrowseChannelsActivity extends ActivityBase {
 
 		@Override
 		protected List<ChannelEntry> doInBackground(String... args) {
-			// Demo data
-			// try {
-			// InputStream is = getResources().getAssets().open("Channels.txt");
-			// if (isLoading) {
-			// List<ChannelEntry> items = YouTubeHelper.getChannelsByStream(is);
-			// channels.addAll(items);
-			// }else{
-			// channels = YouTubeHelper.getChannelsByStream(is);
-			// }
-			// } catch (IOException e) {
-			// // TODO Auto-generated catch block
-			// e.printStackTrace();
-			// }
-			//
 			if (isLoading) {
 				List<ChannelEntry> items = YouTubeHelper.getChannels(userType,
-						orderBy, maxLoad, startIndex);
+						orderBy, maxLoad, startIndex, time);
 				return items;
 			} else {
 				startIndex = 1;
 				channels = YouTubeHelper.getChannels(userType, orderBy,
-						maxResult, startIndex);
+						maxResult, startIndex, time);
 			}
 			return null;
 		}
@@ -347,7 +489,10 @@ public class BrowseChannelsActivity extends ActivityBase {
 		}
 
 	}
-
+	/**
+	 * Adapter that populate channels to listView
+	 *
+	 */
 	class ListChannelAdapter extends ArrayAdapter<ChannelEntry> {
 		Context context;
 		int layoutResourceId;
@@ -459,7 +604,10 @@ public class BrowseChannelsActivity extends ActivityBase {
 		}
 
 	}
-
+	/**
+	 * Adapter that populate user types to UserType listView
+	 *
+	 */
 	class ListUserTypeAdapter extends ArrayAdapter<Reference> {
 		Context context;
 		int layoutResourceId;
@@ -507,7 +655,8 @@ public class BrowseChannelsActivity extends ActivityBase {
 
 			holder.title.setText(title);
 			holder.description.setText(description);
-
+			holder.image.setBackgroundResource(R.drawable.icon_user);
+			
 			return row;
 		}
 

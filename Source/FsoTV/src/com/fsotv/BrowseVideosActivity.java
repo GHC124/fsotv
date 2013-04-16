@@ -1,12 +1,9 @@
 package com.fsotv;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -31,77 +28,92 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.fsotv.BrowseChannelsActivity.LoadChannels;
 import com.fsotv.dao.ReferenceDao;
 import com.fsotv.dao.VideoDao;
-import com.fsotv.dto.ChannelEntry;
 import com.fsotv.dto.Reference;
 import com.fsotv.dto.Video;
 import com.fsotv.dto.VideoEntry;
 import com.fsotv.utils.DataHelper;
 import com.fsotv.utils.EndlessScrollListViewListener;
 import com.fsotv.utils.ImageLoader;
+import com.fsotv.utils.StringHelper;
 import com.fsotv.utils.YouTubeHelper;
+
 /**
- * Browse videos from youtube
- * Extend ActivityBase, allow:
- * + Subscribe video
- * + Search keyword
- * + Change category
- * + Sort video
- * + Load more items when scroll
+ * Browse videos from youtube Extend ActivityBase, allow: +
+ * Browse by category + Browse by channel id + Subscribe video + Search keyword
+ * + Change category, disable when browse by channel id + Sort video + View
+ * video detail when click an video + Load more items when scroll
  * 
- *
+ * @authors ChungPV1 CuongVM1 NhungHTH1 TungPT6
  */
 public class BrowseVideosActivity extends ActivityBase {
+
+	// Menus
 	private final int MENU_SUBSCRIBE = Menu.FIRST;
 	private final int OPTION_SEARCH = Menu.FIRST;
 	private final int OPTION_SORT = Menu.FIRST + 1;
-	private final int OPTION_CATEGORY = Menu.FIRST + 2;
-	
+	private final int OPTION_TIME = Menu.FIRST + 2;
+	private final int OPTION_CATEGORY = Menu.FIRST + 3;
+
+	// Declare needed components for this activity
 	private DialogBase typeDialog;
 	private DialogBase sortDialog;
-	private DialogBase searchDialog;
+	private DialogBase timeDialog;
 	private DialogBase categoryDialog;
 	private ListView lvVideo;
 	private TextView tvVideos;
+	private TextView tvCategory;
 	private TextView tvSort;
 	private TextView tvTime;
 	private List<VideoEntry> videos;
 	private VideoEntry select;
 	private List<Reference> categories;
 	private ImageLoader imageLoader;
-	private boolean isSubscribe = false; // Subscribe Action
-	private boolean isCategory = false; // Change category Action
+
+	// Subscribe Action
+	private boolean isSubscribe = false;
+
+	// Change category Action
+	private boolean isCategory = false;
+
 	private ListVideoAdapter adapter;
 	private boolean isLoading = false;
 
-	String channelId = "";
-	String categoryId = "";
+	// Sort, Search
+	private String channelId = "";
+	private String categoryId = "";
 	private String orderBy = "";
-	private int maxResult = 15;
+	private int maxResult = 10;
 	private int maxLoad = 5;
 	private int startIndex = 1;
-	String keyword = "";
+	private String keyword = "";
+	private String time = "";
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_browse_videos);
+	/**
+	 * This function used to initialize components for this activty
+	 */
+	private void initComponets() {
+		Log.i("Info", "Start initComponents() in BrowseVideosActivity class");
 
 		lvVideo = (ListView) findViewById(R.id.lvVideo);
-		tvVideos = (TextView)findViewById(R.id.tvVideos);
-		tvSort = (TextView)findViewById(R.id.tvSort);
-		tvTime = (TextView)findViewById(R.id.tvTime);
-		
+		tvVideos = (TextView) findViewById(R.id.tvVideos);
+		tvCategory = (TextView) findViewById(R.id.tvCategory);
+		tvSort = (TextView) findViewById(R.id.tvSort);
+		tvTime = (TextView) findViewById(R.id.tvTime);
+
 		imageLoader = new ImageLoader(getApplicationContext());
 		videos = new ArrayList<VideoEntry>();
 		orderBy = YouTubeHelper.ORDERING_VIEWCOUNT;
-		
+		time = YouTubeHelper.TIME_ALL_TIME;
+
+		// Init data
 		String channelTitle = "";
 		String header = "";
+
 		Intent intent = getIntent();
 		Bundle extras = intent.getExtras();
+
 		if (extras != null) {
 			channelId = extras.getString("channelId");
 			categoryId = extras.getString("categoryId");
@@ -111,21 +123,40 @@ public class BrowseVideosActivity extends ActivityBase {
 			categoryId = (categoryId == null) ? "" : categoryId;
 			channelTitle = (channelTitle == null) ? "" : channelTitle;
 		}
-		if (!channelTitle.isEmpty()) {
+		// If browse videos by channelID, we'll disable function change category
+		if (!channelId.isEmpty() && !channelTitle.isEmpty()) {
 			header = channelTitle;
-			if (header.length() > 50)
-				header = header.substring(0, 50);
+			// Disable change category
+			tvCategory.setVisibility(View.GONE);
+
 		} else if (!categoryId.isEmpty()) {
 			header = categoryId;
+			tvCategory.setText(categoryId);
 		}
 
 		setHeader(header);
 		setTitle("Browse Video");
-		
+
+		Log.i("Info", "End initComponents() in BrowseVideosActivity class");
+	}
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_browse_videos);
+
+		initComponets();
+
 		/*
 		 * Add click action to control
 		 */
 		tvVideos.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onOptionClick(v);
+			}
+		});
+		tvCategory.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				onOptionClick(v);
@@ -155,33 +186,31 @@ public class BrowseVideosActivity extends ActivityBase {
 				startActivity(i);
 			}
 		});
-		lvVideo.setOnScrollListener(new EndlessScrollListViewListener(lvVideo){
-			@Override 
-			public void loadData(){
-				if(!isLoading){
+		lvVideo.setOnScrollListener(new EndlessScrollListViewListener(lvVideo) {
+			@Override
+			public void loadData() {
+				if (!isLoading) {
 					isLoading = true;
 					startIndex = startIndex + maxResult;
 					new LoadVideos().execute();
 				}
 			}
 		});
-		adapter = new ListVideoAdapter(
-				BrowseVideosActivity.this, R.layout.browse_video_item,
-				videos);
+		adapter = new ListVideoAdapter(BrowseVideosActivity.this,
+				R.layout.browse_video_item, videos);
 		// updating listview
 		registerForContextMenu(lvVideo);
 		lvVideo.setAdapter(adapter);
-		
+
 		new LoadVideos().execute();
 	}
 
 	@Override
-	public void onDestroy(){
+	public void onDestroy() {
 		imageLoader.cancel();
-		
 		super.onDestroy();
 	}
-	
+
 	/**
 	 * Building a context menu for listview Long press on List row to see
 	 * context menu
@@ -203,13 +232,17 @@ public class BrowseVideosActivity extends ActivityBase {
 		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item
 				.getMenuInfo();
 		int menuItemId = item.getItemId();
+
 		// check for selected option
 		if (menuItemId == MENU_SUBSCRIBE) {
+
 			final int position = info.position;
 			select = videos.get(position);
 			isSubscribe = true;
+
 			if (categoryDialog != null)
 				categoryDialog.show();
+
 			else {
 				createCategoryDialog(BrowseVideosActivity.this);
 				if (categoryDialog != null)
@@ -223,11 +256,14 @@ public class BrowseVideosActivity extends ActivityBase {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
+
 		menu.add(0, OPTION_SEARCH, 0, "Search");
 		menu.add(0, OPTION_SORT, 1, "Sort");
+		menu.add(0, OPTION_TIME, 2, "Time");
+
 		// Only show category dialog when browse by channel
 		if (!categoryId.isEmpty()) {
-			menu.add(0, OPTION_CATEGORY, 2, "Category");
+			menu.add(0, OPTION_CATEGORY, 3, "Category");
 		}
 		return true;
 	}
@@ -235,16 +271,10 @@ public class BrowseVideosActivity extends ActivityBase {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		super.onOptionsItemSelected(item);
+
 		switch (item.getItemId()) {
 		case OPTION_SEARCH:
-			if (searchDialog != null)
-				searchDialog.show();
-			else {
-				createSearchDialog(BrowseVideosActivity.this);
-				if (searchDialog != null)
-					searchDialog.show();
-			}
-
+			showSearch(); // Call show search method of parent
 			break;
 		case OPTION_SORT:
 			if (sortDialog != null)
@@ -253,6 +283,15 @@ public class BrowseVideosActivity extends ActivityBase {
 				createSortDialog(BrowseVideosActivity.this);
 				if (sortDialog != null)
 					sortDialog.show();
+			}
+			break;
+		case OPTION_TIME:
+			if (timeDialog != null)
+				timeDialog.show();
+			else {
+				createTimeDialog(BrowseVideosActivity.this);
+				if (timeDialog != null)
+					timeDialog.show();
 			}
 			break;
 		case OPTION_CATEGORY:
@@ -271,10 +310,13 @@ public class BrowseVideosActivity extends ActivityBase {
 		return super.onOptionsItemSelected(item);
 	}
 
-	public void onOptionClick(View v){
-		Log.e("ID", v.getId() + "");
-		switch(v.getId())
-		{
+	/**
+	 * Hander click event when user select search, sort, category, time
+	 * 
+	 * @param v
+	 */
+	public void onOptionClick(View v) {
+		switch (v.getId()) {
 		case R.id.tvVideos:
 			if (typeDialog != null)
 				typeDialog.show();
@@ -284,119 +326,255 @@ public class BrowseVideosActivity extends ActivityBase {
 					typeDialog.show();
 			}
 			break;
+		case R.id.tvCategory:
+			isCategory = true;
+			if (categoryDialog != null)
+				categoryDialog.show();
+			else {
+				createCategoryDialog(BrowseVideosActivity.this);
+				if (categoryDialog != null)
+					categoryDialog.show();
+			}
+			break;
+		case R.id.tvSort:
+			if (sortDialog != null)
+				sortDialog.show();
+			else {
+				createSortDialog(BrowseVideosActivity.this);
+				if (sortDialog != null)
+					sortDialog.show();
+			}
+			break;
+		case R.id.tvTime:
+			if (timeDialog != null)
+				timeDialog.show();
+			else {
+				createTimeDialog(BrowseVideosActivity.this);
+				if (timeDialog != null)
+					timeDialog.show();
+			}
+			break;
 		}
 	}
-	
+
+	/**
+	 * Create dialog that allow user to change to channels
+	 * 
+	 * @param context
+	 */
 	private void createTypeDialog(Context context) {
 		typeDialog = new DialogBase(context);
 		typeDialog.setContentView(R.layout.type);
 		typeDialog.setHeader("Videos");
+
 		final TextView txtVideos = (TextView) typeDialog
 				.findViewById(R.id.tvVideos);
 		final TextView txtChannels = (TextView) typeDialog
 				.findViewById(R.id.tvChannels);
+
 		txtVideos.setVisibility(View.GONE);
 		txtChannels.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent i = new Intent(getApplicationContext(), BrowseChannelsActivity.class);
+				typeDialog.dismiss();
+				Intent i = new Intent(getApplicationContext(),
+						BrowseChannelsActivity.class);
+
+				i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(i);
 			}
 		});
 	}
-	
-	private void createSearchDialog(Context context) {
-		searchDialog = new DialogBase(context);
-		searchDialog.setContentView(R.layout.search);
-		searchDialog.setTitle("Search Video");
-		final TextView txtSearch = (TextView) searchDialog
-				.findViewById(R.id.txtSearch);
-		Button btnSearch = (Button) searchDialog.findViewById(R.id.btnSearch);
-		Button btnCancel = (Button) searchDialog.findViewById(R.id.btnCancel);
-		btnSearch.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				keyword = txtSearch.getText().toString();
-				searchDialog.dismiss();
-				// Get data again
-				new LoadVideos().execute();
-			}
-		});
-		btnCancel.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				searchDialog.dismiss();
-			}
-		});
-	}
-	
+
+	/**
+	 * 
+	 * @param context
+	 */
+
+	/**
+	 * Create dialog that allow user to sort videos
+	 * 
+	 * @param context
+	 */
+
 	private void createSortDialog(Context context) {
+		Log.i("BrowseVideosActivity", "Start createSortDialog()");
+
 		sortDialog = new DialogBase(context);
 		sortDialog.setContentView(R.layout.sort);
-		sortDialog.setTitle("Sort");
+		sortDialog.setHeader("Sort");
+
 		final RadioButton rdViewed = (RadioButton) sortDialog
 				.findViewById(R.id.rdViewed);
+
 		final RadioButton rdPublished = (RadioButton) sortDialog
 				.findViewById(R.id.rdPublished);
+
 		Button btnSort = (Button) sortDialog.findViewById(R.id.btnSort);
-		Button btnCancel = (Button) sortDialog.findViewById(R.id.btnCancel);
 		btnSort.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				String sort = YouTubeHelper.ORDERING_VIEWCOUNT;
-				if (rdViewed.isChecked())
-					sort = YouTubeHelper.ORDERING_VIEWCOUNT;
-				else if (rdPublished.isChecked())
-					sort = YouTubeHelper.ORDERING_PUBLISHED;
-				orderBy = sort;
+				String display = "";
+
+				if (rdViewed.isChecked()) {
+					orderBy = YouTubeHelper.ORDERING_VIEWCOUNT;
+					display = rdViewed.getText().toString();
+
+				} else if (rdPublished.isChecked()) {
+					orderBy = YouTubeHelper.ORDERING_PUBLISHED;
+					display = rdPublished.getText().toString();
+				}
+
 				sortDialog.dismiss();
+
 				// Get data again
+				tvSort.setText(display);
+
 				new LoadVideos().execute();
 			}
 		});
-		btnCancel.setOnClickListener(new OnClickListener() {
+
+		Log.i("BrowseVideosActivity", "End createSortDialog()");
+	}
+
+	/**
+	 * Create dialog that allow user to change time of videos
+	 * 
+	 * @param context
+	 */
+
+	private void createTimeDialog(Context context) {
+		Log.i("BrowseVideosActivity", "Start createTimeDialog()");
+
+		timeDialog = new DialogBase(context);
+		timeDialog.setContentView(R.layout.time);
+		timeDialog.setHeader("Time");
+
+		final RadioButton rdToday = (RadioButton) timeDialog
+				.findViewById(R.id.rdToday);
+
+		final RadioButton rdThisWeek = (RadioButton) timeDialog
+				.findViewById(R.id.rdThisWeek);
+
+		final RadioButton rdThisMonth = (RadioButton) timeDialog
+				.findViewById(R.id.rdThisMonth);
+
+		final RadioButton rdAllTime = (RadioButton) timeDialog
+				.findViewById(R.id.rdAllTime);
+
+		Button btnOk = (Button) timeDialog.findViewById(R.id.btnOk);
+		btnOk.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				sortDialog.dismiss();
+				String display = "";
+				if (rdToday.isChecked()) {
+					time = YouTubeHelper.TIME_TODAY;
+					display = rdToday.getText().toString();
+
+				} else if (rdThisWeek.isChecked()) {
+					time = YouTubeHelper.TIME_THIS_WEEK;
+					display = rdThisWeek.getText().toString();
+
+				} else if (rdThisMonth.isChecked()) {
+					time = YouTubeHelper.TIME_THIS_MONTH;
+					display = rdThisMonth.getText().toString();
+
+				} else if (rdAllTime.isChecked()) {
+					time = YouTubeHelper.TIME_ALL_TIME;
+					display = rdAllTime.getText().toString();
+				}
+
+				timeDialog.dismiss();
+
+				// Get data again
+				tvTime.setText(display);
+
+				new LoadVideos().execute();
 			}
 		});
+
+		Log.i("BrowseVideosActivity", "End createTimeDialog()");
 	}
-	
+
+	/**
+	 * 
+	 * @param context
+	 */
+
+	/**
+	 * Create dialog that allow user to choose category of videos
+	 * 
+	 * @param context
+	 */
+
 	private void createCategoryDialog(Context context) {
+		Log.i("BrowseVideosActivity", "Start createCategoryDialog()");
+
 		categoryDialog = new DialogBase(context);
 		categoryDialog.setContentView(R.layout.category_video);
-		categoryDialog.setTitle("Category");
+		categoryDialog.setHeader("Category");
+
 		ListView lvCategory = (ListView) categoryDialog
 				.findViewById(R.id.lvCategory);
-		Button btnCancel = (Button) categoryDialog.findViewById(R.id.btnCancel);
-		btnCancel.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				categoryDialog.dismiss();
-			}
-		});
+
 		lvCategory.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				Reference item = categories.get(position);
 				categoryDialog.dismiss();
+
 				if (isSubscribe) {
 					isSubscribe = false;
 					// Subscribe
 					subscribeVideo(item.getId());
+
 				} else if (isCategory) {
 					isCategory = false;
 					// Reload data
 					categoryId = item.getValue();
 					setHeader(categoryId);
+					tvCategory.setText(categoryId);
+
 					new LoadVideos().execute();
 				}
 			}
 		});
+
 		new LoadCategories().execute(lvCategory);
+		Log.i("BrowseVideosActivity", "End createCategoryDialog()");
 	}
 
+	/**
+	 * Override Search function to search
+	 */
+	@Override
+	protected void Search(String key) {
+		keyword = key;
+		new LoadVideos().execute();
+	}
+
+	/**
+	 * Override Close Search function when close search control
+	 */
+	@Override
+	protected void CloseSearch() {
+		keyword = "";
+		new LoadVideos().execute();
+	}
+
+	/**
+	 * Subscribe video by category id
+	 * 
+	 * @param idCategory
+	 */
+	/**
+	 * 
+	 * @param idCategory
+	 * @author TungPT6
+	 */
 	private void subscribeVideo(int idCategory) {
+		Log.i("BrowseVideosActivity", "Start subscribeVideo()");
+
 		VideoDao videoDao = new VideoDao(getApplicationContext());
 		Video video = new Video();
 		video.setIdCategory(idCategory);
@@ -413,79 +591,77 @@ public class BrowseVideosActivity extends ActivityBase {
 		video.setPublished(select.getPublished());
 		video.setUpdated(select.getUpdated());
 		videoDao.insertVideo(video);
+
 		if (video.getIdVideo() > 0) {
 			Toast.makeText(this, "Subscribed", Toast.LENGTH_SHORT).show();
 		}
+
+		Log.i("BrowseVideosActivity", "Start subscribeVideo()");
 	}
 
 	/**
 	 * Background Async Task to get Videos data from URL
-	 * */
+	 * 
+	 * @author CuongVM1
+	 */
 	class LoadVideos extends AsyncTask<String, String, List<VideoEntry>> {
 
 		/**
 		 * Before starting background thread Show Progress Dialog
-		 * */
+		 */
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
 			showLoading();
 		}
 
+		/**
+		 * Load data and pull it into list view
+		 */
 		@Override
 		protected List<VideoEntry> doInBackground(String... args) {
-			// Demo data
-//			try {
-//				InputStream is = getResources().getAssets().open(
-//						"VideosInChannel.txt");
-//				if(isLoading){
-//					List<VideoEntry> items = null;
-//					items = YouTubeHelper.getVideosByStream(is);
-//					videos.addAll(items);
-//				}else{
-//					videos = YouTubeHelper.getVideosByStream(is);
-//				}
-//
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-			//
-//			 
 			if (isLoading) {
 				List<VideoEntry> items = null;
 				if (!channelId.isEmpty()) {
 					items = YouTubeHelper.getVideosInChannel(channelId,
-							orderBy, maxLoad, startIndex, keyword);
+							orderBy, maxLoad, startIndex, keyword, time);
+
 				} else if (!categoryId.isEmpty()) {
 					items = YouTubeHelper.getVideosInCategory(categoryId,
-							orderBy, maxLoad, startIndex, keyword);
+							orderBy, maxLoad, startIndex, keyword, time);
 				}
+
 				return items;
 			} else {
 				startIndex = 1;
 				if (!channelId.isEmpty()) {
 					videos = YouTubeHelper.getVideosInChannel(channelId,
-							orderBy, maxResult, startIndex, keyword);
+							orderBy, maxResult, startIndex, keyword, time);
+
 				} else if (!categoryId.isEmpty()) {
 					videos = YouTubeHelper.getVideosInCategory(categoryId,
-							orderBy, maxResult, startIndex, keyword);
+							orderBy, maxResult, startIndex, keyword, time);
 				}
 			}
+
 			return null;
 		}
 
 		/**
 		 * After completing background task Dismiss the progress dialog
-		 * **/
+		 */
 		protected void onPostExecute(List<VideoEntry> result) {
 			hideLoading();
+
 			if (isLoading)
 				isLoading = false;
+
 			if (result != null) {
 				videos.addAll(result);
 				if (result.size() == 0) {
-					// decrease start index so we will load more items at previous position
+
+					// decrease start index so we will load more items at
+					// previous position
 					startIndex = startIndex - maxResult;
 					Toast.makeText(getApplicationContext(), "No more results",
 							Toast.LENGTH_LONG).show();
@@ -493,14 +669,17 @@ public class BrowseVideosActivity extends ActivityBase {
 			}
 			if (videos.size() > 0) {
 				adapter.clear();
+
 				for (VideoEntry c : videos) {
 					adapter.add(c);
 				}
+
 				adapter.notifyDataSetChanged();
-				if(result == null){
+				if (result == null) {
 					// Scroll to top if refresh list from beginning
 					lvVideo.setSelectionAfterHeaderView();
 				}
+
 			} else {
 				Toast.makeText(getApplicationContext(), "No results",
 						Toast.LENGTH_LONG).show();
@@ -509,14 +688,31 @@ public class BrowseVideosActivity extends ActivityBase {
 
 	}
 
+	/**
+	 * Adapter to populate videos to listView
+	 * 
+	 */
+	/**
+	 * 
+	 * @author CuongVM1
+	 */
 	class ListVideoAdapter extends ArrayAdapter<VideoEntry> {
+
 		Context context;
 		int layoutResourceId;
 		List<VideoEntry> data = null;
 
+		/**
+		 * The constructor of ListVideoAdapter class
+		 * 
+		 * @param context
+		 * @param layoutResourceId
+		 * @param data
+		 */
 		public ListVideoAdapter(Context context, int layoutResourceId,
 				List<VideoEntry> data) {
 			super(context, layoutResourceId, data);
+
 			this.layoutResourceId = layoutResourceId;
 			this.context = context;
 			this.data = data;
@@ -524,6 +720,9 @@ public class BrowseVideosActivity extends ActivityBase {
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
+			Log.i("Info", "Start getView() in ListVideoAdapter class");
+
+			// Declare view and holder for this adapter
 			View row = convertView;
 			ListItemHolder holder = null;
 
@@ -531,8 +730,10 @@ public class BrowseVideosActivity extends ActivityBase {
 				LayoutInflater inflater = ((Activity) context)
 						.getLayoutInflater();
 				row = inflater.inflate(layoutResourceId, parent, false);
-
+				// New ListItemHolder
 				holder = new ListItemHolder();
+
+				// Create new components
 				holder.image = (ImageView) row.findViewById(R.id.image);
 				holder.progressBar = (ProgressBar) row
 						.findViewById(R.id.progressBar);
@@ -540,38 +741,35 @@ public class BrowseVideosActivity extends ActivityBase {
 				holder.description = (TextView) row
 						.findViewById(R.id.description);
 				holder.viewCount = (TextView) row.findViewById(R.id.viewCount);
-				holder.duration = (TextView) row
-						.findViewById(R.id.duration);
-				holder.published = (TextView) row
-						.findViewById(R.id.published);
-				
+				holder.duration = (TextView) row.findViewById(R.id.duration);
+				holder.published = (TextView) row.findViewById(R.id.published);
+
 				row.setTag(holder);
+
 			} else {
 				holder = (ListItemHolder) row.getTag();
 			}
 
 			VideoEntry item = data.get(position);
-			// format string
-			String title = item.getTitle();
-			String description = item.getDescription();
-			if (title.length() > 40) {
-				title = title.substring(0, 40) + "...";
-			}
-			if (description.length() > 150) {
-				description = description.substring(0, 150) + "...";
-			}
 
 			imageLoader.DisplayImage(item.getImage(), holder.image,
 					holder.progressBar);
 
-			holder.title.setText(title);
-			holder.description.setText(description);
-			if(item.getViewCount()==-1)
+			holder.title.setText(StringHelper.fomatTitle(item.getTitle()));
+			holder.description.setText(StringHelper.formatDescription(item
+					.getDescription()));
+
+			if (item.getViewCount() == -1)
 				holder.viewCount.setText("-");
-			else holder.viewCount.setText(DataHelper.numberWithCommas(item
-					.getViewCount()));
-			holder.duration.setText(DataHelper.secondsToTimer(item.getDuration()));
-			holder.published.setText(DataHelper.formatDate(item.getPublished()));
+			else
+				holder.viewCount.setText(DataHelper.numberWithCommas(item
+						.getViewCount()));
+			holder.duration.setText(DataHelper.secondsToTimer(item
+					.getDuration()));
+			holder.published
+					.setText(DataHelper.formatDate(item.getPublished()));
+
+			Log.i("Info", "End getView() in ListVideoAdapter class");
 
 			return row;
 		}
@@ -591,6 +789,7 @@ public class BrowseVideosActivity extends ActivityBase {
 	 * Background Async Task to get References from database
 	 * */
 	class LoadCategories extends AsyncTask<ListView, String, String> {
+		ListView lvCategory = null;
 
 		/**
 		 * Before starting background thread Show Progress Dialog
@@ -603,20 +802,14 @@ public class BrowseVideosActivity extends ActivityBase {
 
 		@Override
 		protected String doInBackground(ListView... args) {
-			final ListView lvCategory = args[0];
+			lvCategory = args[0];
+
 			ReferenceDao referenceDao = new ReferenceDao(
 					getApplicationContext());
+
 			categories = referenceDao.getListReference(
 					ReferenceDao.KEY_YOUTUBE_CATEGORY, null);
-			runOnUiThread(new Runnable() {
-				public void run() {
-					ListCategoryAdapter adapter = new ListCategoryAdapter(
-							BrowseVideosActivity.this,
-							R.layout.category_video_item, categories);
-					// updating listview
-					lvCategory.setAdapter(adapter);
-				}
-			});
+
 			return null;
 		}
 
@@ -624,11 +817,24 @@ public class BrowseVideosActivity extends ActivityBase {
 		 * After completing background task Dismiss the progress dialog
 		 * **/
 		protected void onPostExecute(String args) {
+
+			ListCategoryAdapter adapter = new ListCategoryAdapter(
+					BrowseVideosActivity.this, R.layout.category_video_item,
+					categories);
+
+			// updating listview
+			lvCategory.setAdapter(adapter);
+
 			hideLoading();
 		}
 
 	}
 
+	/**
+	 * Adapter to populate Category to category listView
+	 * 
+	 * 
+	 */
 	class ListCategoryAdapter extends ArrayAdapter<Reference> {
 		Context context;
 		int layoutResourceId;
@@ -637,6 +843,7 @@ public class BrowseVideosActivity extends ActivityBase {
 		public ListCategoryAdapter(Context context, int layoutResourceId,
 				List<Reference> data) {
 			super(context, layoutResourceId, data);
+
 			this.layoutResourceId = layoutResourceId;
 			this.context = context;
 			this.data = data;
@@ -644,6 +851,7 @@ public class BrowseVideosActivity extends ActivityBase {
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
+			
 			View row = convertView;
 			ListItemHolder holder = null;
 			final Reference item = data.get(position);
@@ -664,18 +872,42 @@ public class BrowseVideosActivity extends ActivityBase {
 				holder = (ListItemHolder) row.getTag();
 			}
 
-			// format string
-			String title = item.getDisplay();
-			String description = item.getDisplay();
-			if (title.length() > 50) {
-				title = title.substring(0, 50) + "...";
+			holder.title.setText(StringHelper.fomatCategoryTitle(item
+					.getDisplay()));
+			holder.description.setText(StringHelper.formatDescription(item
+					.getDisplay()));
+			// Image
+			String value = item.getValue();
+			if (value != null) {
+				if (value.equals("Comedy")) {
+					holder.image.setBackgroundResource(R.drawable.comedy32);
+				}else if (value.equals("Music")) {
+					holder.image.setBackgroundResource(R.drawable.music32);
+				}else if (value.equals("News")) {
+					holder.image.setBackgroundResource(R.drawable.news32);
+				}else if (value.equals("Autos")) {
+					holder.image.setBackgroundResource(R.drawable.auto32);
+				}else if (value.equals("Education")) {
+					holder.image.setBackgroundResource(R.drawable.edu32);
+				}else if (value.equals("Entertainment")) {
+					holder.image.setBackgroundResource(R.drawable.enter32);
+				}else if (value.equals("Film")) {
+					holder.image.setBackgroundResource(R.drawable.film32);
+				}else if (value.equals("Howto")) {
+					holder.image.setBackgroundResource(R.drawable.howto32);
+				}else if (value.equals("People")) {
+					holder.image.setBackgroundResource(R.drawable.people32);
+				}else if (value.equals("Animals")) {
+					holder.image.setBackgroundResource(R.drawable.animal32);
+				}else if (value.equals("Tech")) {
+					holder.image.setBackgroundResource(R.drawable.tech32);
+				}else if (value.equals("Sports")) {
+					holder.image.setBackgroundResource(R.drawable.sport32);
+				}else if (value.equals("Travel")) {
+					holder.image.setBackgroundResource(R.drawable.travel32);
+				}
+				
 			}
-			if (description.length() > 150) {
-				description = description.substring(0, 150) + "...";
-			}
-			holder.image.setImageResource(R.drawable.icon_cate25);
-			holder.title.setText(title);
-			holder.description.setText(description);
 
 			return row;
 		}

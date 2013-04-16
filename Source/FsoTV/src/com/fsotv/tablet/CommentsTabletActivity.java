@@ -17,7 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fsotv.ActivityBase;
-import com.fsotv.CommentsActivity;
+import com.fsotv.VideoCommentsActivity;
 import com.fsotv.R;
 import com.fsotv.dto.CommentEntry;
 import com.fsotv.utils.DataHelper;

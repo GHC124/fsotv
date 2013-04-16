@@ -14,14 +14,22 @@ import com.facebook.android.FacebookError;
 import com.facebook.android.Facebook.DialogListener;
 import com.fsotv.R;
 
+/**
+ * FaceBook Helper, use facebook SDK to:
+ * + Login
+ * + Post Message
+ * 
+ * @author ChungPV1
+ *
+ */
 public class FaceBookHelper {
 	private Activity activity;
 	private SharedPreferences mPrefs;
 	// Your Facebook APP ID
+	private final String FACEBOOK_APP_ID = "527186760667593";
 	private final String FACEBOOK_ACCESS_TOKEN = "facebook_access_token"; // Access
 	private final String FACEBOOK_ACCESS_EXPIRE = "facebook_access_expire"; // Expire
 	// Instance of Facebook Class
-	private String facebookAppId = ""; // App ID
 	private Facebook facebook;
 	private AsyncFacebookRunner mAsyncRunner;
 
@@ -33,9 +41,7 @@ public class FaceBookHelper {
 	public FaceBookHelper(Activity activity, SharedPreferences mPrefs) {
 		this.activity = activity;
 		this.mPrefs = mPrefs;
-		facebookAppId = activity.getResources().getString(
-				R.string.facebook_app_id);
-		facebook = new Facebook(facebookAppId);
+		facebook = new Facebook(FACEBOOK_APP_ID);
 		mAsyncRunner = new AsyncFacebookRunner(facebook);
 	}
 

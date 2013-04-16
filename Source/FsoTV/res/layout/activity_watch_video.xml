@@ -7,18 +7,17 @@
     tools:context=".WatchVideoActivity" >
 
     <include
-        android:id="@+id/include1"
+        android:id="@+id/header"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        layout="@layout/header_loading" />
+        layout="@layout/header" />
 
     <VideoView
         android:id="@+id/videoView"
         android:layout_width="fill_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/player_footer_bg"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/include1" />
+        android:layout_above="@+id/playerFooter"
+        android:layout_below="@+id/header" />
 
     <!-- Progress Bar/Seek bar -->
 
@@ -26,7 +25,7 @@
         android:id="@+id/songProgressBar"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@id/player_footer_bg"
+        android:layout_above="@+id/playerFooter"
         android:layout_marginBottom="5dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
@@ -69,83 +68,88 @@
     <!-- Player Footer -->
 
     <RelativeLayout
-        android:id="@+id/player_footer_bg"
+        android:id="@+id/playerFooter"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:background="@layout/bg_player_footer"
-        >
-        <LinearLayout
-            android:layout_width="wrap_content"
+        android:background="@drawable/bg_player_footer" >
+
+        <RelativeLayout
+            android:id="@+id/llFooter"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true" 
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="5dip"
             >
-            <ImageButton
-                android:id="@+id/btnVolume"
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@null"
-                android:src="@drawable/btn_volume" />
-        </LinearLayout>
-        <!-- Player Buttons -->
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="5dip" >
 
-        <LinearLayout
-            android:id="@+id/llButtons"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:background="@layout/rounded_corner"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:layout_centerInParent="true"
-             >
+                <ImageButton
+                    android:id="@+id/btnVolume"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:src="@drawable/btn_volume" />
+            </LinearLayout>
+            <!-- Player Buttons -->
 
-            <!-- Backward Button -->
-
-            <ImageButton
-                android:id="@+id/btnBackward"
+            <LinearLayout
+                android:id="@+id/llButtons"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@null"
-                android:src="@drawable/btn_backward" />
-            <!-- Play Button -->
+                android:layout_alignParentTop="true"
+                android:layout_centerInParent="true"
+                android:background="@drawable/corner_player"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp" >
 
-            <ImageButton
-                android:id="@+id/btnPlay"
+                <!-- Backward Button -->
+
+                <ImageButton
+                    android:id="@+id/btnBackward"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:src="@drawable/btn_backward" />
+                <!-- Play Button -->
+
+                <ImageButton
+                    android:id="@+id/btnPlay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:src="@drawable/btn_play" />
+                <!-- Forward Button -->
+
+                <ImageButton
+                    android:id="@+id/btnForward"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:src="@drawable/btn_forward" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@null"
-                android:src="@drawable/btn_play" />
-            <!-- Forward Button -->
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="5dip" >
 
-            <ImageButton
-                android:id="@+id/btnForward"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@null"
-                android:src="@drawable/btn_forward" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true" 
-            android:layout_centerVertical="true"
-            android:layout_marginRight="5dip"
-            >
-            <ImageButton
-                android:id="@+id/btnFullScreen"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@null"
-                android:src="@drawable/btn_fullscreen" />
-        </LinearLayout>
-        
+                <ImageButton
+                    android:id="@+id/btnFullScreen"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:src="@drawable/btn_fullscreen" />
+            </LinearLayout>
+        </RelativeLayout>
     </RelativeLayout>
 
 </RelativeLayout>

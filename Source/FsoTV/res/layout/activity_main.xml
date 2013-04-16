@@ -1,23 +1,176 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TabHost xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@android:id/tabhost"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_height="fill_parent"
+    android:background="#edf0f6" >
+
     <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent" >
-                
-        <FrameLayout
-            android:id="@android:id/tabcontent"
-            android:layout_width="fill_parent"
-            android:layout_height="0dip"
-            android:layout_weight="1" />
-        
-        <TabWidget
-            android:id="@android:id/tabs"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content" />
-        
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:orientation="horizontal" 
+        android:gravity="center">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dip"
+            android:src="@drawable/fsotv" />
     </LinearLayout>
-</TabHost>
+
+    <RelativeLayout
+        android:id="@+id/RelativeLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/llMainHeader"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="2dp"
+        android:gravity="center" >
+
+        <ImageView
+            android:id="@+id/imgLeft"
+            android:layout_width="25dip"
+            android:layout_height="fill_parent"
+            android:layout_alignBaseline="@+id/viewFlip_channel"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:onClick="onSwipeClick"
+            android:src="@drawable/left16" />
+
+        <ViewFlipper
+            android:id="@+id/viewFlip_channel"
+            android:layout_width="fill_parent"
+            android:layout_height="200dip"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/imgRight"
+            android:layout_toRightOf="@+id/imgLeft"
+            android:background="@drawable/corner" >
+        </ViewFlipper>
+
+        <ImageView
+            android:id="@+id/imgRight"
+            android:layout_width="25dip"
+            android:layout_height="fill_parent"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:onClick="onSwipeClick"
+            android:src="@drawable/right16" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/llMainHeader"
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/gradient_header_bg"
+        android:gravity="center" >
+
+        <RelativeLayout
+            android:id="@+id/llHome"
+            android:layout_width="80dp"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:onClick="onTabClick"
+            android:orientation="vertical"
+            android:paddingBottom="5dip"
+            android:paddingLeft="0dip"
+            android:paddingRight="0dip"
+            android:paddingTop="0dip" >
+
+            <TextView
+                android:id="@+id/tvHomeTop"
+                android:layout_width="fill_parent"
+                android:layout_height="2dip"
+                android:background="#FF0000" />
+
+            <ImageView
+                android:id="@+id/imgHome"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/icon_home_press" />
+
+            <TextView
+                android:id="@+id/tvHome"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:text="HOME"
+                android:textColor="#ffffff" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/llBrowse"
+            android:layout_width="80dp"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:onClick="onTabClick"
+            android:orientation="vertical"
+            android:paddingBottom="5dip"
+            android:paddingLeft="0dip"
+            android:paddingRight="0dip"
+            android:paddingTop="0dip" >
+
+            <TextView
+                android:id="@+id/tvBrowseTop"
+                android:layout_width="fill_parent"
+                android:layout_height="2dip"
+                android:background="#FF0000"
+                android:visibility="invisible" />
+
+            <ImageView
+                android:id="@+id/imgBrowse"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/icon_browse" />
+
+            <TextView
+                android:id="@+id/tvBrowse"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:text="BROWSE" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/llFavorite"
+            android:layout_width="80dp"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:onClick="onTabClick"
+            android:orientation="vertical"
+            android:paddingBottom="5dip"
+            android:paddingLeft="0dip"
+            android:paddingRight="0dip"
+            android:paddingTop="0dip" >
+
+            <TextView
+                android:id="@+id/tvFavoriteTop"
+                android:layout_width="fill_parent"
+                android:layout_height="2dip"
+                android:background="#FF0000"
+                android:visibility="invisible" />
+
+            <ImageView
+                android:id="@+id/imgFavorite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/icon_favorite" />
+
+            <TextView
+                android:id="@+id/tvFavorite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:text="FAVORITE" />
+        </RelativeLayout>
+    </LinearLayout>
+
+</RelativeLayout>

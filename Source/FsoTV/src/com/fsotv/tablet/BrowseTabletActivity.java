@@ -64,6 +64,7 @@ public class BrowseTabletActivity extends ActivityBase {
 	private int maxResult = 15;
 	private int maxLoad = 5;
 	private int startIndex = 1;
+	private String time;
 	private String userType;
 	
 	@Override
@@ -78,6 +79,8 @@ public class BrowseTabletActivity extends ActivityBase {
 		imageLoader = new ImageLoader(getApplicationContext());
 		userType = YouTubeHelper.USER_TYPE_COMEDIANS;
 		orderBy = YouTubeHelper.ORDERING_VIEWCOUNT;
+		time = YouTubeHelper.TIME_ALL_TIME;
+		
 		Intent intent = getIntent();
 		Bundle extras = intent.getExtras();
 		if (extras != null) {
@@ -216,7 +219,6 @@ public class BrowseTabletActivity extends ActivityBase {
 		final RadioButton rdPublished = (RadioButton) sortDialog
 				.findViewById(R.id.rdPublished);
 		Button btnSort = (Button) sortDialog.findViewById(R.id.btnSort);
-		Button btnCancel = (Button) sortDialog.findViewById(R.id.btnCancel);
 		btnSort.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -231,12 +233,7 @@ public class BrowseTabletActivity extends ActivityBase {
 				new LoadChannels().execute();
 			}
 		});
-		btnCancel.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				sortDialog.dismiss();
-			}
-		});
+		
 	}
 
 	private void createUserTypeDialog(Context context) {
@@ -245,13 +242,7 @@ public class BrowseTabletActivity extends ActivityBase {
 		userTypeDialog.setTitle("Channel");
 		ListView lvUserType = (ListView) userTypeDialog
 				.findViewById(R.id.lvUserType);
-		Button btnCancel = (Button) userTypeDialog.findViewById(R.id.btnCancel);
-		btnCancel.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				userTypeDialog.dismiss();
-			}
-		});
+		
 		lvUserType.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
@@ -297,12 +288,12 @@ public class BrowseTabletActivity extends ActivityBase {
 			//
 			if (isLoading) {
 				List<ChannelEntry> items = YouTubeHelper.getChannels(userType,
-						orderBy, maxLoad, startIndex);
+						orderBy, maxLoad, startIndex, time);
 				return items;
 			} else {
 				startIndex = 1;
 				channels = YouTubeHelper.getChannels(userType, orderBy,
-						maxResult, startIndex);
+						maxResult, startIndex, time);
 			}
 			return null;
 		}
