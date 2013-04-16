@@ -26,12 +26,13 @@
             android:id="@+id/duration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="00:00:00"
-            android:textColor="#000000"
-            android:textSize="8sp"
-            android:background="#ffffff"
+            android:layout_marginLeft="2dip"
             android:layout_marginTop="35dip"
-            android:layout_marginLeft="2dip" />
+            android:background="#000000"
+            android:text="00:00:00"
+            android:textColor="#ffffff"
+            android:textSize="8sp" />
+
     </RelativeLayout>
 
     <!-- Title -->
@@ -42,9 +43,8 @@
         android:layout_height="wrap_content"
         android:layout_alignTop="@id/thumbnail"
         android:layout_toRightOf="@id/thumbnail"
-        android:text="REVO"
         android:maxLines="1"
-        android:textColor="#ffffff"
+        android:text="REVO"
         android:textSize="11dip"
         android:textStyle="bold"
         android:typeface="sans" />
@@ -59,9 +59,8 @@
         android:layout_marginRight="15dip"
         android:layout_marginTop="1dip"
         android:layout_toRightOf="@id/thumbnail"
-        android:text="Revo ..."
         android:maxLines="2"
-        android:textColor="#ffffff"
+        android:text="Revo ..."
         android:textSize="9dip" />
 
     <!-- Statistic -->
@@ -79,7 +78,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/browse_video_views"
-            android:textColor="#ffffff"
             android:textSize="8sp" />
 
         <TextView
@@ -89,14 +87,14 @@
             android:layout_marginLeft="2dip"
             android:layout_marginRight="2dip"
             android:text="123"
-            android:textColor="#ffffff"
+            
             android:textSize="8sp" />
+
 		<TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Published: "
-            android:textColor="#ffffff"
-            android:textSize="8sp" />
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:text="Published: "
+		    android:textSize="8sp" />
 
         <TextView
             android:id="@+id/published"
@@ -105,7 +103,7 @@
             android:layout_marginLeft="2dip"
             android:layout_marginRight="2dip"
             android:text="123"
-            android:textColor="#ffffff"
+            
             android:textSize="8sp" />
        
     </LinearLayout>

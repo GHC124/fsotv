@@ -5,8 +5,24 @@
     android:orientation="vertical"
     tools:context=".MyChannelsActivity" >
 	
-	<include layout="@layout/header_loading"/>
-	
+	<include layout="@layout/header"/>
+	<RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="2dip" >
+
+        <TextView
+            android:id="@+id/tvChannels"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="2dip"
+            android:background="@drawable/action_item"
+            android:paddingBottom="5dip"
+            android:paddingLeft="5dip"
+            android:paddingRight="5dip"
+            android:paddingTop="5dip"
+            android:text="Channels" />
+    </RelativeLayout>
     <ListView android:id="@+id/lvChannel"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"

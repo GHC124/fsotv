@@ -10,18 +10,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
-import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -43,7 +38,11 @@ import com.fsotv.utils.ImageLoader;
  *
  */
 public class MyVideosActivity extends ActivityBase {
+	// Views
+	private DialogBase typeDialog;
 	private ExpandableListView expVideo;
+	private TextView tvVideos;
+	// Properties
 	private List<ListGroup> groups;
 	private ImageLoader imageLoader;
 	private VideoDao videoDao;
@@ -55,6 +54,7 @@ public class MyVideosActivity extends ActivityBase {
 		setContentView(R.layout.activity_my_videos);
 
 		expVideo = (ExpandableListView) findViewById(R.id.expVideo);
+		tvVideos = (TextView)findViewById(R.id.tvVideos);
 		registerForContextMenu(expVideo);
 
 		groups = new ArrayList<ListGroup>();
@@ -69,7 +69,16 @@ public class MyVideosActivity extends ActivityBase {
 		}
 		setHeader("Videos");
 		setTitle("My Videos");
-
+		/*
+		 * Add click action to control
+		 */
+		tvVideos.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onOptionClick(v);
+			}
+		});
+		
 		// Launching new screen on Selecting Single ListItem
 		expVideo.setOnChildClickListener(new OnChildClickListener() {
 			@Override
@@ -129,7 +138,48 @@ public class MyVideosActivity extends ActivityBase {
 		//registerForContextMenu(expVideo);
 		new loadVideos().execute();
 	}
-
+	/**
+	 * Hander click event when user select search, sort, category, time
+	 * @param v
+	 */
+	public void onOptionClick(View v){
+		switch(v.getId())
+		{
+		case R.id.tvVideos:
+			if (typeDialog != null)
+				typeDialog.show();
+			else {
+				createTypeDialog(MyVideosActivity.this);
+				if (typeDialog != null)
+					typeDialog.show();
+			}
+			break;
+		
+		}
+	}
+	/**
+	 * Create dialog that allow user to change to channels
+	 * @param context
+	 */
+	private void createTypeDialog(Context context) {
+		typeDialog = new DialogBase(context);
+		typeDialog.setContentView(R.layout.type);
+		typeDialog.setHeader("Videos");
+		final TextView txtVideos = (TextView) typeDialog
+				.findViewById(R.id.tvVideos);
+		final TextView txtChannels = (TextView) typeDialog
+				.findViewById(R.id.tvChannels);
+		txtVideos.setVisibility(View.GONE);
+		txtChannels.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				typeDialog.dismiss();
+				Intent i = new Intent(getApplicationContext(), MyChannelsActivity.class);
+				i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(i);
+			}
+		});
+	}
 	/**
 	 * Background Async Task to get Videos from URL
 	 * */
@@ -273,8 +323,7 @@ public class MyVideosActivity extends ActivityBase {
 				holder.description = (TextView) view
 						.findViewById(R.id.description);
 				holder.viewCount = (TextView) view.findViewById(R.id.viewCount);
-				holder.favoriteCount = (TextView) view
-						.findViewById(R.id.favoriteCount);
+				
 				holder.duration = (TextView) view.findViewById(R.id.duration);
 				holder.published = (TextView) view.findViewById(R.id.published);
 				
@@ -302,8 +351,7 @@ public class MyVideosActivity extends ActivityBase {
 			holder.description.setText(description);
 			holder.viewCount.setText(DataHelper.numberWithCommas(item
 					.getViewCount()));
-			holder.favoriteCount.setText(DataHelper.numberWithCommas(item
-					.getFavoriteCount()));
+			
 			holder.duration.setText(DataHelper.secondsToTimer(item
 					.getDuration()));
 			holder.published.setText(DataHelper.formatDate(item
@@ -379,7 +427,6 @@ public class MyVideosActivity extends ActivityBase {
 			TextView title;
 			TextView description;
 			TextView viewCount;
-			TextView favoriteCount;
 			TextView duration;
 			TextView published;
 		}

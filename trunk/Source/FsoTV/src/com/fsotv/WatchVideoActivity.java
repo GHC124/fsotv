@@ -13,13 +13,12 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.telephony.TelephonyManager;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.ImageButton;
-import android.widget.MediaController;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -31,12 +30,15 @@ import com.fsotv.utils.YouTubeHelper;
  * Watch video
  * Extend ActivityBase, allow:
  * + Start, stop
- * + Go back 30'
+ * + Go back, forward 30'
  * + Change volume
  */
 public class WatchVideoActivity extends ActivityBase implements
 		OnCompletionListener, SeekBar.OnSeekBarChangeListener {
+	// Volume option
 	private final int OPTION_VOLUME = Menu.FIRST;
+	// Views
+	private RelativeLayout llFooter;
 	private ImageButton btnPlay;
 	private ImageButton btnForward;
 	private ImageButton btnBackward;
@@ -56,19 +58,24 @@ public class WatchVideoActivity extends ActivityBase implements
 
 	private AudioManager mgr = null;
 
-	VideoView myVideoView;
-	String videoId = "";
-	String videoTitle = "";
-	String link = "";
+	private boolean isFullScreen = false;
+	
+	private VideoView myVideoView;
+	private String videoId = "";
+	private String videoTitle = "";
+	private String link = "";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		
 		setContentView(R.layout.activity_watch_video);
 
 		mgr = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
 		// All player buttons
+		llFooter = (RelativeLayout)findViewById(R.id.llFooter);
 		btnPlay = (ImageButton) findViewById(R.id.btnPlay);
 		btnForward = (ImageButton) findViewById(R.id.btnForward);
 		btnBackward = (ImageButton) findViewById(R.id.btnBackward);
@@ -94,14 +101,20 @@ public class WatchVideoActivity extends ActivityBase implements
 			if (videoTitle.length() > 50)
 				videoTitle = videoTitle.substring(0, 50) + "...";
 		}
-
 		setHeader(videoTitle);
 		setTitle("Watch Video");
 
 		// Listeners
 		songProgressBar.setOnSeekBarChangeListener(this);
 		myVideoView.setOnCompletionListener(this);
-		
+		myVideoView.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if(isFullScreen){
+					showPlayerControl();
+				}
+			}
+		});
 		
 		btnPlay.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -216,16 +229,29 @@ public class WatchVideoActivity extends ActivityBase implements
 	}
 
 	public void onFullScreenClick(View v) {
-		DisplayMetrics metrics = new DisplayMetrics();
-		getWindowManager().getDefaultDisplay().getMetrics(metrics);
-		RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) myVideoView
-				.getLayoutParams();
-		params.width = metrics.widthPixels;
-		params.height = metrics.heightPixels;
-		params.leftMargin = 0;
-		myVideoView.setLayoutParams(params);
+		isFullScreen = !isFullScreen;
+		if(isFullScreen){
+			hideHeader();
+			hidePlayerControl();
+		}else{
+			showHeader();
+			showPlayerControl();
+		}
 	}
-
+	/**
+	 * Show player control
+	 */
+	private void showPlayerControl(){
+		llFooter.setVisibility(View.VISIBLE);
+	}
+	
+	/**
+	 * Hide player control
+	 */
+	private void hidePlayerControl(){
+		llFooter.setVisibility(View.GONE);
+	}
+	
 	private void createDialogs(Context context) {
 		volumeDialog = new Dialog(context);
 		volumeDialog.setContentView(R.layout.change_volume);

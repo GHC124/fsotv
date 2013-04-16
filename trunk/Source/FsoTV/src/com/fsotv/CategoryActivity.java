@@ -5,22 +5,14 @@ import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.FeatureInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -28,13 +20,12 @@ import android.widget.Toast;
 
 import com.fsotv.dao.ReferenceDao;
 import com.fsotv.dto.Reference;
-import com.fsotv.utils.ImageLoader;
-import com.fsotv.utils.YouTubeHelper;
 
 /**
- * Show category that store in database
- * Extend ActivityBase
- *
+ * Show category that store in database, allow:
+ * + Add new category
+ * + Remove current category
+ * 
  */
 public class CategoryActivity extends ActivityBase {
 
@@ -59,7 +50,10 @@ public class CategoryActivity extends ActivityBase {
 		new loadCategories().execute();
 	}
 	
-	
+	/**
+	 * Save choose category to database
+	 * @param v
+	 */
 	public void onSaveClick(View v) {
 		for(ListItem item:listItems){
 			if(!item.reference.getExtras().equals(ReferenceDao.EXTRAS_CATEGORY_SELECT)
@@ -124,12 +118,17 @@ public class CategoryActivity extends ActivityBase {
 		}
 
 	}
-	
+	/**
+	 * List category item, store state of item(selected or not)
+	 */
 	class ListItem{
 		public Reference reference;
 		public boolean selected = false;	
 	}
-
+	/**
+	 * Adapter that populate categories to listView
+	 *
+	 */
 	class ListItemAdapter extends ArrayAdapter<ListItem> {
 		Context context;
 		int layoutResourceId;
@@ -183,12 +182,42 @@ public class CategoryActivity extends ActivityBase {
 			if (description.length() > 150) {
 				description = description.substring(0, 150) + "...";
 			}
-			holder.image.setImageResource(R.drawable.icon_cate25);
 			holder.title.setText(title);
 			holder.description.setText(description);
 			holder.cbxSelect.setChecked(item.selected);
 			holder.cbxSelect.setTag(item);
-			
+			// Image
+			String value = item.reference.getValue();
+			if (value != null) {
+				if (value.equals("Comedy")) {
+					holder.image.setBackgroundResource(R.drawable.comedy32);
+				}else if (value.equals("Music")) {
+					holder.image.setBackgroundResource(R.drawable.music32);
+				}else if (value.equals("News")) {
+					holder.image.setBackgroundResource(R.drawable.news32);
+				}else if (value.equals("Autos")) {
+					holder.image.setBackgroundResource(R.drawable.auto32);
+				}else if (value.equals("Education")) {
+					holder.image.setBackgroundResource(R.drawable.edu32);
+				}else if (value.equals("Entertainment")) {
+					holder.image.setBackgroundResource(R.drawable.enter32);
+				}else if (value.equals("Film")) {
+					holder.image.setBackgroundResource(R.drawable.film32);
+				}else if (value.equals("Howto")) {
+					holder.image.setBackgroundResource(R.drawable.howto32);
+				}else if (value.equals("People")) {
+					holder.image.setBackgroundResource(R.drawable.people32);
+				}else if (value.equals("Animals")) {
+					holder.image.setBackgroundResource(R.drawable.animal32);
+				}else if (value.equals("Tech")) {
+					holder.image.setBackgroundResource(R.drawable.tech32);
+				}else if (value.equals("Sports")) {
+					holder.image.setBackgroundResource(R.drawable.sport32);
+				}else if (value.equals("Travel")) {
+					holder.image.setBackgroundResource(R.drawable.travel32);
+				}
+				
+			}
 			return row;
 		}
 

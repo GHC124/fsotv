@@ -1,17 +1,13 @@
 package com.fsotv;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import android.app.Dialog;
+import android.app.LocalActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,6 +18,8 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioButton;
+import android.widget.TabHost;
+import android.widget.TabHost.TabSpec;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,13 +38,15 @@ import com.fsotv.utils.YouTubeHelper;
  * 
  */
 public class VideoDetailActivity extends ActivityBase {
-
+	// Menus
 	private final int OPTION_WATCH = Menu.FIRST;
-	private final int OPTION_COMMENTS = Menu.FIRST + 1;
+	private final int OPTION_COMMENT = Menu.FIRST + 1;
 	private final int OPTION_SHARE = Menu.FIRST + 2;
-
-	private Dialog shareDialog;
-
+	// Views
+	private DialogBase shareDialog;
+	private TabHost tabhost;
+	private LocalActivityManager mLocalActivityManager;
+	// Porperties
 	private boolean isLoading = true; // Loading data
 	private VideoEntry video;
 	private ImageLoader imageLoader;
@@ -60,6 +60,11 @@ public class VideoDetailActivity extends ActivityBase {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_video_detail);
 
+		tabhost = (TabHost) findViewById(R.id.tabhost);
+		mLocalActivityManager = new LocalActivityManager(this, false);
+		mLocalActivityManager.dispatchCreate(savedInstanceState);
+		tabhost.setup(mLocalActivityManager);
+
 		mPrefs = getSharedPreferences("fsotv_oauth", MODE_PRIVATE);
 
 		imageLoader = new ImageLoader(getApplicationContext());
@@ -72,7 +77,6 @@ public class VideoDetailActivity extends ActivityBase {
 			videoId = extras.getString("videoId");
 			videoId = (videoId == null) ? "" : videoId;
 		}
-
 		setHeader("Video");
 		setTitle("Video Detail");
 
@@ -83,7 +87,7 @@ public class VideoDetailActivity extends ActivityBase {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		menu.add(0, OPTION_WATCH, 0, "Watch");
-		menu.add(0, OPTION_COMMENTS, 1, "Comments");
+		menu.add(0, OPTION_COMMENT, 1, "Comment");
 		menu.add(0, OPTION_SHARE, 2, "Share");
 		return true;
 	}
@@ -95,8 +99,8 @@ public class VideoDetailActivity extends ActivityBase {
 		case OPTION_WATCH:
 			onWatchClick(null);
 			break;
-		case OPTION_COMMENTS:
-			onCommentsClick(null);
+		case OPTION_COMMENT:
+			onCommentClick(null);
 			break;
 		case OPTION_SHARE:
 			if (shareDialog != null)
@@ -118,9 +122,9 @@ public class VideoDetailActivity extends ActivityBase {
 			return;
 		}
 
-		shareDialog = new Dialog(context);
+		shareDialog = new DialogBase(context);
 		shareDialog.setContentView(R.layout.share);
-		shareDialog.setTitle("Share");
+		shareDialog.setHeader("Share");
 		final RadioButton rdFacebook = (RadioButton) shareDialog
 				.findViewById(R.id.rdFaceBook);
 		final RadioButton rdTwitter = (RadioButton) shareDialog
@@ -131,23 +135,30 @@ public class VideoDetailActivity extends ActivityBase {
 				.findViewById(R.id.lblPost);
 		txtMessage.setText(video.getLinkReal());
 		Button btnShare = (Button) shareDialog.findViewById(R.id.btnShare);
-		Button btnCancel = (Button) shareDialog.findViewById(R.id.btnCancel);
 		rdFacebook.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			
+
 			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				if(isChecked)
-					lblPost.setText("Link:");
+			public void onCheckedChanged(CompoundButton buttonView,
+					boolean isChecked) {
+				if (isChecked){
+					lblPost.setVisibility(View.GONE);
+					txtMessage.setVisibility(View.GONE);
+				}
 			}
 		});
 		rdTwitter.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			
+
 			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				if(isChecked)
+			public void onCheckedChanged(CompoundButton buttonView,
+					boolean isChecked) {
+				if (isChecked){
+					lblPost.setVisibility(View.VISIBLE);
+					txtMessage.setVisibility(View.VISIBLE);
 					lblPost.setText("Message:");
+				}
 			}
 		});
+		
 		btnShare.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -158,29 +169,15 @@ public class VideoDetailActivity extends ActivityBase {
 					return;
 				}
 				if (rdFacebook.isChecked()) {
-					// Check link
-					try {
-						URL url = new URL(postMessage);
-						url = null;
-					} catch (MalformedURLException e) {
-						Toast.makeText(getApplicationContext(), "Input link",
-								Toast.LENGTH_SHORT).show();
-						return;
-					}
 					onFaceBookClick(null);
 				} else if (rdTwitter.isChecked()) {
-					
+
 					onTwitterClick(null);
 				}
 				shareDialog.dismiss();
 			}
 		});
-		btnCancel.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				shareDialog.dismiss();
-			}
-		});
+
 	}
 
 	public void onWatchClick(View c) {
@@ -196,25 +193,53 @@ public class VideoDetailActivity extends ActivityBase {
 		startActivity(i);
 	}
 
-	public void onCommentsClick(View v) {
+	public void onCommentClick(View v) {
 		if (isLoading) {
 			Toast.makeText(getApplicationContext(), "Loading data",
 					Toast.LENGTH_SHORT).show();
 			return;
 		}
-		Intent i = new Intent(getApplicationContext(), CommentsActivity.class);
+		Intent i = new Intent(getApplicationContext(),
+				VideoCommentsActivity.class);
 		i.putExtra("videoId", video.getIdReal());
 		i.putExtra("videoTitle", video.getTitle());
 		startActivity(i);
 	}
 
 	public void onShareClick(View v) {
-		if (shareDialog != null)
+		if (shareDialog != null){
 			shareDialog.show();
+			RadioButton rdFacebook = (RadioButton) shareDialog
+					.findViewById(R.id.rdFaceBook);
+			RadioButton rdTwitter = (RadioButton) shareDialog
+					.findViewById(R.id.rdTwitter);
+			int id = v.getId();
+			switch (id) {
+			case R.id.imgFaceBook:
+				rdFacebook.setChecked(true);
+				break;
+			case R.id.imgTwitter:
+				rdTwitter.setChecked(true);
+				break;
+			}
+		}
 		else {
 			createShareDialog(VideoDetailActivity.this);
-			if (shareDialog != null)
-				shareDialog.show();
+			if (shareDialog != null){
+				RadioButton rdFacebook = (RadioButton) shareDialog
+						.findViewById(R.id.rdFaceBook);
+				RadioButton rdTwitter = (RadioButton) shareDialog
+						.findViewById(R.id.rdTwitter);
+				int id = v.getId();
+				switch (id) {
+				case R.id.imgFaceBook:
+					rdFacebook.setChecked(true);
+					break;
+				case R.id.imgTwitter:
+					rdTwitter.setChecked(true);
+					break;
+				}
+			}
 		}
 	}
 
@@ -239,7 +264,7 @@ public class VideoDetailActivity extends ActivityBase {
 				}
 			};
 		}
-		faceBookHelper.postToWall(postMessage);
+		faceBookHelper.postToWall(video.getLinkReal());
 
 	}
 
@@ -312,15 +337,7 @@ public class VideoDetailActivity extends ActivityBase {
 		@Override
 		protected String doInBackground(String... args) {
 			String videoId = args[0];
-			// Demo data
-			// try {
-			// InputStream is = getAssets().open("VideoDetail.txt");
-			// video = YouTubeHelper.getVideoByStream(is);
-			// } catch (IOException e) {
-			// // TODO Auto-generated catch block
-			// e.printStackTrace();
-			// }
-			//
+
 			video = YouTubeHelper.getVideoDetail(videoId);
 
 			return null;
@@ -335,7 +352,6 @@ public class VideoDetailActivity extends ActivityBase {
 			final ImageView img = (ImageView) findViewById(R.id.imgThumbnail);
 			TextView title = (TextView) findViewById(R.id.txtvTitle);
 			TextView viewCount = (TextView) findViewById(R.id.viewCount);
-			TextView txtvDescriptionContent = (TextView) findViewById(R.id.txtvDescriptionContent);
 			TextView txtDuration = (TextView) findViewById(R.id.duration);
 			TextView txtPublished = (TextView) findViewById(R.id.published);
 			TextView txtFavorite = (TextView) findViewById(R.id.favoriteCount);
@@ -343,16 +359,45 @@ public class VideoDetailActivity extends ActivityBase {
 			title.setText(video.getTitle());
 			viewCount
 					.setText(DataHelper.numberWithCommas(video.getViewCount()));
-			txtvDescriptionContent.setText(video.getDescription());
 			txtDuration.setText(DataHelper.secondsToTimer(video.getDuration()));
 			txtPublished.setText(DataHelper.formatDate(video.getPublished()));
 			txtFavorite.setText(DataHelper.numberWithCommas(video
 					.getFavoriteCount()));
 
 			imageLoader.DisplayImage(video.getImage(), img, null);
+			// Description tab
+			View tabDes = createTabView(getApplicationContext(), "Description", R.drawable.description16);
+			TabSpec desSpec = tabhost.newTabSpec("Description");
+			desSpec.setIndicator(tabDes);
+			Intent desIntent = new Intent(getApplicationContext(),
+					VideoDescriptionActivity.class);
+			desIntent.putExtra("description", video.getDescription());
+			desSpec.setContent(desIntent);
+			// Comment tab
+			View tabCom = createTabView(getApplicationContext(), "Comments", R.drawable.comment16);
+			TabSpec comSpec = tabhost.newTabSpec("Comments");
+			comSpec.setIndicator(tabCom);
+			Intent comIntent = new Intent(getApplicationContext(),
+					VideoCommentsActivity.class);
+			comIntent.putExtra("videoId", video.getIdReal());
+			comSpec.setContent(comIntent);
+			// Add all tabs
+			tabhost.addTab(desSpec);
+			tabhost.addTab(comSpec);
+			
+			postMessage = video.getLinkReal();
 
 			isLoading = false;
 		}
 
+	}
+	
+	private static View createTabView(Context context, String text, int img) {
+	    View view = LayoutInflater.from(context).inflate(R.layout.tab_bg, null);
+	    ImageView im = (ImageView) view.findViewById(R.id.tabImg);
+	    im.setBackgroundResource(img);
+	    TextView tv = (TextView) view.findViewById(R.id.tabText);
+	    tv.setText(text);
+	    return view;
 	}
 }

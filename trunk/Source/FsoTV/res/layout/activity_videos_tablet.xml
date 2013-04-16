@@ -173,7 +173,7 @@
                             android:layout_height="wrap_content"
                             android:gravity="center"
                             android:onClick="onWatchClick"
-                            android:text="@string/button_watch" />
+                            android:text="Watch" />
 
                         <Button
                             android:id="@+id/btnComments"

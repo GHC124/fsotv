@@ -35,6 +35,14 @@ import android.widget.TextView;
 
 import com.fsotv.R;
 
+/**
+ * Twitter Helper, use twitter4j and signpost library to:
+ * + Login twitter
+ * + Post twitter message
+ * 
+ * @author ChungPV1
+ *
+ */
 public class TwitterHelper {
 	private Twitter mTwitter;
 	private TwitterSession mSession;
@@ -244,13 +252,23 @@ public class TwitterHelper {
 			}
 		}
 	};
-
+	/**
+	 * Interface to handle complete and error event
+	 *  
+	 * @author ChungPV1
+	 *
+	 */
 	public interface TwDialogListener {
 		public void onComplete(String value);
 
 		public void onError(String value);
 	}
-
+	/**
+	 * Store twitter authenticate key and serect key into preference
+	 * 
+	 * @author ChungPV1
+	 *
+	 */
 	class TwitterSession {
 		private SharedPreferences sharedPref;
 		private Editor editor;
@@ -296,7 +314,11 @@ public class TwitterHelper {
 				return null;
 		}
 	}
-
+	/**
+	 * Create twitter dialog that contain and webview to load twitter
+	 * @author ChungPV1
+	 *
+	 */
 	class TwitterDialog extends Dialog {
 
 		final float[] DIMENSIONS_LANDSCAPE = { 460, 260 };
