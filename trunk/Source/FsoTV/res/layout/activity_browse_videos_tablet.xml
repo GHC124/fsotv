@@ -7,7 +7,7 @@
     android:background="@color/bgColor"
     tools:context=".BrowseVideosActivity" >
 	
-    <include layout="@layout/header_search"/>
+    <include layout="@layout/header_tablet_search"/>
     
     <RelativeLayout
         android:layout_width="match_parent"
@@ -20,62 +20,66 @@
             android:id="@+id/tvVideos"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="5dip"
+            android:layout_marginRight="2dip"
+            android:background="@drawable/action_item"
             android:paddingBottom="5dip"
             android:paddingLeft="5dip"
             android:paddingRight="5dip"
-            android:layout_marginRight="2dip"
+            android:paddingTop="5dip"
             android:text="Videos"
-            android:background="@drawable/action_item"
-            />
+            android:textSize="16sp" />
 		
         <TextView
             android:id="@+id/tvCategory"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginRight="2dip"
             android:layout_toRightOf="@id/tvVideos"
-            android:paddingTop="5dip"
+            android:background="@drawable/action_item"
             android:paddingBottom="5dip"
             android:paddingLeft="5dip"
             android:paddingRight="5dip"
-            android:layout_marginRight="2dip"
+            android:paddingTop="5dip"
             android:text="Film"
-            android:background="@drawable/action_item"
-            />
+            android:textSize="16sp" />
         
         <TextView
             android:id="@+id/tvSort"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginRight="2dip"
             android:layout_toRightOf="@id/tvCategory"
-            android:paddingTop="5dip"
+            android:background="@drawable/action_item"
             android:paddingBottom="5dip"
             android:paddingLeft="5dip"
             android:paddingRight="5dip"
-            android:layout_marginRight="2dip"
+            android:paddingTop="5dip"
             android:text="Most viewed"
-            android:background="@drawable/action_item"
-            />
+            android:textSize="16sp" />
         
          <TextView
-            android:id="@+id/tvTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/tvSort"
-            android:paddingTop="5dip"
-            android:paddingBottom="5dip"
-            android:paddingLeft="5dip"
-            android:paddingRight="5dip"
-            android:layout_marginRight="2dip"
-            android:text="All time"
-            android:background="@drawable/action_item"
-            />
+             android:id="@+id/tvTime"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_marginRight="2dip"
+             android:layout_toRightOf="@id/tvSort"
+             android:background="@drawable/action_item"
+             android:paddingBottom="5dip"
+             android:paddingLeft="5dip"
+             android:paddingRight="5dip"
+             android:paddingTop="5dip"
+             android:text="All time"
+             android:textSize="16sp" />
 
     </RelativeLayout>
     
-    <ListView android:id="@+id/lvVideo"
+	<GridView
+        android:id="@+id/gvVideo"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        />
-	
+        android:columnWidth="300dp"
+        android:gravity="center"
+        android:numColumns="auto_fit"
+        android:stretchMode="columnWidth" >
+    </GridView>
 </LinearLayout>

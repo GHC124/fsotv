@@ -3,6 +3,7 @@ package com.fsotv;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -37,7 +38,11 @@ public class ActivityBase extends Activity {
 	private ImageView imgSearch;
 	private RelativeLayout rlSearch;
 	private EditText txtSearch;
+<<<<<<< .mine
+	@SuppressWarnings("unused")
+=======
 
+>>>>>>> .r67
 	private ImageView imgCancelSearch;
 	private ImageView imgGoSearch;
 
@@ -54,6 +59,12 @@ public class ActivityBase extends Activity {
 
 	@Override
 	public void setContentView(int layoutResId) {
+		if(MainActivity.IsTablet){
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+		}else{
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		}
+		
 		super.setContentView(layoutResId);
 
 		llHeader = (LinearLayout) findViewById(R.id.llHeader);
@@ -192,8 +203,8 @@ public class ActivityBase extends Activity {
 				optionDialog.dismiss();
 				Intent i = new Intent(getApplicationContext(),
 						BrowseVideosActivity.class);
-				i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				i.putExtra("categoryId", YouTubeHelper.CATEGORY_FILM);
+				i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(i);
 			}
 		});

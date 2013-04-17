@@ -1,7 +1,6 @@
 package com.fsotv.utils;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -12,24 +11,33 @@ import com.facebook.android.DialogError;
 import com.facebook.android.Facebook;
 import com.facebook.android.FacebookError;
 import com.facebook.android.Facebook.DialogListener;
-import com.fsotv.R;
 
 /**
- * FaceBook Helper, use facebook SDK to:
- * + Login
- * + Post Message
+ * FaceBook Helper, use facebook SDK to: + Login + Post Message
  * 
- * @author ChungPV1
- *
+ * @author ChungPV1, NhungHTH1
+ * 
  */
+@SuppressWarnings({ "deprecation", "unused" })
 public class FaceBookHelper {
+	//
 	private Activity activity;
+	// Store authenticate
 	private SharedPreferences mPrefs;
-	// Your Facebook APP ID
+	/**
+	 * Your Facebook APP ID
+	 */
 	private final String FACEBOOK_APP_ID = "527186760667593";
-	private final String FACEBOOK_ACCESS_TOKEN = "facebook_access_token"; // Access
-	private final String FACEBOOK_ACCESS_EXPIRE = "facebook_access_expire"; // Expire
-	// Instance of Facebook Class
+
+	/**
+	 * Declare access token and expire: status for secure access to FacebookAPIs
+	 */
+	private final String FACEBOOK_ACCESS_TOKEN = "facebook_access_token";
+	private final String FACEBOOK_ACCESS_EXPIRE = "facebook_access_expire";
+
+	/**
+	 * Instance of Facebook Class
+	 */
 	private Facebook facebook;
 	private AsyncFacebookRunner mAsyncRunner;
 
@@ -38,29 +46,62 @@ public class FaceBookHelper {
 	private boolean requestPost = false;
 	private String postMessage = "";
 
+	/**
+	 * Constructor
+	 * 
+	 * @param activity
+	 * @param mPrefs
+	 */
+	@SuppressWarnings({ "deprecation" })
 	public FaceBookHelper(Activity activity, SharedPreferences mPrefs) {
+		Log.i("FaceBookHelper", "Start constructor FaceBookHelper");
 		this.activity = activity;
 		this.mPrefs = mPrefs;
 		facebook = new Facebook(FACEBOOK_APP_ID);
 		mAsyncRunner = new AsyncFacebookRunner(facebook);
+		Log.i("FaceBookHelper", "End constructor FaceBookHelper");
 	}
 
+	/**
+	 * isLogin
+	 * 
+	 * @return
+	 */
 	public boolean isLogin() {
 		return isLogin;
 	}
 
+	/**
+	 * isPost
+	 * 
+	 * @return
+	 */
 	public boolean isPost() {
 		return isPost;
 	}
 
+	/**
+	 * authorizeCallback
+	 * 
+	 * @param requestCode
+	 * @param resultCode
+	 * @param data
+	 */
+	@SuppressWarnings("deprecation")
 	public void authorizeCallback(int requestCode, int resultCode, Intent data) {
+		Log.i("FaceBookHelper", "Start authorizeCallback()");
 		facebook.authorizeCallback(requestCode, resultCode, data);
+		Log.i("FaceBookHelper", "End authorizeCallback()");
 	}
 
 	/**
 	 * Function to login into facebook
-	 * */
+	 * 
+	 * @return
+	 */
+	@SuppressWarnings({ "deprecation" })
 	public boolean loginToFacebook() {
+		Log.i("FaceBookHelper", "Start loginToFacebook()");
 		String access_token = mPrefs.getString(FACEBOOK_ACCESS_TOKEN, null);
 		long expires = mPrefs.getLong(FACEBOOK_ACCESS_EXPIRE, 0);
 		if (access_token != null) {
@@ -75,6 +116,7 @@ public class FaceBookHelper {
 					"publish_stream" }, new DialogListener() {
 				@Override
 				public void onCancel() {
+					// Function to handle cancel event
 					isLogin = onLoginCancel();
 				}
 
@@ -98,11 +140,13 @@ public class FaceBookHelper {
 
 				@Override
 				public void onError(DialogError error) {
+					// Function to handle error
 					isLogin = onLoginError(error);
 				}
 
 				@Override
 				public void onFacebookError(FacebookError fberror) {
+					// Function to handle Facebook errors
 					isLogin = onLoginFacebookError(fberror);
 				}
 
@@ -110,21 +154,26 @@ public class FaceBookHelper {
 		} else {
 			isLogin = true;
 		}
+		Log.i("FaceBookHelper", "End loginToFacebook()");
 		return isLogin;
 	}
 
 	/**
 	 * Function to post to facebook wall
-	 * */
+	 * 
+	 * @param message
+	 * @return
+	 */
+	@SuppressWarnings({ "deprecation" })
 	public boolean postToWall(String message) {
+		Log.i("FaceBookHelper", "Start postToWall()");
 		postMessage = message;
 		requestPost = true;
-		// // Check login
-		// boolean login = loginToFacebook();
-		// if (login) {
-		// post on user's wall.
+
 		Bundle data = new Bundle();
+		// put a link into data
 		data.putString("link", postMessage);
+		// post on user's wall.
 		facebook.dialog(activity, "feed", data, new DialogListener() {
 			@Override
 			public void onFacebookError(FacebookError e) {
@@ -147,7 +196,7 @@ public class FaceBookHelper {
 				isPost = onPostCancel();
 			}
 		});
-		// }
+		Log.i("FaceBookHelper", "End postToWall()");
 		return isPost;
 	}
 

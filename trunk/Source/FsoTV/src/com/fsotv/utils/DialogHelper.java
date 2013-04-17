@@ -14,7 +14,8 @@ public class DialogHelper {
      * @param message - alert message
      * @param status - success/failure (used to set icon)
      * */
-    public static void showAlertDialog(Context context, String title, String message, Boolean status) {
+    @SuppressWarnings("deprecation")
+	public static void showAlertDialog(Context context, String title, String message, Boolean status) {
         AlertDialog alertDialog = new AlertDialog.Builder(context).create();
  
         // Setting Dialog Title

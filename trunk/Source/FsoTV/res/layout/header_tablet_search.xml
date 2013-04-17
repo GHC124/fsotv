@@ -37,7 +37,9 @@
                 <ImageView
                     android:layout_width="32dip"
                     android:layout_height="32dip"
+                    android:layout_margin="5dip"
                     android:src="@drawable/youtube32" />
+
             </LinearLayout>
 
             <TextView
@@ -50,7 +52,7 @@
                 android:layout_toRightOf="@id/ll1"
                 android:text="Header"
                 android:textColor="#ffffff"
-                android:textSize="18sp" />
+                android:textSize="20sp" />
 
             <ProgressBar
                 android:id="@+id/pbHeader"

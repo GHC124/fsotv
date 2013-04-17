@@ -25,14 +25,21 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
+/**
+ * 
+ * @author ChungPV1
+ *
+ */
 public class ImageLoader {
 
 	MemoryCache memoryCache = new MemoryCache();
 	FileCache fileCache;
+	
 	private Map<ImageView, String> imageViews = Collections
 			.synchronizedMap(new WeakHashMap<ImageView, String>());
 	private Map<ProgressBar, String> progressBars = Collections
 			.synchronizedMap(new WeakHashMap<ProgressBar, String>());
+	
 	ExecutorService executorService;
 	Handler handler = new Handler();// handler to display images in UI thread
 
@@ -45,8 +52,10 @@ public class ImageLoader {
 
 	public void DisplayImage(String url, ImageView imageView,
 			ProgressBar progressBar) {
+		
 		imageViews.put(imageView, url);
 		progressBars.put(progressBar, url);
+		
 		Bitmap bitmap = memoryCache.get(url);
 		if (bitmap != null)
 			imageView.setImageBitmap(bitmap);
@@ -58,6 +67,7 @@ public class ImageLoader {
 
 	private void queuePhoto(String url, ImageView imageView,
 			ProgressBar progressBar) {
+		
 		PhotoToLoad p = new PhotoToLoad(url, imageView, progressBar);
 		executorService.submit(new PhotosLoader(p));
 	}

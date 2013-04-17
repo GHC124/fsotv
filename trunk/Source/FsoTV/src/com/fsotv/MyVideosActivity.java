@@ -30,38 +30,37 @@ import com.fsotv.dto.Video;
 import com.fsotv.dto.VideoEntry;
 import com.fsotv.utils.DataHelper;
 import com.fsotv.utils.ImageLoader;
+
 /**
- * Show videos that are subscribe and store in database
- * Extend ActivityBase, allow:
- * + Unsubscribe
- * + View video detail when click an video
- *
+ * Show videos that are subscribe and store in database Extend ActivityBase,
+ * allow: Unsubscribe, View video detail when click on video
+ * 
+ * @author ChungPV1
  */
 public class MyVideosActivity extends ActivityBase {
+	
 	// Views
 	private DialogBase typeDialog;
 	private ExpandableListView expVideo;
 	private TextView tvVideos;
+
 	// Properties
 	private List<ListGroup> groups;
 	private ImageLoader imageLoader;
 	private VideoDao videoDao;
 	private ReferenceDao referenceDao;
-	
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_my_videos);
 
+	private void initComponents() {
 		expVideo = (ExpandableListView) findViewById(R.id.expVideo);
-		tvVideos = (TextView)findViewById(R.id.tvVideos);
+		tvVideos = (TextView) findViewById(R.id.tvVideos);
+
 		registerForContextMenu(expVideo);
 
 		groups = new ArrayList<ListGroup>();
 		imageLoader = new ImageLoader(getApplicationContext());
 		videoDao = new VideoDao(getApplicationContext());
 		referenceDao = new ReferenceDao(getApplicationContext());
-		
+
 		Intent intent = getIntent();
 		Bundle extras = intent.getExtras();
 		if (extras != null) {
@@ -69,6 +68,15 @@ public class MyVideosActivity extends ActivityBase {
 		}
 		setHeader("Videos");
 		setTitle("My Videos");
+	}
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_my_videos);
+
+		initComponents();
+
 		/*
 		 * Add click action to control
 		 */
@@ -78,7 +86,7 @@ public class MyVideosActivity extends ActivityBase {
 				onOptionClick(v);
 			}
 		});
-		
+
 		// Launching new screen on Selecting Single ListItem
 		expVideo.setOnChildClickListener(new OnChildClickListener() {
 			@Override
@@ -90,6 +98,7 @@ public class MyVideosActivity extends ActivityBase {
 				String videoTitle = item.getTitle();
 				Intent i = new Intent(getApplicationContext(),
 						VideoDetailActivity.class);
+				i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				i.putExtra("videoId", videoId);
 				i.putExtra("videoTitle", videoTitle);
 				startActivity(i);
@@ -98,53 +107,61 @@ public class MyVideosActivity extends ActivityBase {
 			}
 		});
 		expVideo.setOnItemLongClickListener(new OnItemLongClickListener() {
-		    @Override
-		    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-		        if (ExpandableListView.getPackedPositionType(id) == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
-		            final int groupPos = ExpandableListView.getPackedPositionGroup(id);
-		            final int childPos = ExpandableListView.getPackedPositionChild(id);
-		            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				if (ExpandableListView.getPackedPositionType(id) == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
+					final int groupPos = ExpandableListView
+							.getPackedPositionGroup(id);
+					final int childPos = ExpandableListView
+							.getPackedPositionChild(id);
+					AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
 							MyVideosActivity.this);
 					alertDialogBuilder.setTitle("Unsubscribe Video");
 					alertDialogBuilder
-							.setMessage("Do you want to unsubscribe this video?")
+							.setMessage(
+									"Do you want to unsubscribe this video?")
 							.setCancelable(false)
 							.setPositiveButton("Ok",
 									new DialogInterface.OnClickListener() {
-										public void onClick(DialogInterface dialog,
-												int id) {
-											VideoEntry entry = groups.get(groupPos).childs.get(childPos);
-											videoDao.deleteVideo(Integer.parseInt(entry
-													.getId()));
+										public void onClick(
+												DialogInterface dialog, int id) {
+											VideoEntry entry = groups
+													.get(groupPos).childs
+													.get(childPos);
+											videoDao.deleteVideo(Integer
+													.parseInt(entry.getId()));
 											dialog.dismiss();
-											new loadVideos().execute();
+											new LoadVideos().execute();
 										}
 									})
 							.setNegativeButton("Cancel",
 									new DialogInterface.OnClickListener() {
-										public void onClick(DialogInterface dialog,
-												int id) {
+										public void onClick(
+												DialogInterface dialog, int id) {
 											dialog.dismiss();
 										}
 									});
 					AlertDialog alertDialog = alertDialogBuilder.create();
 					alertDialog.show();
-		            return true;
-		        }
+					return true;
+				}
 
-		        return false;
-		    }
+				return false;
+			}
 		});
-		//registerForContextMenu(expVideo);
-		new loadVideos().execute();
+		
+		// registerForContextMenu(expVideo);
+		new LoadVideos().execute();
 	}
+
 	/**
 	 * Hander click event when user select search, sort, category, time
+	 * 
 	 * @param v
 	 */
-	public void onOptionClick(View v){
-		switch(v.getId())
-		{
+	public void onOptionClick(View v) {
+		switch (v.getId()) {
 		case R.id.tvVideos:
 			if (typeDialog != null)
 				typeDialog.show();
@@ -154,11 +171,13 @@ public class MyVideosActivity extends ActivityBase {
 					typeDialog.show();
 			}
 			break;
-		
+
 		}
 	}
+
 	/**
 	 * Create dialog that allow user to change to channels
+	 * 
 	 * @param context
 	 */
 	private void createTypeDialog(Context context) {
@@ -174,17 +193,19 @@ public class MyVideosActivity extends ActivityBase {
 			@Override
 			public void onClick(View v) {
 				typeDialog.dismiss();
-				Intent i = new Intent(getApplicationContext(), MyChannelsActivity.class);
+				Intent i = new Intent(getApplicationContext(),
+						MyChannelsActivity.class);
 				i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(i);
 			}
 		});
 	}
+
 	/**
 	 * Background Async Task to get Videos from URL
 	 * */
-	class loadVideos extends AsyncTask<String, String, String> {
-
+	class LoadVideos extends AsyncTask<String, String, String> {
+		
 		/**
 		 * Before starting background thread Show Progress Dialog
 		 * */
@@ -323,10 +344,10 @@ public class MyVideosActivity extends ActivityBase {
 				holder.description = (TextView) view
 						.findViewById(R.id.description);
 				holder.viewCount = (TextView) view.findViewById(R.id.viewCount);
-				
+
 				holder.duration = (TextView) view.findViewById(R.id.duration);
 				holder.published = (TextView) view.findViewById(R.id.published);
-				
+
 				view.setTag(holder);
 			} else {
 				holder = (ListItemHolder) view.getTag();
@@ -351,12 +372,12 @@ public class MyVideosActivity extends ActivityBase {
 			holder.description.setText(description);
 			holder.viewCount.setText(DataHelper.numberWithCommas(item
 					.getViewCount()));
-			
+
 			holder.duration.setText(DataHelper.secondsToTimer(item
 					.getDuration()));
-			holder.published.setText(DataHelper.formatDate(item
-					.getPublished()));
-			
+			holder.published
+					.setText(DataHelper.formatDate(item.getPublished()));
+
 			return view;
 		}
 
@@ -383,6 +404,7 @@ public class MyVideosActivity extends ActivityBase {
 			return groupPosition;
 		}
 
+		@SuppressWarnings("static-access")
 		public View getGroupView(int groupPosition, boolean isLastChild,
 				View view, ViewGroup parent) {
 			ListGroupHolder holder = null;

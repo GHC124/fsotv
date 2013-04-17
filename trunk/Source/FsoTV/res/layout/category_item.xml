@@ -2,7 +2,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/list_selector"
     android:orientation="horizontal"
     android:padding="5dip" >
 
@@ -31,7 +30,6 @@
         android:layout_alignTop="@id/thumbnail"
         android:layout_toRightOf="@id/thumbnail"
         android:text="REVO"
-        android:textColor="#040404"
         android:textSize="15sp"
         android:textStyle="bold"
         android:typeface="sans" />
@@ -47,7 +45,6 @@
         android:layout_toLeftOf="@+id/cbxSelect"
         android:layout_toRightOf="@id/thumbnail"
         android:text="Revo ..."
-        android:textColor="#343434"
         android:textSize="10sp" />
 
     <!-- Statistic -->
@@ -59,12 +56,6 @@
         android:layout_toRightOf="@id/thumbnail"
         android:orientation="horizontal" >
     </LinearLayout>
-
-    <!-- Rightend Duration -->
-
-
-    <!-- Rightend Arrow -->
-
     <CheckBox
         android:id="@+id/cbxSelect"
         android:layout_width="wrap_content"

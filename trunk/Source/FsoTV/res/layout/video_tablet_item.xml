@@ -2,27 +2,38 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    
     android:orientation="horizontal"
     android:padding="5dip" >
 
     <!-- ListRow Left sied Thumbnail image -->
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/thumbnail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_marginRight="5dip"
-        
-        android:padding="3dip" >
-
+        >
+	       
         <ImageView
             android:id="@+id/image"
             android:layout_width="80dip"
-            android:layout_height="80dip" />
+            android:layout_height="70dip"
+            android:layout_alignParentTop="true"
+            />
+            	
+        <TextView
+            android:id="@+id/duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="2dip"
+            android:layout_marginTop="50dip"
+            android:background="#000000"
+            android:text="00:00:00"
+            android:textColor="#ffffff"
+            android:textSize="16sp" />
 
-    </LinearLayout>
+    </RelativeLayout>
 
     <!-- Title -->
 
@@ -32,9 +43,9 @@
         android:layout_height="wrap_content"
         android:layout_alignTop="@id/thumbnail"
         android:layout_toRightOf="@id/thumbnail"
+        android:maxLines="1"
         android:text="REVO"
-        
-        android:textSize="20dip"
+        android:textSize="18sp"
         android:textStyle="bold"
         android:typeface="sans" />
 
@@ -48,14 +59,14 @@
         android:layout_marginRight="15dip"
         android:layout_marginTop="1dip"
         android:layout_toRightOf="@id/thumbnail"
+        android:maxLines="2"
         android:text="Revo ..."
-        
-        android:textSize="14dip" />
+        android:textSize="18dip" />
 
     <!-- Statistic -->
 
-    <LinearLayout
-        android:id="@+id/llStatistic2"
+	<LinearLayout
+        android:id="@+id/llStatistic1"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/description"
@@ -63,29 +74,26 @@
         android:layout_toRightOf="@id/thumbnail"
         android:orientation="horizontal" >
 
-         <TextView
-             android:layout_width="wrap_content"
-             android:layout_height="wrap_content"
-             android:text="@string/browse_video_duration"
-             
-             android:textSize="12sp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/browse_video_views"
+            android:textSize="16sp" />
 
         <TextView
-            android:id="@+id/duration"
+            android:id="@+id/viewCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="2dip"
             android:layout_marginRight="2dip"
             android:text="123"
-           
-            android:textSize="12sp" />
+            android:textSize="16sp" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Published: "
-            
-            android:textSize="12sp" />
+		<TextView
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:text="Published: "
+		    android:textSize="16sp" />
 
         <TextView
             android:id="@+id/published"
@@ -94,10 +102,10 @@
             android:layout_marginLeft="2dip"
             android:layout_marginRight="2dip"
             android:text="123"
-            
-            android:textSize="12sp" />
+            android:textSize="16sp" />
+       
     </LinearLayout>
-    
+   
     <!-- Rightend Duration -->
 
     <ProgressBar

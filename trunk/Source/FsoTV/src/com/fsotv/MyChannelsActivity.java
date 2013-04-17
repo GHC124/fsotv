@@ -84,6 +84,7 @@ public class MyChannelsActivity extends ActivityBase {
 				String channelId = channels.get(position).getIdReal();
 				String channelTitle = channels.get(position).getTitle();
 				Intent i = new Intent(getApplicationContext(), BrowseVideosActivity.class);
+				i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				i.putExtra("channelId", channelId);
 				i.putExtra("channelTitle", channelTitle);
 				startActivity(i);

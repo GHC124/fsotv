@@ -12,57 +12,35 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.util.Log;
-
+/**
+ * 
+ * @author ChungPV1, CuongVM1
+ */
+@SuppressWarnings("unused")
 public class JsonHelper {
 
-	public static JSONObject getJSONFromStream(InputStream is) throws Exception {
+	public static JSONObject getJSONFromStream(InputStream inputStream) throws Exception {
+		Log.i("JsonHelper", "Start getJSONFromStream()");
+		
 		String json = "";
-		JSONObject jObj = null;
+		JSONObject jsonObject = null;
 
-		BufferedReader reader = new BufferedReader(new InputStreamReader(is,
+		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream,
 				"iso-8859-1"), 8);
-		StringBuilder sb = new StringBuilder();
+		StringBuilder stringBuilder = new StringBuilder();
 		String line = null;
 		while ((line = reader.readLine()) != null) {
-			sb.append(line + "\n");
+			stringBuilder.append(line + "\n");
 		}
-		is.close();
-		json = sb.toString();
+		
+		inputStream.close();
+		json = stringBuilder.toString();
 
-		// try parse the string to a JSON object
+		jsonObject = new JSONObject(json);
 
-		jObj = new JSONObject(json);
-
-		// return JSON String
-		return jObj;
-
+		Log.i("JsonHelper", "End getJSONFromStream()");
+		
+		return jsonObject;
 	}
-
-	/**
-	 * 
-	 * @return
-	 * @throws IOException
-	 */
-	public static String getJSONC() throws IOException {
-		URL url = new URL(
-				"http://gdata.youtube.com/feeds/api/videos/9bZkp7q19f0?v=2&alt=jsonc");
-		StringBuilder result = new StringBuilder();
-
-		URLConnection connection = url.openConnection();
-		connection.setConnectTimeout(30000);
-		connection.setReadTimeout(30000);
-
-		BufferedReader bufferedReader = new BufferedReader(
-				new InputStreamReader(connection.getInputStream()));
-
-		String inputLine;
-		while ((inputLine = bufferedReader.readLine()) != null) {
-			result.append(inputLine);
-
-		}
-
-		bufferedReader.close();
-
-		return result.toString();
-	}
+	
 }
