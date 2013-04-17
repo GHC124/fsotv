@@ -213,7 +213,7 @@ public class BrowseVideosActivity extends ActivityBase {
 		});
 		// New adapter for loading data in to list view
 		adapter = new ListVideoAdapter(BrowseVideosActivity.this,
-				R.layout.browse_video_item, videos);
+				R.layout.browse_videos_item, videos);
 		// updating listview
 		registerForContextMenu(lvVideo);
 		lvVideo.setAdapter(adapter);

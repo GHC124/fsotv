@@ -4,16 +4,17 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/bgColor"
-    tools:context=".MyChannelsTabletActivity" >
-	
-	<include layout="@layout/header"/>
-	<RelativeLayout
+    tools:context=".MyVideosActivity" >
+
+    <include layout="@layout/header" />
+
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingBottom="2dip" >
 
         <TextView
-            android:id="@+id/tvChannels"
+            android:id="@+id/tvVideos"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="2dip"
@@ -22,11 +23,13 @@
             android:paddingLeft="5dip"
             android:paddingRight="5dip"
             android:paddingTop="5dip"
-            android:text="Channels" />
+            android:text="Videos" />
     </RelativeLayout>
-    <ListView android:id="@+id/lvChannel"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_marginTop="5dip"/>
-    
+
+    <ExpandableListView
+        android:id="@+id/expVideo"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:groupIndicator="@null" />
+
 </LinearLayout>

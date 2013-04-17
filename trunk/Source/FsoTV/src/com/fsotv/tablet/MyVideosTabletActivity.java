@@ -1,4 +1,4 @@
-package com.fsotv;
+package com.fsotv.tablet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +23,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.fsotv.ActivityBase;
+import com.fsotv.DialogBase;
+import com.fsotv.MyChannelsActivity;
+import com.fsotv.MyVideosActivity;
+import com.fsotv.R;
+import com.fsotv.VideoDetailActivity;
 import com.fsotv.dao.ReferenceDao;
 import com.fsotv.dao.VideoDao;
 import com.fsotv.dto.Reference;
@@ -37,7 +43,7 @@ import com.fsotv.utils.ImageLoader;
  * 
  * @author ChungPV1
  */
-public class MyVideosActivity extends ActivityBase {
+public class MyVideosTabletActivity extends ActivityBase {
 	
 	// Views
 	private DialogBase typeDialog;
@@ -116,7 +122,7 @@ public class MyVideosActivity extends ActivityBase {
 					final int childPos = ExpandableListView
 							.getPackedPositionChild(id);
 					AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-							MyVideosActivity.this);
+							MyVideosTabletActivity.this);
 					alertDialogBuilder.setTitle("Unsubscribe Video");
 					alertDialogBuilder
 							.setMessage(
@@ -166,7 +172,7 @@ public class MyVideosActivity extends ActivityBase {
 			if (typeDialog != null)
 				typeDialog.show();
 			else {
-				createTypeDialog(MyVideosActivity.this);
+				createTypeDialog(MyVideosTabletActivity.this);
 				if (typeDialog != null)
 					typeDialog.show();
 			}
@@ -264,7 +270,7 @@ public class MyVideosActivity extends ActivityBase {
 		protected void onPostExecute(String args) {
 			hideLoading();
 			ExpandListAdapter adapter = new ExpandListAdapter(
-					MyVideosActivity.this, R.layout.my_videos_group,
+					MyVideosTabletActivity.this, R.layout.my_videos_group,
 					R.layout.my_videos_item, groups);
 			// updating listview
 			expVideo.setAdapter(adapter);

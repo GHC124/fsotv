@@ -6,7 +6,7 @@
     android:background="@color/bgColor"
     tools:context=".MyVideosActivity" >
 
-    <include layout="@layout/header" />
+    <include layout="@layout/header_tablet" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -23,6 +23,7 @@
             android:paddingLeft="5dip"
             android:paddingRight="5dip"
             android:paddingTop="5dip"
+            android:textSize="16sp"
             android:text="Videos" />
     </RelativeLayout>
 

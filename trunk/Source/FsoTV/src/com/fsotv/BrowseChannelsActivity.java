@@ -156,7 +156,7 @@ public class BrowseChannelsActivity extends ActivityBase {
 			}
 		});
 		adapter = new ListChannelAdapter(BrowseChannelsActivity.this,
-				R.layout.browse_channel_item, channels);
+				R.layout.browse_channels_item, channels);
 		// updating listview
 		registerForContextMenu(lvChannel);
 		lvChannel.setAdapter(adapter);
