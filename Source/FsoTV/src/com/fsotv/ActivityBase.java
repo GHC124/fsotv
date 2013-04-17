@@ -38,11 +38,7 @@ public class ActivityBase extends Activity {
 	private ImageView imgSearch;
 	private RelativeLayout rlSearch;
 	private EditText txtSearch;
-<<<<<<< .mine
-	@SuppressWarnings("unused")
-=======
 
->>>>>>> .r67
 	private ImageView imgCancelSearch;
 	private ImageView imgGoSearch;
 
