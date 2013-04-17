@@ -206,7 +206,7 @@ public class BrowseVideosTabletActivity extends ActivityBase {
 			}
 		});
 		adapter = new ListVideoAdapter(BrowseVideosTabletActivity.this,
-				R.layout.browse_videos_tablet_item, videos);
+				R.layout.browse_videos_item_tablet, videos);
 		// updating listview
 		registerForContextMenu(gvVideo);
 		gvVideo.setAdapter(adapter);

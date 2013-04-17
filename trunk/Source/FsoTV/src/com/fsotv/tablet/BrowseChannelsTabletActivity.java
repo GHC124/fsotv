@@ -161,7 +161,7 @@ public class BrowseChannelsTabletActivity extends ActivityBase {
 			}
 		});
 		adapter = new ListChannelAdapter(BrowseChannelsTabletActivity.this,
-				R.layout.browse_channels_tablet_item, channels);
+				R.layout.browse_channels_item_tablet, channels);
 		// updating listview
 		registerForContextMenu(gvChannel);
 		gvChannel.setAdapter(adapter);

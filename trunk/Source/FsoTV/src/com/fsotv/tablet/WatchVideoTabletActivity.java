@@ -1,4 +1,4 @@
-package com.fsotv;
+package com.fsotv.tablet;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -25,6 +25,9 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.VideoView;
 
+import com.fsotv.ActivityBase;
+import com.fsotv.R;
+import com.fsotv.WatchVideoActivity;
 import com.fsotv.utils.DataHelper;
 import com.fsotv.utils.YouTubeHelper;
 /**
@@ -34,7 +37,7 @@ import com.fsotv.utils.YouTubeHelper;
  * + Go back, forward 30'
  * + Change volume
  */
-public class WatchVideoActivity extends ActivityBase implements
+public class WatchVideoTabletActivity extends ActivityBase implements
 		OnCompletionListener, SeekBar.OnSeekBarChangeListener {
 	// Volume option
 	private final int OPTION_VOLUME = Menu.FIRST;
@@ -72,7 +75,7 @@ public class WatchVideoActivity extends ActivityBase implements
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		
-		setContentView(R.layout.activity_watch_video);
+		setContentView(R.layout.activity_watch_video_tablet);
 
 		mgr = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
@@ -100,8 +103,8 @@ public class WatchVideoActivity extends ActivityBase implements
 			videoTitle = (videoTitle == null) ? "" : videoTitle;
 			link = (link == null) ? "" : link;
 
-			if (videoTitle.length() > 50)
-				videoTitle = videoTitle.substring(0, 50) + "...";
+			if (videoTitle.length() > 250)
+				videoTitle = videoTitle.substring(0, 250) + "...";
 		}
 		setHeader(videoTitle);
 		setTitle("Watch Video");
@@ -160,7 +163,7 @@ public class WatchVideoActivity extends ActivityBase implements
 		});
 		createDialogs(this);
 		
-		//link = "http://media.socbay.com/public/media/Video/BT%20Video/9.4comaythoigian.3gp";
+		link = "http://media.socbay.com/public/media/Video/BT%20Video/9.4comaythoigian.3gp";
 		playVideo(Uri.parse(link));
 		//new QueryYouTubeTask().execute(videoId);
 	}
@@ -435,9 +438,9 @@ public class WatchVideoActivity extends ActivityBase implements
 			String lYouTubeVideoId = null;
 
 			try {
-				WifiManager lWifiManager = (WifiManager) WatchVideoActivity.this
+				WifiManager lWifiManager = (WifiManager) WatchVideoTabletActivity.this
 						.getSystemService(Context.WIFI_SERVICE);
-				TelephonyManager lTelephonyManager = (TelephonyManager) WatchVideoActivity.this
+				TelephonyManager lTelephonyManager = (TelephonyManager) WatchVideoTabletActivity.this
 						.getSystemService(Context.TELEPHONY_SERVICE);
 				// //////////////////////////
 				// if we have a fast connection (wifi or 3g), then we'll get a
