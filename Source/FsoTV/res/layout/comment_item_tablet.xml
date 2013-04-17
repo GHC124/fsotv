@@ -39,7 +39,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Published:"
-            android:textSize="14sp" />
+            android:textSize="18sp" />
 
         <TextView
             android:id="@+id/published"
@@ -48,7 +48,7 @@
             android:layout_marginLeft="2dip"
             android:layout_marginRight="2dip"
             android:text="123"
-            android:textSize="14sp" />
+            android:textSize="18sp" />
     </LinearLayout>
 
 </RelativeLayout>

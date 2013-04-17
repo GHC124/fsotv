@@ -91,7 +91,7 @@ public class VideoDetailTabletActivity extends ActivityBase {
 	private TextView lblPublished;
 	private TextView lblViewCount;
 	private TextView lblFavoriteCount;
-	private TabHost tabhost;
+	private TabHost tabHost;
 	private LocalActivityManager mLocalActivityManager;
 
 	private String videoId = "";
@@ -109,10 +109,10 @@ public class VideoDetailTabletActivity extends ActivityBase {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_video_detail_tablet);
 		
-		tabhost = (TabHost) findViewById(R.id.tabhost);
+		tabHost = (TabHost) findViewById(R.id.tabhost);
 		mLocalActivityManager = new LocalActivityManager(this, false);
 		mLocalActivityManager.dispatchCreate(savedInstanceState);
-		tabhost.setup(mLocalActivityManager);
+		tabHost.setup(mLocalActivityManager);
 		
 		mPrefs = getSharedPreferences("fsotv_oauth", MODE_PRIVATE);
 
@@ -323,7 +323,7 @@ public class VideoDetailTabletActivity extends ActivityBase {
 					Toast.LENGTH_SHORT).show();
 			return;
 		}
-		Intent i = new Intent(getApplicationContext(), WatchVideoActivity.class);
+		Intent i = new Intent(getApplicationContext(), WatchVideoTabletActivity.class);
 		i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		i.putExtra("videoId", video.getIdReal());
 		i.putExtra("videoTitle", video.getTitle());
@@ -635,28 +635,31 @@ public class VideoDetailTabletActivity extends ActivityBase {
 			imageLoader.DisplayImage(video.getImage(), imgThumbnail, null);
 			
 			// Clear all tabs
-			tabhost.clearAllTabs();
+			tabHost.setCurrentTab(0); 
+			tabHost.clearAllTabs();
 			// Description tab
 			View tabDes = createTabView(getApplicationContext(), "Description",
 					R.drawable.description16);
-			TabSpec desSpec = tabhost.newTabSpec("Description");
+			TabSpec desSpec = tabHost.newTabSpec("Description");
 			desSpec.setIndicator(tabDes);
 			Intent desIntent = new Intent(getApplicationContext(),
-					VideoDescriptionActivity.class);
+					VideoDescriptionTabletActivity.class);
+			desIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			desIntent.putExtra("description", video.getDescription());
 			desSpec.setContent(desIntent);
 			// Comment tab
 			View tabCom = createTabView(getApplicationContext(), "Comments",
 					R.drawable.comment16);
-			TabSpec comSpec = tabhost.newTabSpec("Comments");
+			TabSpec comSpec = tabHost.newTabSpec("Comments");
 			comSpec.setIndicator(tabCom);
 			Intent comIntent = new Intent(getApplicationContext(),
-					VideoCommentsActivity.class);
+					VideoCommentsTabletActivity.class);
+			comIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			comIntent.putExtra("videoId", video.getIdReal());
 			comSpec.setContent(comIntent);
 			// Add all tabs
-			tabhost.addTab(desSpec);
-			tabhost.addTab(comSpec);
+			tabHost.addTab(desSpec);
+			tabHost.addTab(comSpec);
 
 			postMessage = video.getLinkReal();
 
@@ -670,6 +673,7 @@ public class VideoDetailTabletActivity extends ActivityBase {
 	    ImageView im = (ImageView) view.findViewById(R.id.tabImg);
 	    im.setBackgroundResource(img);
 	    TextView tv = (TextView) view.findViewById(R.id.tabText);
+	    tv.setTextSize(18);
 	    tv.setText(text);
 	    return view;
 	}

@@ -55,9 +55,11 @@ public class ActivityBase extends Activity {
 
 	@Override
 	public void setContentView(int layoutResId) {
+		// Check device, if it is tablet, use only landscape ...
 		if(MainActivity.IsTablet){
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 		}else{
+			// ... otherwise, use portrait
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		}
 		

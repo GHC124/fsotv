@@ -44,7 +44,7 @@ public class VideoDetailActivity extends ActivityBase {
 	private final int OPTION_SHARE = Menu.FIRST + 2;
 	// Views
 	private DialogBase shareDialog;
-	private TabHost tabhost;
+	private TabHost tabHost;
 	private LocalActivityManager mLocalActivityManager;
 	// Porperties
 	private boolean isLoading = true; // Loading data
@@ -60,10 +60,10 @@ public class VideoDetailActivity extends ActivityBase {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_video_detail);
 
-		tabhost = (TabHost) findViewById(R.id.tabhost);
+		tabHost = (TabHost) findViewById(R.id.tabhost);
 		mLocalActivityManager = new LocalActivityManager(this, false);
 		mLocalActivityManager.dispatchCreate(savedInstanceState);
-		tabhost.setup(mLocalActivityManager);
+		tabHost.setup(mLocalActivityManager);
 
 		mPrefs = getSharedPreferences("fsotv_oauth", MODE_PRIVATE);
 
@@ -359,7 +359,7 @@ public class VideoDetailActivity extends ActivityBase {
 			imageLoader.DisplayImage(video.getImage(), img, null);
 			// Description tab
 			View tabDes = createTabView(getApplicationContext(), "Description", R.drawable.description16);
-			TabSpec desSpec = tabhost.newTabSpec("Description");
+			TabSpec desSpec = tabHost.newTabSpec("Description");
 			desSpec.setIndicator(tabDes);
 			Intent desIntent = new Intent(getApplicationContext(),
 					VideoDescriptionActivity.class);
@@ -367,15 +367,15 @@ public class VideoDetailActivity extends ActivityBase {
 			desSpec.setContent(desIntent);
 			// Comment tab
 			View tabCom = createTabView(getApplicationContext(), "Comments", R.drawable.comment16);
-			TabSpec comSpec = tabhost.newTabSpec("Comments");
+			TabSpec comSpec = tabHost.newTabSpec("Comments");
 			comSpec.setIndicator(tabCom);
 			Intent comIntent = new Intent(getApplicationContext(),
 					VideoCommentsActivity.class);
 			comIntent.putExtra("videoId", video.getIdReal());
 			comSpec.setContent(comIntent);
 			// Add all tabs
-			tabhost.addTab(desSpec);
-			tabhost.addTab(comSpec);
+			tabHost.addTab(desSpec);
+			tabHost.addTab(comSpec);
 			
 			postMessage = video.getLinkReal();
 

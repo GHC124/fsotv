@@ -237,7 +237,7 @@ public class MyChannelsTabletActivity extends ActivityBase {
 		protected void onPostExecute(String args) {
 			hideLoading();
 			ListItemAdapter adapter = new ListItemAdapter(
-					MyChannelsTabletActivity.this, R.layout.my_channels_tablet_item,
+					MyChannelsTabletActivity.this, R.layout.my_channels_item_tablet,
 					channels);
 			// updating listview
 			gvChannel.setAdapter(adapter);
