@@ -111,6 +111,7 @@ public class BrowseChannelsActivity extends ActivityBase {
 				String channelTitle = channels.get(position).getTitle();
 				Intent i = new Intent(getApplicationContext(),
 						BrowseVideosActivity.class);
+				i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				i.putExtra("channelId", channelId);
 				i.putExtra("channelTitle", channelTitle);
 				startActivity(i);
@@ -324,6 +325,7 @@ public class BrowseChannelsActivity extends ActivityBase {
 				typeDialog.dismiss();
 				Intent i = new Intent(getApplicationContext(), BrowseVideosActivity.class);
 				i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				i.putExtra("categoryId", YouTubeHelper.CATEGORY_FILM);
 				startActivity(i);
 			}
 		});
@@ -417,11 +419,12 @@ public class BrowseChannelsActivity extends ActivityBase {
 		lvUserType.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
-				userType = userTypes.get(position).getValue();
+				Reference item = userTypes.get(position);
+				userType = item.getValue();
 				userTypeDialog.dismiss();
 				// Reload data
 				setHeader(userType);
-				tvUserType.setText(userType);
+				tvUserType.setText(item.getDisplay());
 				new LoadChannels().execute();
 			}
 		});

@@ -5,11 +5,14 @@
     android:background="@color/bgColor" >
 
     <LinearLayout
+        android:id="@+id/LinearLayout1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:orientation="horizontal" 
-        android:gravity="center">
+        android:gravity="center"
+        android:orientation="horizontal" >
+
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -22,51 +25,30 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/llMainHeader"
-        android:layout_alignParentTop="true"
+        android:layout_below="@+id/LinearLayout1"
         android:layout_marginBottom="2dp"
         android:gravity="center" >
 
-        <ImageView
-            android:id="@+id/imgLeft"
-            android:layout_width="25dip"
-            android:layout_height="fill_parent"
-            android:layout_alignBaseline="@+id/viewFlip_channel"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:onClick="onSwipeClick"
-            android:src="@drawable/left16" />
-
-        <ViewFlipper
-            android:id="@+id/viewFlip_channel"
-            android:layout_width="fill_parent"
-            android:layout_height="200dip"
-            android:layout_centerVertical="true"
-            android:layout_toLeftOf="@+id/imgRight"
-            android:layout_toRightOf="@+id/imgLeft"
-            android:background="@drawable/corner" >
-        </ViewFlipper>
-
-        <ImageView
-            android:id="@+id/imgRight"
-            android:layout_width="25dip"
-            android:layout_height="fill_parent"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:onClick="onSwipeClick"
-            android:src="@drawable/right16" />
+        <HorizontalScrollView
+            android:id="@+id/scrollView_channel"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            >
+            
+        </HorizontalScrollView>
     </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/llMainHeader"
         android:layout_width="fill_parent"
-        android:layout_height="60dp"
+        android:layout_height="70dp"
         android:layout_alignParentBottom="true"
         android:background="@drawable/gradient_header_bg"
         android:gravity="center" >
 
         <RelativeLayout
             android:id="@+id/llHome"
-            android:layout_width="80dp"
+            android:layout_width="90dp"
             android:layout_height="match_parent"
             android:gravity="center"
             android:onClick="onTabClick"
@@ -97,12 +79,13 @@
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
                 android:text="HOME"
-                android:textColor="#ffffff" />
+                android:textColor="#ffffff"
+                android:textSize="18sp" />
         </RelativeLayout>
 
         <RelativeLayout
             android:id="@+id/llBrowse"
-            android:layout_width="80dp"
+            android:layout_width="90dp"
             android:layout_height="match_parent"
             android:gravity="center"
             android:onClick="onTabClick"
@@ -133,12 +116,13 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
-                android:text="BROWSE" />
+                android:text="BROWSE"
+                android:textSize="18sp" />
         </RelativeLayout>
 
         <RelativeLayout
             android:id="@+id/llFavorite"
-            android:layout_width="80dp"
+            android:layout_width="90dp"
             android:layout_height="match_parent"
             android:gravity="center"
             android:onClick="onTabClick"
@@ -169,7 +153,8 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
-                android:text="FAVORITE" />
+                android:text="FAVORITE"
+                android:textSize="18sp" />
         </RelativeLayout>
     </LinearLayout>
 

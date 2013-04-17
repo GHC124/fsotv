@@ -7,7 +7,7 @@
     android:background="@color/bgColor"
     tools:context=".BrowseChannelsTabletActivity" >
 
-    <include layout="@layout/header" />
+    <include layout="@layout/header_tablet" />
    	
     <RelativeLayout
         android:layout_width="match_parent"
@@ -25,6 +25,7 @@
             android:paddingLeft="5dip"
             android:paddingRight="5dip"
             android:layout_marginRight="2dip"
+            android:textSize="16sp"
             android:text="Channels"
             android:background="@drawable/action_item"
             />
@@ -40,6 +41,7 @@
             android:paddingRight="5dip"
             android:layout_marginRight="2dip"
             android:text="Mediances"
+            android:textSize="16sp"
             android:background="@drawable/action_item"
             />
         
@@ -54,6 +56,7 @@
             android:paddingRight="5dip"
             android:layout_marginRight="2dip"
             android:text="Most viewed"
+            android:textSize="16sp"
             android:background="@drawable/action_item"
             />
         
@@ -68,15 +71,20 @@
             android:paddingRight="5dip"
             android:layout_marginRight="2dip"
             android:text="All time"
+            android:textSize="16sp"
             android:background="@drawable/action_item"
             />
 
     </RelativeLayout>
     
-    <ListView
-        android:id="@+id/lvChannel"
+    <GridView
+        android:id="@+id/gvChannel"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        />
+        android:columnWidth="300dp"
+        android:gravity="center"
+        android:numColumns="auto_fit"
+        android:stretchMode="columnWidth" >
+    </GridView>
 
 </LinearLayout>

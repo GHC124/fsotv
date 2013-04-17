@@ -9,6 +9,7 @@ import java.util.Locale;
 
 import android.widget.ArrayAdapter;
 
+@SuppressWarnings("unused")
 public class DataHelper {
 
 	public static void updateAdapter(ArrayAdapter<Object> arrayAdapter,

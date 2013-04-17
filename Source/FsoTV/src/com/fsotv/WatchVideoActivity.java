@@ -16,6 +16,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageButton;
@@ -59,6 +60,7 @@ public class WatchVideoActivity extends ActivityBase implements
 	private AudioManager mgr = null;
 
 	private boolean isFullScreen = false;
+	private boolean isShowControl = true;
 	
 	private VideoView myVideoView;
 	private String videoId = "";
@@ -107,15 +109,18 @@ public class WatchVideoActivity extends ActivityBase implements
 		// Listeners
 		songProgressBar.setOnSeekBarChangeListener(this);
 		myVideoView.setOnCompletionListener(this);
-		myVideoView.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if(isFullScreen){
-					showPlayerControl();
+		// Show/hide player control when user touch on videoView
+		myVideoView.setOnTouchListener(new View.OnTouchListener(){
+	        @Override
+	        public boolean onTouch(View v, MotionEvent event) {
+	        	if(isFullScreen){
+	        		if(isShowControl)
+	        			hidePlayerControl();
+	        		else showPlayerControl();
 				}
-			}
-		});
-		
+	            return false;
+	        }
+	    });
 		btnPlay.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -155,7 +160,7 @@ public class WatchVideoActivity extends ActivityBase implements
 		});
 		createDialogs(this);
 		
-		link = "http://media.socbay.com/public/media/Video/BT%20Video/9.4comaythoigian.3gp";
+		//link = "http://media.socbay.com/public/media/Video/BT%20Video/9.4comaythoigian.3gp";
 		//link = "http://channelz.mp3.zdn.vn/zv/18ad76b91fb1aebded76268c499b1378/516794d0/2011/10/27/b/3/b3e91796f29f1f1e268e8da49ecdffb4.mp4";
 		playVideo(Uri.parse(link));
 		//new QueryYouTubeTask().execute(videoId);
@@ -242,6 +247,7 @@ public class WatchVideoActivity extends ActivityBase implements
 	 * Show player control
 	 */
 	private void showPlayerControl(){
+		isShowControl = true;
 		llFooter.setVisibility(View.VISIBLE);
 	}
 	
@@ -249,6 +255,7 @@ public class WatchVideoActivity extends ActivityBase implements
 	 * Hide player control
 	 */
 	private void hidePlayerControl(){
+		isShowControl = false;
 		llFooter.setVisibility(View.GONE);
 	}
 	
@@ -409,6 +416,7 @@ public class WatchVideoActivity extends ActivityBase implements
 	 * use public methods that don't require authentication.
 	 * 
 	 */
+	@SuppressWarnings("unused")
 	private class QueryYouTubeTask extends AsyncTask<String, Integer, Uri> {
 		/**
 		 * Before starting background thread Show Progress Dialog

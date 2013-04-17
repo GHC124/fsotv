@@ -34,7 +34,7 @@ import com.fsotv.dto.VideoEntry;
  * 
  */
 public class YouTubeHelper {
-	// Constants
+ 
 	public final static String CATEGORY_EDUCATION = "Education";
 	public final static String CATEGORY_COMEDY = "Comedy";
 	public final static String CATEGORY_ENTERTAIMENT = "Entertainment";
@@ -68,6 +68,9 @@ public class YouTubeHelper {
 	 */
 	public static List<ChannelEntry> getChannels(String userType,
 			String orderBy, int maxResult, int startIndex, String time) {
+		
+		Log.i("YouTubeHelper","Start getChannels()");
+		
 		List<ChannelEntry> channels = null;
 		InputStream is = null;
 		StringBuilder sb = new StringBuilder();
@@ -102,13 +105,21 @@ public class YouTubeHelper {
 			Log.e("getChannels", ex.toString());
 		}
 		channels = getChannelsByStream(is);
+		
+		Log.i("YouTubeHelper","Start getChannels()");
+		
 		return channels;
 	}
-
-	public static List<ChannelEntry> getChannelsByStream(InputStream is) {
+	
+	/**
+	 * 
+	 * @param inputStream
+	 * @return
+	 */
+	public static List<ChannelEntry> getChannelsByStream(InputStream inputStream) {
 		List<ChannelEntry> channels = new ArrayList<ChannelEntry>();
 		try {
-			JSONObject json = JsonHelper.getJSONFromStream(is);
+			JSONObject json = JsonHelper.getJSONFromStream(inputStream);
 			JSONObject feed = json.getJSONObject("feed");
 			if(feed.isNull("entry")){
 				return channels;
@@ -174,8 +185,14 @@ public class YouTubeHelper {
 	}
 
 	/**
-	 * Get videos in channel, order by published
 	 * 
+	 * @param channelId
+	 * @param orderBy
+	 * @param maxResult
+	 * @param startIndex
+	 * @param keyword
+	 * @param time
+	 * @return
 	 */
 	public static List<VideoEntry> getVideosInChannel(String channelId,
 			String orderBy, int maxResult, int startIndex, String keyword, String time) {

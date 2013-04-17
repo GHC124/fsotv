@@ -1,12 +1,9 @@
 package com.fsotv.tablet;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -33,6 +30,7 @@ import android.widget.Toast;
 
 import com.fsotv.ActivityBase;
 import com.fsotv.BrowseVideosActivity;
+import com.fsotv.DialogBase;
 import com.fsotv.R;
 import com.fsotv.dao.ChannelDao;
 import com.fsotv.dao.ReferenceDao;
@@ -41,40 +39,59 @@ import com.fsotv.dto.ChannelEntry;
 import com.fsotv.dto.Reference;
 import com.fsotv.utils.DataHelper;
 import com.fsotv.utils.EndlessScrollGridViewListener;
+import com.fsotv.utils.EndlessScrollListViewListener;
 import com.fsotv.utils.ImageLoader;
 import com.fsotv.utils.YouTubeHelper;
 
-public class BrowseTabletActivity extends ActivityBase {
+/**
+ * Browse channels from youtube Extend ActivityBase, allow: + Subscribe channel
+ * + Change user type + Sort channel + Load more items when scroll
+ * 
+ * 
+ */
+public class BrowseChannelsTabletActivity extends ActivityBase {
+	// Menus
 	private final int MENU_SUBSCRIBE = Menu.FIRST;
 	private final int OPTION_SORT = Menu.FIRST + 1;
 	private final int OPTION_USERTYPE = Menu.FIRST + 2;
-	
-	private Dialog sortDialog;
-	private Dialog userTypeDialog;
-
+	private final int OPTION_TIME = Menu.FIRST + 3;
+		
+	// Views
+	private DialogBase typeDialog;
+	private DialogBase sortDialog;
+	private DialogBase timeDialog;
+	private DialogBase userTypeDialog;
 	private GridView gvChannel;
-
+	private TextView tvChannels;
+	private TextView tvUserType;
+	private TextView tvSort;
+	private TextView tvTime;
+	// Properties
 	private List<ChannelEntry> channels;
 	private List<Reference> userTypes;
 	private ImageLoader imageLoader;
 	private ListChannelAdapter adapter;
-
+	// Sort
 	private boolean isLoading = false;
 	private String orderBy = "";
-	private int maxResult = 15;
+	private int maxResult = 10;
 	private int maxLoad = 5;
 	private int startIndex = 1;
-	private String time;
+	private String time = "";
 	private String userType;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_browse_tablet);
-		
+		setContentView(R.layout.activity_browse_channels_tablet);
 
 		gvChannel = (GridView) findViewById(R.id.gvChannel);
-
+		tvChannels = (TextView)findViewById(R.id.tvChannels);
+		tvUserType = (TextView)findViewById(R.id.tvUserType);
+		tvSort = (TextView)findViewById(R.id.tvSort);
+		tvTime = (TextView)findViewById(R.id.tvTime);
+		
+		// Init data
 		channels = new ArrayList<ChannelEntry>();
 		imageLoader = new ImageLoader(getApplicationContext());
 		userType = YouTubeHelper.USER_TYPE_COMEDIANS;
@@ -87,8 +104,8 @@ public class BrowseTabletActivity extends ActivityBase {
 			userType = extras.getString("userType");
 			userType = (userType == null) ? "" : userType;
 		}
-		hideBack();
 		setHeader(userType);
+		tvUserType.setText(userType);
 		setTitle("Browse Channel");
 
 		// Launching new screen on Selecting Single ListItem
@@ -98,13 +115,42 @@ public class BrowseTabletActivity extends ActivityBase {
 				String channelId = channels.get(position).getId();
 				String channelTitle = channels.get(position).getTitle();
 				Intent i = new Intent(getApplicationContext(),
-						VideosTabletActivity.class);
+						BrowseVideosTabletActivity.class);
+				i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				i.putExtra("channelId", channelId);
 				i.putExtra("channelTitle", channelTitle);
 				startActivity(i);
 			}
 		});
-		gvChannel.setOnScrollListener(new EndlessScrollGridViewListener(gvChannel) {
+		/*
+		 * Add click action to control
+		 */
+		tvChannels.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onOptionClick(v);
+			}
+		});
+		tvUserType.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onOptionClick(v);
+			}
+		});
+		tvSort.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onOptionClick(v);
+			}
+		});
+		tvTime.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onOptionClick(v);
+			}
+		});
+		gvChannel.setOnScrollListener(new EndlessScrollGridViewListener(
+				gvChannel) {
 			@Override
 			public void loadData() {
 				if (!isLoading) {
@@ -114,8 +160,8 @@ public class BrowseTabletActivity extends ActivityBase {
 				}
 			}
 		});
-		adapter = new ListChannelAdapter(BrowseTabletActivity.this,
-				R.layout.browse_tablet_item, channels);
+		adapter = new ListChannelAdapter(BrowseChannelsTabletActivity.this,
+				R.layout.browse_channels_tablet_item, channels);
 		// updating listview
 		registerForContextMenu(gvChannel);
 		gvChannel.setAdapter(adapter);
@@ -180,6 +226,7 @@ public class BrowseTabletActivity extends ActivityBase {
 		super.onCreateOptionsMenu(menu);
 		menu.add(0, OPTION_SORT, 1, "Sort");
 		menu.add(0, OPTION_USERTYPE, 2, "Channel Type");
+		menu.add(0, OPTION_TIME, 3, "Time");
 		return true;
 	}
 
@@ -191,29 +238,111 @@ public class BrowseTabletActivity extends ActivityBase {
 			if (sortDialog != null)
 				sortDialog.show();
 			else {
-				createSortDialog(BrowseTabletActivity.this);
+				createSortDialog(BrowseChannelsTabletActivity.this);
 				if (sortDialog != null)
 					sortDialog.show();
+			}
+			break;
+		case OPTION_TIME:
+			if (timeDialog != null)
+				timeDialog.show();
+			else {
+				createTimeDialog(BrowseChannelsTabletActivity.this);
+				if (timeDialog != null)
+					timeDialog.show();
 			}
 			break;
 		case OPTION_USERTYPE:
 			if (userTypeDialog != null)
 				userTypeDialog.show();
 			else {
-				createUserTypeDialog(BrowseTabletActivity.this);
+				createUserTypeDialog(BrowseChannelsTabletActivity.this);
 				if (userTypeDialog != null)
 					userTypeDialog.show();
 			}
 			break;
 		}
+		
 
 		return super.onOptionsItemSelected(item);
 	}
-
+	/**
+	 * Hander click event when user select search, sort, category, time
+	 * @param v
+	 */
+	public void onOptionClick(View v){
+		switch(v.getId())
+		{
+		case R.id.tvChannels:
+			if (typeDialog != null)
+				typeDialog.show();
+			else {
+				createTypeDialog(BrowseChannelsTabletActivity.this);
+				if (typeDialog != null)
+					typeDialog.show();
+			}
+			break;
+		case R.id.tvUserType:
+			if (userTypeDialog != null)
+				userTypeDialog.show();
+			else {
+				createUserTypeDialog(BrowseChannelsTabletActivity.this);
+				if (userTypeDialog != null)
+					userTypeDialog.show();
+			}
+			break;
+		case R.id.tvSort:
+			if (sortDialog != null)
+				sortDialog.show();
+			else {
+				createSortDialog(BrowseChannelsTabletActivity.this);
+				if (sortDialog != null)
+					sortDialog.show();
+			}
+			break;
+		case R.id.tvTime:
+			if (timeDialog != null)
+				timeDialog.show();
+			else {
+				createTimeDialog(BrowseChannelsTabletActivity.this);
+				if (timeDialog != null)
+					timeDialog.show();
+			}
+			break;
+		}
+	}
+	/**
+	 * Create dialog that allow user to change to channels
+	 * @param context
+	 */
+	private void createTypeDialog(Context context) {
+		typeDialog = new DialogBase(context);
+		typeDialog.setContentView(R.layout.type);
+		typeDialog.setHeader("Channels");
+		final TextView txtVideos = (TextView) typeDialog
+				.findViewById(R.id.tvVideos);
+		final TextView txtChannels = (TextView) typeDialog
+				.findViewById(R.id.tvChannels);
+		txtChannels.setVisibility(View.GONE);
+		txtVideos.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				typeDialog.dismiss();
+				Intent i = new Intent(getApplicationContext(), BrowseVideosTabletActivity.class);
+				i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				i.putExtra("categoryId", YouTubeHelper.CATEGORY_FILM);
+				startActivity(i);
+			}
+		});
+	}
+	/**
+	 * Create dialog that allow user to sort videos
+	 * @param context
+	 */
 	private void createSortDialog(Context context) {
-		sortDialog = new Dialog(context);
+		sortDialog = new DialogBase(context);
 		sortDialog.setContentView(R.layout.sort);
-		sortDialog.setTitle("Sort");
+		sortDialog.setHeader("Sort");
 		final RadioButton rdViewed = (RadioButton) sortDialog
 				.findViewById(R.id.rdViewed);
 		final RadioButton rdPublished = (RadioButton) sortDialog
@@ -222,34 +351,85 @@ public class BrowseTabletActivity extends ActivityBase {
 		btnSort.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				String sort = YouTubeHelper.ORDERING_VIEWCOUNT;
-				if (rdViewed.isChecked())
-					sort = YouTubeHelper.ORDERING_VIEWCOUNT;
-				else if (rdPublished.isChecked())
-					sort = YouTubeHelper.ORDERING_PUBLISHED;
-				orderBy = sort;
+				String display = "";
+				if (rdViewed.isChecked()){
+					orderBy = YouTubeHelper.ORDERING_VIEWCOUNT;
+					display = rdViewed.getText().toString();
+				}
+				else if (rdPublished.isChecked()){
+					orderBy = YouTubeHelper.ORDERING_PUBLISHED;
+					display = rdPublished.getText().toString();
+				}
 				sortDialog.dismiss();
 				// Get data again
+				tvSort.setText(display);
 				new LoadChannels().execute();
 			}
 		});
-		
 	}
-
+	/**
+	 * Create dialog that allow user to change time of videos
+	 * @param context
+	 */
+	private void createTimeDialog(Context context) {
+		timeDialog = new DialogBase(context);
+		timeDialog.setContentView(R.layout.time);
+		timeDialog.setHeader("Time");
+		final RadioButton rdToday = (RadioButton) timeDialog
+				.findViewById(R.id.rdToday);
+		final RadioButton rdThisWeek = (RadioButton) timeDialog
+				.findViewById(R.id.rdThisWeek);
+		final RadioButton rdThisMonth = (RadioButton) timeDialog
+				.findViewById(R.id.rdThisMonth);
+		final RadioButton rdAllTime = (RadioButton) timeDialog
+				.findViewById(R.id.rdAllTime);
+		Button btnOk = (Button) timeDialog.findViewById(R.id.btnOk);
+		btnOk.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				String display = "";
+				if (rdToday.isChecked()){
+					time = YouTubeHelper.TIME_TODAY;
+					display = rdToday.getText().toString();
+				}
+				else if (rdThisWeek.isChecked()){
+					time = YouTubeHelper.TIME_THIS_WEEK;
+					display = rdThisWeek.getText().toString();
+				}
+				else if (rdThisMonth.isChecked()){
+					time = YouTubeHelper.TIME_THIS_MONTH;
+					display = rdThisMonth.getText().toString();
+				}
+				else if (rdAllTime.isChecked()){
+					time = YouTubeHelper.TIME_ALL_TIME;
+					display = rdAllTime.getText().toString();
+				}
+				timeDialog.dismiss();
+				// Get data again
+				tvTime.setText(display);
+				new LoadChannels().execute();
+			}
+		});
+	}
+	/**
+	 * Create dialog that allow user to change type of channel
+	 * @param context
+	 */
 	private void createUserTypeDialog(Context context) {
-		userTypeDialog = new Dialog(context);
+		userTypeDialog = new DialogBase(context);
 		userTypeDialog.setContentView(R.layout.usertype_channel);
-		userTypeDialog.setTitle("Channel");
+		userTypeDialog.setHeader("Channel");
 		ListView lvUserType = (ListView) userTypeDialog
 				.findViewById(R.id.lvUserType);
-		
 		lvUserType.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
-				userType = userTypes.get(position).getValue();
+				Reference item = userTypes.get(position);
+				userType = item.getValue();
 				userTypeDialog.dismiss();
 				// Reload data
 				setHeader(userType);
+				tvUserType.setText(item.getDisplay());
 				new LoadChannels().execute();
 			}
 		});
@@ -272,20 +452,6 @@ public class BrowseTabletActivity extends ActivityBase {
 
 		@Override
 		protected List<ChannelEntry> doInBackground(String... args) {
-			// Demo data
-//			 try {
-//				 InputStream is = getResources().getAssets().open("Channels.txt");
-//				 if (isLoading) {
-//				 List<ChannelEntry> items = YouTubeHelper.getChannelsByStream(is);
-//				 channels.addAll(items);
-//				 }else{
-//				 channels = YouTubeHelper.getChannelsByStream(is);
-//				 }
-//				 } catch (IOException e) {
-//				 // TODO Auto-generated catch block
-//				 e.printStackTrace();
-//			 }
-			//
 			if (isLoading) {
 				List<ChannelEntry> items = YouTubeHelper.getChannels(userType,
 						orderBy, maxLoad, startIndex, time);
@@ -331,7 +497,10 @@ public class BrowseTabletActivity extends ActivityBase {
 		}
 
 	}
-
+	/**
+	 * Adapter that populate channels to listView
+	 *
+	 */
 	class ListChannelAdapter extends ArrayAdapter<ChannelEntry> {
 		Context context;
 		int layoutResourceId;
@@ -360,9 +529,9 @@ public class BrowseTabletActivity extends ActivityBase {
 				holder.progressBar = (ProgressBar) row
 						.findViewById(R.id.progressBar);
 				holder.title = (TextView) row.findViewById(R.id.title);
-				holder.updated = (TextView) row
-						.findViewById(R.id.updated);
-
+				holder.videoCount = (TextView) row
+						.findViewById(R.id.videoCount);
+				
 				row.setTag(holder);
 			} else {
 				holder = (ListItemHolder) row.getTag();
@@ -371,14 +540,17 @@ public class BrowseTabletActivity extends ActivityBase {
 			ChannelEntry item = data.get(position);
 			// format string
 			String title = item.getTitle();
-			if (title.length() > 25) {
-				title = title.substring(0, 25) + "...";
+			if (title.length() > 40) {
+				title = title.substring(0, 40) + "...";
 			}
 			
 			imageLoader.DisplayImage(item.getImage(), holder.image,
 					holder.progressBar);
+
 			holder.title.setText(title);
-			holder.updated.setText(DataHelper.formatDate(item.getUpdated()));
+			holder.videoCount.setText(DataHelper.numberWithCommas(item
+					.getVideoCount()));
+			
 
 			return row;
 		}
@@ -387,7 +559,7 @@ public class BrowseTabletActivity extends ActivityBase {
 			ImageView image;
 			ProgressBar progressBar;
 			TextView title;
-			TextView updated;
+			TextView videoCount;
 		}
 	}
 
@@ -415,7 +587,7 @@ public class BrowseTabletActivity extends ActivityBase {
 			runOnUiThread(new Runnable() {
 				public void run() {
 					ListUserTypeAdapter adapter = new ListUserTypeAdapter(
-							BrowseTabletActivity.this,
+							BrowseChannelsTabletActivity.this,
 							R.layout.usertype_channel_item, userTypes);
 					// updating listview
 					lvUserType.setAdapter(adapter);
@@ -432,7 +604,10 @@ public class BrowseTabletActivity extends ActivityBase {
 		}
 
 	}
-
+	/**
+	 * Adapter that populate user types to UserType listView
+	 *
+	 */
 	class ListUserTypeAdapter extends ArrayAdapter<Reference> {
 		Context context;
 		int layoutResourceId;
@@ -480,7 +655,8 @@ public class BrowseTabletActivity extends ActivityBase {
 
 			holder.title.setText(title);
 			holder.description.setText(description);
-
+			holder.image.setBackgroundResource(R.drawable.icon_user);
+			
 			return row;
 		}
 

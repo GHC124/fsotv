@@ -5,7 +5,7 @@
     android:orientation="vertical"
     tools:context=".CommentsTabletActivity" >
 
-    <include layout="@layout/header_tablet_loading" />
+    <include layout="@layout/header_tablet_search" />
    
     <ListView
         android:id="@+id/lvComment"

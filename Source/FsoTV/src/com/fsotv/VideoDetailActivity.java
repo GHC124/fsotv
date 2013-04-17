@@ -187,6 +187,7 @@ public class VideoDetailActivity extends ActivityBase {
 			return;
 		}
 		Intent i = new Intent(getApplicationContext(), WatchVideoActivity.class);
+		i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		i.putExtra("videoId", video.getIdReal());
 		i.putExtra("videoTitle", video.getTitle());
 		i.putExtra("link", video.getLink());
@@ -194,16 +195,7 @@ public class VideoDetailActivity extends ActivityBase {
 	}
 
 	public void onCommentClick(View v) {
-		if (isLoading) {
-			Toast.makeText(getApplicationContext(), "Loading data",
-					Toast.LENGTH_SHORT).show();
-			return;
-		}
-		Intent i = new Intent(getApplicationContext(),
-				VideoCommentsActivity.class);
-		i.putExtra("videoId", video.getIdReal());
-		i.putExtra("videoTitle", video.getTitle());
-		startActivity(i);
+		
 	}
 
 	public void onShareClick(View v) {
@@ -392,7 +384,7 @@ public class VideoDetailActivity extends ActivityBase {
 
 	}
 	
-	private static View createTabView(Context context, String text, int img) {
+	private View createTabView(Context context, String text, int img) {
 	    View view = LayoutInflater.from(context).inflate(R.layout.tab_bg, null);
 	    ImageView im = (ImageView) view.findViewById(R.id.tabImg);
 	    im.setBackgroundResource(img);

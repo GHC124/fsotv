@@ -15,6 +15,8 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -22,6 +24,8 @@ import android.widget.ViewFlipper;
 
 import com.fsotv.dao.ReferenceDao;
 import com.fsotv.dto.Reference;
+import com.fsotv.tablet.BrowseVideosTabletActivity;
+import com.fsotv.tablet.VideoDetailTabletActivity;
 import com.fsotv.utils.DialogHelper;
 import com.fsotv.utils.InternetConnection;
 import com.fsotv.utils.OnSwipeTouchListener;
@@ -34,7 +38,9 @@ import com.fsotv.utils.YouTubeHelper;
  * Icon
  */
 public class MainActivity extends Activity {
-	// This device is tablet
+	/**
+	 * This device is tablet
+	 */
 	public static boolean IsTablet = false;
 	// Result code for activity category
 	private final int RESULT_CATEGORY = 1;
@@ -51,6 +57,8 @@ public class MainActivity extends Activity {
 	private TextView tvFavoriteTop;
 	private ViewFlipper vf;
 	private ImageView imgLeft, imgRight;
+	private HorizontalScrollView hsv;
+	private LinearLayout ll;
 	// List of category
 	private List<Reference> categories;
 	private int currentLayout = 0; // Current category that visible to user
@@ -58,7 +66,15 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+		// Check device
+		IsTablet = isTabletDevice(this);
+		if (!IsTablet) {
+			setContentView(R.layout.activity_main);
+		} else {
+			setContentView(R.layout.activity_main_tablet);
+		}
+
+		Log.i("IsTablet", IsTablet ? "True" : "False");
 
 		// Check internet connection
 		InternetConnection internetConnection = new InternetConnection(this);
@@ -67,11 +83,23 @@ public class MainActivity extends Activity {
 			DialogHelper.showAlertDialog(this, "Internet",
 					"No internet connection!", false);
 		}
-		// Check device
-		IsTablet = isTabletDevice(this);
-		Log.e("IsTablet", IsTablet ? "True" : "False");
 
 		// Get views
+		if (!IsTablet) {
+			vf = (ViewFlipper) findViewById(R.id.viewFlip_channel);
+			imgLeft = (ImageView) findViewById(R.id.imgLeft);
+			imgRight = (ImageView) findViewById(R.id.imgRight);
+		} else {
+			hsv = (HorizontalScrollView) findViewById(R.id.scrollView_channel);
+			// Add layout to HorizontalScrollView
+			ll = new LinearLayout(MainActivity.this);
+			ll.setOrientation(LinearLayout.HORIZONTAL);
+			LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+					LinearLayout.LayoutParams.WRAP_CONTENT,
+					LinearLayout.LayoutParams.MATCH_PARENT);
+			ll.setGravity(Gravity.CENTER);
+			ll.setLayoutParams(lp);
+		}
 		imgHome = (ImageView) findViewById(R.id.imgHome);
 		imgBrowse = (ImageView) findViewById(R.id.imgBrowse);
 		imgFavorite = (ImageView) findViewById(R.id.imgFavorite);
@@ -81,9 +109,6 @@ public class MainActivity extends Activity {
 		tvHomeTop = (TextView) findViewById(R.id.tvHomeTop);
 		tvBrowseTop = (TextView) findViewById(R.id.tvBrowseTop);
 		tvFavoriteTop = (TextView) findViewById(R.id.tvFavoriteTop);
-		vf = (ViewFlipper) findViewById(R.id.viewFlip_channel);
-		imgLeft = (ImageView) findViewById(R.id.imgLeft);
-		imgRight = (ImageView) findViewById(R.id.imgRight);
 
 		categories = new ArrayList<Reference>();
 		new loadCategories().execute();
@@ -123,60 +148,70 @@ public class MainActivity extends Activity {
 	}
 
 	/**
-	 * Add an category layout to viewFilpper
+	 * Add an category layout to view base on screen size
 	 * 
 	 * @param r
 	 */
-	private void addItemToViewFilpper(Reference r) {
-		final LinearLayout ll = new LinearLayout(MainActivity.this);
-		if (Build.VERSION.SDK_INT >= 16) {
-			ll.setBackgroundColor(Color.parseColor("#ffffff"));
-		} 
-		ll.setOrientation(LinearLayout.VERTICAL);
-		ll.setGravity(Gravity.CENTER);
-		ll.setId(r.getId());
-		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-				LinearLayout.LayoutParams.MATCH_PARENT,
-				LinearLayout.LayoutParams.MATCH_PARENT);
-		ll.setLayoutParams(lp);
-
-		LinearLayout ll1 = new LinearLayout(MainActivity.this);
+	private void addItemToView(Reference r) {
+		final LinearLayout ll1 = new LinearLayout(MainActivity.this);
 		ll1.setOrientation(LinearLayout.VERTICAL);
+		ll1.setGravity(Gravity.CENTER);
+		ll1.setId(r.getId());
+		if (!IsTablet) {
+			if (Build.VERSION.SDK_INT >= 16) {
+				ll1.setBackgroundColor(Color.parseColor("#ffffff"));
+			}
+			LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+					LinearLayout.LayoutParams.MATCH_PARENT,
+					LinearLayout.LayoutParams.MATCH_PARENT);
+			ll1.setLayoutParams(lp);
+		} else {
+			if (Build.VERSION.SDK_INT >= 16) {
+				ll1.setBackgroundResource(R.drawable.corner_white);
+			}
+			LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(280,
+					300);
+			lp.setMargins(0, 0, 5, 0);
+			ll1.setLayoutParams(lp);
+		}
+
+		LinearLayout ll2 = new LinearLayout(MainActivity.this);
+		ll2.setOrientation(LinearLayout.VERTICAL);
 		LinearLayout.LayoutParams lp1 = new LinearLayout.LayoutParams(
 				LinearLayout.LayoutParams.WRAP_CONTENT,
 				LinearLayout.LayoutParams.WRAP_CONTENT);
-		ll1.setLayoutParams(lp1);
+		ll2.setLayoutParams(lp1);
 		ImageView imgView = new ImageView(MainActivity.this);
 		String value = r.getValue();
 		if (value != null) {
 			if (value.equals("Comedy")) {
 				imgView.setBackgroundResource(R.drawable.comedy120);
-			}else if (value.equals("Music")) {
+			} else if (value.equals("Music")) {
 				imgView.setBackgroundResource(R.drawable.music120);
-			}else if (value.equals("News")) {
+			} else if (value.equals("News")) {
 				imgView.setBackgroundResource(R.drawable.news120);
-			}else if (value.equals("Autos")) {
+			} else if (value.equals("Autos")) {
 				imgView.setBackgroundResource(R.drawable.auto120);
-			}else if (value.equals("Education")) {
+			} else if (value.equals("Education")) {
 				imgView.setBackgroundResource(R.drawable.edu120);
-			}else if (value.equals("Entertainment")) {
+			} else if (value.equals("Entertainment")) {
 				imgView.setBackgroundResource(R.drawable.enter120);
-			}else if (value.equals("Film")) {
+			} else if (value.equals("Film")) {
 				imgView.setBackgroundResource(R.drawable.film120);
-			}else if (value.equals("Howto")) {
+			} else if (value.equals("Howto")) {
 				imgView.setBackgroundResource(R.drawable.howto120);
-			}else if (value.equals("People")) {
+			} else if (value.equals("People")) {
 				imgView.setBackgroundResource(R.drawable.people120);
-			}else if (value.equals("Animals")) {
+			} else if (value.equals("Animals")) {
 				imgView.setBackgroundResource(R.drawable.animal120);
-			}else if (value.equals("Tech")) {
+			} else if (value.equals("Tech")) {
 				imgView.setBackgroundResource(R.drawable.tech120);
-			}else if (value.equals("Sports")) {
+			} else if (value.equals("Sports")) {
 				imgView.setBackgroundResource(R.drawable.sport120);
-			}else if (value.equals("Travel")) {
+			} else if (value.equals("Travel")) {
 				imgView.setBackgroundResource(R.drawable.travel120);
 			}
-			
+
 		}
 
 		TextView tv = new TextView(MainActivity.this);
@@ -190,50 +225,79 @@ public class MainActivity extends Activity {
 		lp2.rightMargin = 10;
 		tv.setLayoutParams(lp2);
 
-		ll1.addView(imgView);
-		ll1.addView(tv);
-		ll.addView(ll1);
-		// Add slide event
-		ll.setOnTouchListener(new OnSwipeTouchListener() {
-			@Override
-			public boolean onSwipeLeft() {
-				swipeLeft();
-				return true;
-			}
-
-			@Override
-			public boolean onSwipeRight() {
-				swipeRight();
-				return true;
-			}
-
-			@Override
-			public void onSwipeDown() {
-				int cateId = ll.getId();
-				if (cateId == CATEGORY_ADD) {
-					Intent i = new Intent(getApplicationContext(),
-							CategoryActivity.class);
-					startActivityForResult(i, RESULT_CATEGORY);
-				} else {
-					Intent i = new Intent(getApplicationContext(),
-							BrowseVideosActivity.class);
-					for (Reference r : categories) {
-						if (r.getId() == cateId) {
-							i.putExtra("categoryId", r.getValue());
-							break;
-						}
-					}
-					startActivity(i);
+		ll2.addView(imgView);
+		ll2.addView(tv);
+		ll1.addView(ll2);
+		if (!IsTablet) {
+			// Add slide event
+			ll1.setOnTouchListener(new OnSwipeTouchListener() {
+				@Override
+				public boolean onSwipeLeft() {
+					swipeLeft();
+					return true;
 				}
-			}
 
-			@Override
-			public void onSwipePress() {
+				@Override
+				public boolean onSwipeRight() {
+					swipeRight();
+					return true;
+				}
 
-			}
-		});
+				@Override
+				public void onSwipeDown() {
+					int cateId = ll1.getId();
+					if (cateId == CATEGORY_ADD) {
+						Intent i = new Intent(getApplicationContext(),
+								CategoryActivity.class);
+						i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+						startActivityForResult(i, RESULT_CATEGORY);
+					} else {
+						Intent i = new Intent(getApplicationContext(),
+								BrowseVideosActivity.class);
+						for (Reference r : categories) {
+							if (r.getId() == cateId) {
+								i.putExtra("categoryId", r.getValue());
+								break;
+							}
+						}
+						i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+						startActivity(i);
+					}
+				}
 
-		vf.addView(ll);
+				@Override
+				public void onSwipePress() {
+
+				}
+			});
+			vf.addView(ll1);
+		} else {
+			// Add click event
+			ll1.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					int cateId = v.getId();
+					if (cateId == CATEGORY_ADD) {
+						Intent i = new Intent(getApplicationContext(),
+								CategoryActivity.class);
+						i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+						startActivityForResult(i, RESULT_CATEGORY);
+					} else {
+						Intent i = new Intent(getApplicationContext(),
+								BrowseVideosTabletActivity.class);
+						for (Reference r : categories) {
+							if (r.getId() == cateId) {
+								i.putExtra("categoryId", r.getValue());
+								break;
+							}
+						}
+						i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+						startActivity(i);
+					}
+				}
+			});
+			ll.addView(ll1);
+		}
 	}
 
 	/**
@@ -289,18 +353,33 @@ public class MainActivity extends Activity {
 			break;
 		case R.id.llBrowse:
 			changeSelected(v.getId());
-			Intent i1 = new Intent(getApplicationContext(),
-					BrowseVideosActivity.class);
-			i1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			i1.putExtra("categoryId", YouTubeHelper.CATEGORY_FILM);
-			startActivity(i1);
+			if (!IsTablet) {
+				Intent i1 = new Intent(getApplicationContext(),
+						BrowseVideosActivity.class);
+				i1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				i1.putExtra("categoryId", YouTubeHelper.CATEGORY_FILM);
+				startActivity(i1);
+			} else {
+				Intent i1 = new Intent(getApplicationContext(),
+						BrowseVideosTabletActivity.class);
+				i1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				i1.putExtra("categoryId", YouTubeHelper.CATEGORY_FILM);
+				startActivity(i1);
+			}
 			break;
 		case R.id.llFavorite:
 			changeSelected(v.getId());
-			Intent i2 = new Intent(getApplicationContext(),
-					MyVideosActivity.class);
-			i2.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			startActivity(i2);
+			if (!IsTablet) {
+				Intent i2 = new Intent(getApplicationContext(),
+						MyVideosActivity.class);
+				i2.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(i2);
+			} else {
+				Intent i2 = new Intent(getApplicationContext(),
+						MyVideosActivity.class);
+				i2.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(i2);
+			}
 			break;
 		}
 	}
@@ -377,26 +456,40 @@ public class MainActivity extends Activity {
 		 * After completing background task Dismiss the progress dialog
 		 * **/
 		protected void onPostExecute(String args) {
-			vf.removeAllViews();
-			currentLayout = 0;
-			imgLeft.setVisibility(View.INVISIBLE);
-			for (Reference r : categories) {
-				addItemToViewFilpper(r);
-			}
-			if (categories.size() > 0) {
-				imgRight.setVisibility(View.VISIBLE);
-			}
-			Reference add = new Reference();
-			add.setId(CATEGORY_ADD);
-			add.setDisplay("+");
-			addItemToViewFilpper(add);
+			if (!IsTablet) {
+				vf.removeAllViews();
+				currentLayout = 0;
+				imgLeft.setVisibility(View.INVISIBLE);
+				for (Reference r : categories) {
+					addItemToView(r);
+				}
+				if (categories.size() > 0) {
+					imgRight.setVisibility(View.VISIBLE);
+				}
+				Reference add = new Reference();
+				add.setId(CATEGORY_ADD);
+				add.setDisplay("+");
+				addItemToView(add);
+				categories.add(new Reference(-1,
+						ReferenceDao.KEY_YOUTUBE_CATEGORY, "add_new", "+", ""));
 
-			vf.setDisplayedChild(0);
+				vf.setDisplayedChild(0);
+			} else {
+				ll.removeAllViews();
+				hsv.removeAllViews();
+				for (Reference r : categories) {
+					addItemToView(r);
+				}
+				Reference add = new Reference();
+				add.setId(CATEGORY_ADD);
+				add.setDisplay("+");
+				addItemToView(add);
+				categories.add(new Reference(-1,
+						ReferenceDao.KEY_YOUTUBE_CATEGORY, "add_new", "+", ""));
 
-			categories.add(new Reference(-1, ReferenceDao.KEY_YOUTUBE_CATEGORY,
-					"add_new", "+", ""));
+				hsv.addView(ll);
+			}
 		}
-
 	}
 
 	/**
@@ -406,13 +499,14 @@ public class MainActivity extends Activity {
 	 * @return true if is tablet
 	 */
 	private boolean isTabletDevice(Context activityContext) {
-		// Verifies if the Generalized Size of the device is XLARGE to be
+		// Verifies if the Generalized Size of the device is LARGE to be
 		// considered a Tablet
+		boolean large = ((activityContext.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_LARGE);
 		boolean xlarge = ((activityContext.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_XLARGE);
-
+		
 		// If XLarge, checks if the Generalized Density is at least MDPI
 		// (160dpi)
-		if (xlarge) {
+		if (large || xlarge) {
 			DisplayMetrics metrics = new DisplayMetrics();
 			Activity activity = (Activity) activityContext;
 			activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
