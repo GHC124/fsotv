@@ -1,4 +1,4 @@
-package com.fsotv;
+package com.fsotv.tablet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,12 +20,17 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.fsotv.ActivityBase;
+import com.fsotv.BrowseVideosActivity;
+import com.fsotv.DialogBase;
+import com.fsotv.MyVideosActivity;
+import com.fsotv.R;
 import com.fsotv.dao.ChannelDao;
 import com.fsotv.dto.Channel;
 import com.fsotv.dto.ChannelEntry;
@@ -38,13 +43,13 @@ import com.fsotv.utils.ImageLoader;
  * + View videos when click an channel
  *
  */
-public class MyChannelsActivity extends ActivityBase {
+public class MyChannelsTabletActivity extends ActivityBase {
 	// Menus
 	private final int MENU_UNSUBSCRIBE = Menu.FIRST;
 	// Views
 	private DialogBase typeDialog;
 	private TextView tvChannels;
-	private ListView lvChannel;
+	private GridView gvChannel;
 	// Properties
 	private List<ChannelEntry> channels;
 	private ImageLoader imageLoader;
@@ -54,9 +59,9 @@ public class MyChannelsActivity extends ActivityBase {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_my_channels);
 		
-		lvChannel = (ListView)findViewById(R.id.lvChannel);
+		gvChannel = (GridView)findViewById(R.id.gvChannel);
 		tvChannels = (TextView)findViewById(R.id.tvChannels);
-		registerForContextMenu(lvChannel);
+		registerForContextMenu(gvChannel);
 		
 		channels = new ArrayList<ChannelEntry>();
 		imageLoader = new ImageLoader(getApplicationContext());
@@ -78,7 +83,7 @@ public class MyChannelsActivity extends ActivityBase {
 			}
 		});
 		// Launching new screen on Selecting Single ListItem
-		lvChannel.setOnItemClickListener(new OnItemClickListener() {
+		gvChannel.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				String channelId = channels.get(position).getIdReal();
@@ -131,7 +136,7 @@ public class MyChannelsActivity extends ActivityBase {
 									ChannelDao channelDao = new ChannelDao(getApplicationContext());
 									channelDao.deleteChannel(Integer.parseInt(entry.getId()));
 									channels.remove(position);
-									lvChannel.invalidateViews();
+									gvChannel.invalidateViews();
 									
 									dialog.dismiss();
 								}
@@ -160,7 +165,7 @@ public class MyChannelsActivity extends ActivityBase {
 			if (typeDialog != null)
 				typeDialog.show();
 			else {
-				createTypeDialog(MyChannelsActivity.this);
+				createTypeDialog(MyChannelsTabletActivity.this);
 				if (typeDialog != null)
 					typeDialog.show();
 			}
@@ -232,10 +237,10 @@ public class MyChannelsActivity extends ActivityBase {
 		protected void onPostExecute(String args) {
 			hideLoading();
 			ListItemAdapter adapter = new ListItemAdapter(
-					MyChannelsActivity.this, R.layout.my_channels_item,
+					MyChannelsTabletActivity.this, R.layout.my_channels_tablet_item,
 					channels);
 			// updating listview
-			lvChannel.setAdapter(adapter);
+			gvChannel.setAdapter(adapter);
 			if(channels.size()==0){
 				Toast.makeText(getApplicationContext(), "No results", Toast.LENGTH_LONG).show();
 			}

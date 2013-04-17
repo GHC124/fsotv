@@ -25,7 +25,7 @@ import android.widget.ViewFlipper;
 import com.fsotv.dao.ReferenceDao;
 import com.fsotv.dto.Reference;
 import com.fsotv.tablet.BrowseVideosTabletActivity;
-import com.fsotv.tablet.VideoDetailTabletActivity;
+import com.fsotv.tablet.MyVideosTabletActivity;
 import com.fsotv.utils.DialogHelper;
 import com.fsotv.utils.InternetConnection;
 import com.fsotv.utils.OnSwipeTouchListener;
@@ -376,7 +376,7 @@ public class MainActivity extends Activity {
 				startActivity(i2);
 			} else {
 				Intent i2 = new Intent(getApplicationContext(),
-						MyVideosActivity.class);
+						MyVideosTabletActivity.class);
 				i2.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(i2);
 			}
