@@ -161,8 +161,7 @@ public class MyVideosActivity extends ActivityBase {
 	 * @param v
 	 */
 	public void onOptionClick(View v) {
-		switch (v.getId()) {
-		case R.id.tvVideos:
+		if (v.getId() == R.id.tvVideos) {
 			if (typeDialog != null)
 				typeDialog.show();
 			else {
@@ -170,8 +169,6 @@ public class MyVideosActivity extends ActivityBase {
 				if (typeDialog != null)
 					typeDialog.show();
 			}
-			break;
-
 		}
 	}
 

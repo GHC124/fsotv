@@ -5,33 +5,64 @@ import java.net.URLEncoder;
 
 import android.content.Context;
 
+/**
+ * 
+ * @author ChungPV1
+ * 
+ */
 public class FileCache {
-    
-    private File cacheDir;
-    
-    public FileCache(Context context){
-        //Find the dir to save cached images
-        if (android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED))
-            cacheDir=new File(android.os.Environment.getExternalStorageDirectory(),"fsotv");
-        else
-            cacheDir=context.getCacheDir();
-        if(!cacheDir.exists())
-            cacheDir.mkdirs();
-    }
-    
-    public File getFile(String url){
-        String filename = URLEncoder.encode(url);
-        File f = new File(cacheDir, filename);
-        return f;
-        
-    }
-    
-    public void clear(){
-        File[] files=cacheDir.listFiles();
-        if(files==null)
-            return;
-        for(File f:files)
-            f.delete();
-    }
+
+	/**
+	 * 
+	 */
+	private File cacheDir;
+
+	/**
+	 * 
+	 * @param context
+	 */
+	public FileCache(Context context) {
+
+		// Find the directory to save cached images
+		if (android.os.Environment.getExternalStorageState().equals(
+				android.os.Environment.MEDIA_MOUNTED))
+			cacheDir = new File(
+					android.os.Environment.getExternalStorageDirectory(),
+					"fsotv");
+
+		else
+			cacheDir = context.getCacheDir();
+
+		if (!cacheDir.exists())
+			cacheDir.mkdirs();
+	}
+
+	/**
+	 * 
+	 * @param url
+	 * @return
+	 */
+	public File getFile(String url) {
+		
+		String filename = URLEncoder.encode(url);
+		
+		File f = new File(cacheDir, filename);
+		
+		return f;
+
+	}
+
+	/**
+     * 
+     */
+	public void clear() {
+		File[] files = cacheDir.listFiles();
+		
+		if (files == null)
+			return;
+		
+		for (File f : files)
+			f.delete();
+	}
 
 }

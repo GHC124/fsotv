@@ -163,7 +163,7 @@ public class WatchVideoTabletActivity extends ActivityBase implements
 		});
 		createDialogs(this);
 		
-		link = "http://media.socbay.com/public/media/Video/BT%20Video/9.4comaythoigian.3gp";
+		//link = "http://media.socbay.com/public/media/Video/BT%20Video/9.4comaythoigian.3gp";
 		playVideo(Uri.parse(link));
 		//new QueryYouTubeTask().execute(videoId);
 	}

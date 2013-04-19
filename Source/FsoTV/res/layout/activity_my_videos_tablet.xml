@@ -6,7 +6,7 @@
     android:background="@color/bgColor"
     tools:context=".MyVideosActivity" >
 
-    <include layout="@layout/header" />
+    <include layout="@layout/header_tablet" />
 
     <RelativeLayout
         android:layout_width="match_parent"

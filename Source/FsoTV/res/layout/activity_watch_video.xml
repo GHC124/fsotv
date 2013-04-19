@@ -17,6 +17,8 @@
         android:layout_width="fill_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/playerFooter"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
         android:layout_below="@+id/header" />
 
     <!-- Progress Bar/Seek bar -->

@@ -17,6 +17,7 @@
             android:id="@+id/lvVideo"
             android:layout_width="370dp"
             android:layout_height="wrap_content"
+            android:choiceMode="singleChoice" 
             android:layout_alignParentLeft="true" >
         </ListView>
 

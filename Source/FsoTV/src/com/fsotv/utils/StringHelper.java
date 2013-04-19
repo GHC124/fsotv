@@ -8,7 +8,11 @@ package com.fsotv.utils;
  * 
  */
 public class StringHelper {
-	
+	/**
+	 * 
+	 * @param title Raw title
+	 * @return The title after formatted
+	 */
 	public static String fomatTitle(String title) {
 		if (title.length() > 40) {
 			title = title.substring(0, 40) + "...";
@@ -17,7 +21,11 @@ public class StringHelper {
 		return title;
 
 	}
-	
+	/**
+	 * 
+	 * @param description
+	 * @return The description after formatted
+	 */
 	public static String formatDescription(String description){
 		if (description.length() > 150) {
 			description = description.substring(0, 150) + "...";
@@ -25,13 +33,17 @@ public class StringHelper {
 		
 		return description;
 	}
-	
-	public static String fomatCategoryTitle(String title) {
-		if (title.length() > 50) {
-			title = title.substring(0, 50) + "...";
+	/**
+	 * 
+	 * @param categoryTitle Raw content
+	 * @return The title after formatted
+	 */
+	public static String fomatCategoryTitle(String categoryTitle) {
+		if (categoryTitle.length() > 50) {
+			categoryTitle = categoryTitle.substring(0, 50) + "...";
 		}
 		
-		return title;
+		return categoryTitle;
 
 	}
 	

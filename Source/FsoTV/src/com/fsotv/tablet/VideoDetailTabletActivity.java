@@ -1,12 +1,9 @@
 package com.fsotv.tablet;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.app.LocalActivityManager;
 import android.content.Context;
 import android.content.Intent;
@@ -24,41 +21,31 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.TabHost.TabSpec;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
-import android.widget.ScrollView;
 import android.widget.TabHost;
+import android.widget.TabHost.TabSpec;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.facebook.android.FacebookError;
 import com.fsotv.ActivityBase;
 import com.fsotv.DialogBase;
-import com.fsotv.VideoCommentsActivity;
+import com.fsotv.MainActivity;
 import com.fsotv.R;
-import com.fsotv.VideoDescriptionActivity;
-import com.fsotv.VideoDetailActivity;
-import com.fsotv.WatchVideoActivity;
-import com.fsotv.dao.ReferenceDao;
-import com.fsotv.dao.VideoDao;
-import com.fsotv.dto.Reference;
-import com.fsotv.dto.Video;
 import com.fsotv.dto.VideoEntry;
 import com.fsotv.utils.DataHelper;
 import com.fsotv.utils.EndlessScrollListViewListener;
 import com.fsotv.utils.FaceBookHelper;
+import com.fsotv.utils.FaceBookHelper.FbListener;
 import com.fsotv.utils.ImageLoader;
 import com.fsotv.utils.TwitterHelper;
+import com.fsotv.utils.TwitterHelper.TwListener;
 import com.fsotv.utils.YouTubeHelper;
-import com.fsotv.utils.TwitterHelper.TwDialogListener;
 
 public class VideoDetailTabletActivity extends ActivityBase {
 	private final int MENU_SUBSCRIBE = Menu.FIRST;
@@ -114,7 +101,7 @@ public class VideoDetailTabletActivity extends ActivityBase {
 		mLocalActivityManager.dispatchCreate(savedInstanceState);
 		tabHost.setup(mLocalActivityManager);
 		
-		mPrefs = getSharedPreferences("fsotv_oauth", MODE_PRIVATE);
+		mPrefs = getSharedPreferences(MainActivity.SHARED_PREFERENCE, MODE_PRIVATE);
 
 		lvVideo = (ListView) findViewById(R.id.lvVideo);
 		imgThumbnail = (ImageView) findViewById(R.id.imgThumbnail);
@@ -158,6 +145,9 @@ public class VideoDetailTabletActivity extends ActivityBase {
 		lvVideo.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
+				//view.getFocusables(position);
+				//view.setSelected(true);
+				
 				VideoEntry item = videos.get(position);
 				videoId = item.getId();
 				new loadVideo().execute(videoId);
@@ -269,34 +259,9 @@ public class VideoDetailTabletActivity extends ActivityBase {
 				.findViewById(R.id.rdTwitter);
 		final EditText txtMessage = (EditText) shareDialog
 				.findViewById(R.id.txtMessage);
-		final TextView lblPost = (TextView) shareDialog
-				.findViewById(R.id.lblPost);
 		txtMessage.setText(video.getLinkReal());
 		Button btnShare = (Button) shareDialog.findViewById(R.id.btnShare);
-		rdFacebook.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView,
-					boolean isChecked) {
-				if (isChecked){
-					lblPost.setVisibility(View.GONE);
-					txtMessage.setVisibility(View.GONE);
-				}
-			}
-		});
-		rdTwitter.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView,
-					boolean isChecked) {
-				if (isChecked){
-					lblPost.setVisibility(View.VISIBLE);
-					txtMessage.setVisibility(View.VISIBLE);
-					lblPost.setText("Message:");
-				}
-			}
-		});
-		
+				
 		btnShare.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -343,30 +308,25 @@ public class VideoDetailTabletActivity extends ActivityBase {
 			RadioButton rdTwitter = (RadioButton) shareDialog
 					.findViewById(R.id.rdTwitter);
 			int id = v.getId();
-			switch (id) {
-			case R.id.imgFaceBook:
+			if (id == R.id.imgFaceBook) {
 				rdFacebook.setChecked(true);
-				break;
-			case R.id.imgTwitter:
+			} else if (id == R.id.imgTwitter) {
 				rdTwitter.setChecked(true);
-				break;
 			}
 		}
 		else {
 			createShareDialog(VideoDetailTabletActivity.this);
 			if (shareDialog != null){
+				shareDialog.show();
 				RadioButton rdFacebook = (RadioButton) shareDialog
 						.findViewById(R.id.rdFaceBook);
 				RadioButton rdTwitter = (RadioButton) shareDialog
 						.findViewById(R.id.rdTwitter);
 				int id = v.getId();
-				switch (id) {
-				case R.id.imgFaceBook:
+				if (id == R.id.imgFaceBook) {
 					rdFacebook.setChecked(true);
-					break;
-				case R.id.imgTwitter:
+				} else if (id == R.id.imgTwitter) {
 					rdTwitter.setChecked(true);
-					break;
 				}
 			}
 		}
@@ -374,35 +334,23 @@ public class VideoDetailTabletActivity extends ActivityBase {
 
 	public void onFaceBookClick(View v) {
 		if (faceBookHelper == null) {
-			faceBookHelper = new FaceBookHelper(this, mPrefs) {
-				@Override
-				public boolean onPostComplete(Bundle values) {
-					if (values.containsKey("post_id")) {
-						Toast.makeText(getApplicationContext(), "Shared",
-								Toast.LENGTH_SHORT).show();
-					}
-					return true;
-				}
-
-				@Override
-				public boolean onPostFacebookError(FacebookError e) {
-					Toast.makeText(getApplicationContext(),
-							"Fail to post message. Please, try again!",
-							Toast.LENGTH_SHORT).show();
-					return false;
-				}
-			};
+			faceBookHelper = new FaceBookHelper(this, mPrefs);
+			faceBookHelper.setListener(mFbListener);
 		}
-		faceBookHelper.postToWall(video.getLinkReal());
+		if (faceBookHelper.hasAccessToken()) {
+			faceBookHelper.postToWall(postMessage);
+
+		} else {
+			faceBookHelper.authorize();
+		}
 
 	}
 
 	public void onTwitterClick(View v) {
 		if (twitterHelper == null) {
 			twitterHelper = new TwitterHelper(this, mPrefs);
-			twitterHelper.setListener(mTwLoginDialogListener);
+			twitterHelper.setListener(mTwListener);
 		}
-		twitterHelper.resetAccessToken();
 		if (twitterHelper.hasAccessToken() == true) {
 			try {
 				twitterHelper.updateStatus(postMessage);
@@ -412,41 +360,55 @@ public class VideoDetailTabletActivity extends ActivityBase {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			twitterHelper.resetAccessToken();
 		} else {
 			twitterHelper.authorize();
 		}
 
 	}
-
-	private TwDialogListener mTwLoginDialogListener = new TwDialogListener() {
+	/**
+	 * FaceBook listener
+	 */
+	private FbListener mFbListener = new FbListener() {
 
 		public void onError(String value) {
-			Log.e("TWITTER", value);
+			Log.e("FaceBook", value);
 			Toast.makeText(getApplicationContext(),
 					"Fail to post message. Please, try again!",
 					Toast.LENGTH_SHORT).show();
-			twitterHelper.resetAccessToken();
 		}
 
 		public void onComplete(String value) {
-			try {
-				twitterHelper.updateStatus(postMessage);
-				Log.e("TWITTER", "post success");
+			if (value.equals("login")) {
+				faceBookHelper.postToWall(postMessage);
+			} else if (value.equals("post")) {
+				Log.i("FaceBook", "post success");
 				Toast.makeText(getApplicationContext(), "Shared",
 						Toast.LENGTH_SHORT).show();
-			} catch (Exception e) {
-				e.printStackTrace();
 			}
-			twitterHelper.resetAccessToken();
 		}
 	};
+	/**
+	 * Twitter listener
+	 */
+	private TwListener mTwListener = new TwListener() {
 
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		faceBookHelper.authorizeCallback(requestCode, resultCode, data);
-	}
+		public void onError(String value) {
+			Log.e("Twitter", value);
+			Toast.makeText(getApplicationContext(),
+					"Fail to post message. Please, try again!",
+					Toast.LENGTH_SHORT).show();
+		}
+
+		public void onComplete(String value) {
+			if (value.equals("login")) {
+				twitterHelper.updateStatus(postMessage);
+			} else if (value.equals("post")) {
+				Log.i("Twitter", "post success");
+				Toast.makeText(getApplicationContext(), "Shared",
+						Toast.LENGTH_SHORT).show();
+			}
+		}
+	};
 
 	/**
 	 * Background Async Task to get Videos data from URL
@@ -595,7 +557,7 @@ public class VideoDetailTabletActivity extends ActivityBase {
 	}
 
 	/**
-	 * Background Async Task to get Videos data from URL
+	 * Background Async Task to get Video data from URL
 	 * */
 	class loadVideo extends AsyncTask<String, String, String> {
 

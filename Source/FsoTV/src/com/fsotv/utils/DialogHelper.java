@@ -9,11 +9,13 @@ import com.fsotv.R;
 public class DialogHelper {
 	/**
      * Function to display simple Alert Dialog
+     * 
      * @param context - application context
      * @param title - alert dialog title
      * @param message - alert message
      * @param status - success/failure (used to set icon)
-     * */
+     *
+     */
     @SuppressWarnings("deprecation")
 	public static void showAlertDialog(Context context, String title, String message, Boolean status) {
         AlertDialog alertDialog = new AlertDialog.Builder(context).create();

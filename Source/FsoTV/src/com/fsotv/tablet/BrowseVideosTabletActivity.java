@@ -325,8 +325,7 @@ public class BrowseVideosTabletActivity extends ActivityBase {
 	 * @param v
 	 */
 	public void onOptionClick(View v) {
-		switch (v.getId()) {
-		case R.id.tvVideos:
+		if (v.getId() == R.id.tvVideos) {
 			if (typeDialog != null)
 				typeDialog.show();
 			else {
@@ -334,8 +333,7 @@ public class BrowseVideosTabletActivity extends ActivityBase {
 				if (typeDialog != null)
 					typeDialog.show();
 			}
-			break;
-		case R.id.tvCategory:
+		} else if (v.getId() == R.id.tvCategory) {
 			isCategory = true;
 			if (categoryDialog != null)
 				categoryDialog.show();
@@ -344,8 +342,7 @@ public class BrowseVideosTabletActivity extends ActivityBase {
 				if (categoryDialog != null)
 					categoryDialog.show();
 			}
-			break;
-		case R.id.tvSort:
+		} else if (v.getId() == R.id.tvSort) {
 			if (sortDialog != null)
 				sortDialog.show();
 			else {
@@ -353,8 +350,7 @@ public class BrowseVideosTabletActivity extends ActivityBase {
 				if (sortDialog != null)
 					sortDialog.show();
 			}
-			break;
-		case R.id.tvTime:
+		} else if (v.getId() == R.id.tvTime) {
 			if (timeDialog != null)
 				timeDialog.show();
 			else {
@@ -362,7 +358,6 @@ public class BrowseVideosTabletActivity extends ActivityBase {
 				if (timeDialog != null)
 					timeDialog.show();
 			}
-			break;
 		}
 	}
 

@@ -1,15 +1,11 @@
 package com.fsotv.utils;
 
-import java.net.URLDecoder;
-
-import oauth.signpost.OAuthProvider;
-import oauth.signpost.basic.DefaultOAuthProvider;
-import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
-import twitter4j.User;
 import twitter4j.auth.AccessToken;
+import twitter4j.auth.RequestToken;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -24,6 +20,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.Display;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -36,71 +33,50 @@ import android.widget.TextView;
 import com.fsotv.R;
 
 /**
- * Twitter Helper, use twitter4j and signpost library to:
- * + Login twitter
- * + Post twitter message
+ * Twitter Helper, use twitter4j library to: + Login twitter + Post twitter
+ * message
  * 
  * @author ChungPV1
- *
+ * 
  */
 public class TwitterHelper {
-	private Twitter mTwitter;
-	private TwitterSession mSession;
-	private AccessToken mAccessToken;
-	private CommonsHttpOAuthConsumer mHttpOauthConsumer;
-	private OAuthProvider mHttpOauthprovider;
-	private String mConsumerKey;
-	private String mSecretKey;
-	private ProgressDialog mProgressDlg;
-	private TwDialogListener mListener;
-	private Activity context;
+	private final String TAG = "Twitter";
 
+	// Twitter Key
 	public static final String TWITTER_CONSUMER_KEY = "n1kQKdyywQf6awZqCVK6kw";
 	public static final String TWITTER_CONSUMER_SECRET = "XwoUFNJhJrrRkBcHIhjhAHjfk0BfbKFrZTGzmCG8cQ";
-	public static final String OAUTH_CALLBACK_SCHEME = "oauth";
-	public static final String OAUTH_CALLBACK_HOST = "t4j";
-	public static final String CALLBACK_URL = OAUTH_CALLBACK_SCHEME + "://"
-			+ OAUTH_CALLBACK_HOST;
-	private static final String TWITTER_ACCESS_TOKEN_URL = "http://api.twitter.com/oauth/access_token";
-	private static final String TWITTER_AUTHORZE_URL = "https://api.twitter.com/oauth/authorize";
-	private static final String TWITTER_REQUEST_URL = "https://api.twitter.com/oauth/request_token";
+	public static final String CALLBACK_URL = "oauth://t4j";
+
+	private Twitter mTwitter;
+	private RequestToken mReqToken;
+	private TwSession mSession;
+	private AccessToken mAccessToken;
+	private ProgressDialog mProgressDlg;
+	private TwListener mListener;
+	private Activity activity;
 
 	public TwitterHelper(Activity context, SharedPreferences sharedPref) {
-		this.context = context;
+		this.activity = context;
 
 		mTwitter = new TwitterFactory().getInstance();
-		mSession = new TwitterSession(context, sharedPref);
+		mSession = new TwSession(sharedPref);
 		mProgressDlg = new ProgressDialog(context);
 
 		mProgressDlg.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-		mConsumerKey = TWITTER_CONSUMER_KEY;
-		mSecretKey = TWITTER_CONSUMER_SECRET;
+		mTwitter.setOAuthConsumer(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET);
 
-		mHttpOauthConsumer = new CommonsHttpOAuthConsumer(mConsumerKey,
-				mSecretKey);
-
-		String request_url = TWITTER_REQUEST_URL;
-		String access_token_url = TWITTER_ACCESS_TOKEN_URL;
-		String authorize_url = TWITTER_AUTHORZE_URL;
-
-		mHttpOauthprovider = new DefaultOAuthProvider(request_url,
-				access_token_url, authorize_url);
+		// Check access token
 		mAccessToken = mSession.getAccessToken();
 
-		configureToken();
-
-		mTwitter.setOAuthConsumer(mConsumerKey, mSecretKey);
-	}
-
-	public void setListener(TwDialogListener listener) {
-		mListener = listener;
-	}
-
-	private void configureToken() {
+		// Set access token
 		if (mAccessToken != null) {
 			mTwitter.setOAuthAccessToken(mAccessToken);
 		}
+	}
+
+	public void setListener(TwListener listener) {
+		mListener = listener;
 	}
 
 	public boolean hasAccessToken() {
@@ -110,30 +86,15 @@ public class TwitterHelper {
 	public void resetAccessToken() {
 		if (mAccessToken != null) {
 			mSession.resetAccessToken();
-
 			mAccessToken = null;
 		}
 	}
 
-	public String getUsername() {
-		return mSession.getUsername();
-	}
-
-	public void updateStatus(final String status) throws Exception {
-
-		new Thread() {
-			@Override
-			public void run() {
-				try {
-					mTwitter.updateStatus(status);
-				} catch (TwitterException e) {
-					e.printStackTrace();
-				}
-			}
-		}.start();
-	}
-
+	/**
+	 * Login to twitter
+	 */
 	public void authorize() {
+		Log.i(TAG, "Start authorize...");
 		mProgressDlg.setMessage("Initializing ...");
 		mProgressDlg.show();
 
@@ -141,22 +102,45 @@ public class TwitterHelper {
 			@Override
 			public void run() {
 				String authUrl = "";
-				int what = 1;
-
 				try {
-					authUrl = mHttpOauthprovider.retrieveRequestToken(
-							mHttpOauthConsumer, CALLBACK_URL);
-					what = 0;
+					mReqToken = mTwitter.getOAuthRequestToken(CALLBACK_URL);
+					authUrl = mReqToken.getAuthorizationURL();
+					mHandler.sendMessage(mHandler.obtainMessage(3, 0, 0,
+							authUrl));
 				} catch (Exception e) {
 					e.printStackTrace();
+					mHandler.sendMessage(mHandler.obtainMessage(4, 0, 0,
+							e.getMessage()));
 				}
-				mHandler.sendMessage(mHandler
-						.obtainMessage(what, 1, 0, authUrl));
 			}
 		}.start();
 
 	}
+	/**
+	 * Add post
+	 * @param status
+	 */
+	public void updateStatus(final String status) {
+		new Thread() {
+			@Override
+			public void run() {
+				try {
+					mTwitter.updateStatus(status);
+					mHandler.sendMessage(mHandler.obtainMessage(2, 0, 0));
+				} catch (TwitterException e) {
+					e.printStackTrace();
+					mHandler.sendMessage(mHandler.obtainMessage(4, 0, 0,
+							e.getMessage()));
+				}
+			}
+		}.start();
+	}
 
+	/**
+	 * Get access token
+	 * 
+	 * @param callbackUrl
+	 */
 	public void processToken(String callbackUrl) {
 		mProgressDlg.setMessage("Finalizing ...");
 		mProgressDlg.show();
@@ -166,127 +150,121 @@ public class TwitterHelper {
 		new Thread() {
 			@Override
 			public void run() {
-				int what = 1;
-
 				try {
-					mHttpOauthprovider.retrieveAccessToken(mHttpOauthConsumer,
+					mAccessToken = mTwitter.getOAuthAccessToken(mReqToken,
 							verifier);
-
-					mAccessToken = new AccessToken(
-							mHttpOauthConsumer.getToken(),
-							mHttpOauthConsumer.getTokenSecret());
-
-					configureToken();
-
-					User user = mTwitter.verifyCredentials();
-
-					mSession.storeAccessToken(mAccessToken, user.getName());
-
-					what = 0;
+					if (mAccessToken != null) {
+						// Set access token
+						mTwitter.setOAuthAccessToken(mAccessToken);
+						// Store access token
+						mSession.storeAccessToken(mAccessToken);
+						
+						mHandler.sendMessage(mHandler.obtainMessage(1, 0, 0));
+					}
 				} catch (Exception e) {
 					e.printStackTrace();
+					mHandler.sendMessage(mHandler.obtainMessage(4, 0, 0,
+							e.getMessage()));
 				}
 
-				mHandler.sendMessage(mHandler.obtainMessage(what, 2, 0));
 			}
 		}.start();
 	}
 
+	/**
+	 * Get oauth_verifier that stored in callback url
+	 * 
+	 * @param callbackUrl
+	 * @return
+	 */
 	private String getVerifier(String callbackUrl) {
 		String verifier = "";
 
 		try {
-			callbackUrl = callbackUrl.replace("twitterapp", "http");
-
 			Uri uri = Uri.parse(callbackUrl);
-			String query = uri.getQuery();
-
-			String array[] = query.split("&");
-
-			for (String parameter : array) {
-				String v[] = parameter.split("=");
-
-				if (URLDecoder.decode(v[0]).equals(
-						oauth.signpost.OAuth.OAUTH_VERIFIER)) {
-					verifier = URLDecoder.decode(v[1]);
-					break;
-				}
-			}
+			verifier = uri.getQueryParameter("oauth_verifier");
 		} catch (Exception e) {
 			e.printStackTrace();
+			mHandler.sendMessage(mHandler.obtainMessage(4, 0, 0,
+					e.getMessage()));
 		}
 
 		return verifier;
 	}
 
+	/**
+	 * Show login dialog
+	 * 
+	 * @param url
+	 */
 	private void showLoginDialog(String url) {
-		final TwDialogListener listener = new TwDialogListener() {
-
+		final TwListener listener = new TwListener() {
 			public void onComplete(String value) {
 				processToken(value);
 			}
-
 			public void onError(String value) {
 				mListener.onError("Failed opening authorization page");
 			}
 		};
 
-		new TwitterDialog(context, url, listener).show();
+		new TwitterDialog(activity, url, listener).show();
 	}
 
+	/**
+	 * Hander <br>
+	 * What: 1-login complete; 2-post complete; 3-show login; 4-error <br>
+	 * obj: message
+	 */
 	private Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
 			mProgressDlg.dismiss();
-
 			if (msg.what == 1) {
-				if (msg.arg1 == 1)
-					mListener.onError("Error getting request token");
-				else
-					mListener.onError("Error getting access token");
-			} else {
-				if (msg.arg1 == 1)
-					showLoginDialog((String) msg.obj);
-				else
-					mListener.onComplete("");
+				mListener.onComplete("login");
+			} else if (msg.what == 2) {
+				mListener.onComplete("post");
+			} else if (msg.what == 3) {
+				showLoginDialog((String) msg.obj);
+			} else if (msg.what == 4) {
+				mListener.onError((String) msg.obj);
 			}
 		}
 	};
+
 	/**
 	 * Interface to handle complete and error event
-	 *  
+	 * 
 	 * @author ChungPV1
-	 *
+	 * 
 	 */
-	public interface TwDialogListener {
+	public interface TwListener {
 		public void onComplete(String value);
 
 		public void onError(String value);
 	}
+
 	/**
 	 * Store twitter authenticate key and serect key into preference
 	 * 
 	 * @author ChungPV1
-	 *
+	 * 
 	 */
-	class TwitterSession {
+	class TwSession {
 		private SharedPreferences sharedPref;
 		private Editor editor;
 
 		private static final String TWEET_AUTH_KEY = "tweet_auth_key";
 		private static final String TWEET_AUTH_SECRET_KEY = "tweet_auth_secret_key";
-		private static final String TWEET_USER_NAME = "tweet_user_name";
 
-		public TwitterSession(Context context, SharedPreferences sharedPref) {
+		public TwSession(SharedPreferences sharedPref) {
 			this.sharedPref = sharedPref;
 			editor = sharedPref.edit();
 		}
 
-		public void storeAccessToken(AccessToken accessToken, String username) {
+		public void storeAccessToken(AccessToken accessToken) {
 			editor.putString(TWEET_AUTH_KEY, accessToken.getToken());
 			editor.putString(TWEET_AUTH_SECRET_KEY,
 					accessToken.getTokenSecret());
-			editor.putString(TWEET_USER_NAME, username);
 
 			editor.commit();
 		}
@@ -294,30 +272,30 @@ public class TwitterHelper {
 		public void resetAccessToken() {
 			editor.putString(TWEET_AUTH_KEY, null);
 			editor.putString(TWEET_AUTH_SECRET_KEY, null);
-			editor.putString(TWEET_USER_NAME, null);
 
 			editor.commit();
-		}
-
-		public String getUsername() {
-			return sharedPref.getString(TWEET_USER_NAME, "");
 		}
 
 		public AccessToken getAccessToken() {
 			String token = sharedPref.getString(TWEET_AUTH_KEY, null);
 			String tokenSecret = sharedPref.getString(TWEET_AUTH_SECRET_KEY,
 					null);
+			if (token != null && tokenSecret != null) {
 
-			if (token != null && tokenSecret != null)
+				Log.i(TAG, token);
+				Log.i(TAG, tokenSecret);
+
 				return new AccessToken(token, tokenSecret);
-			else
+			} else
 				return null;
 		}
 	}
+
 	/**
-	 * Create twitter dialog that contain and webview to load twitter
+	 * Create dialog that contain webview to load twitter
+	 * 
 	 * @author ChungPV1
-	 *
+	 * 
 	 */
 	class TwitterDialog extends Dialog {
 
@@ -329,19 +307,20 @@ public class TwitterHelper {
 		final int MARGIN = 4;
 		final int PADDING = 2;
 		private String mUrl;
-		private TwDialogListener mListener;
+		private TwListener mDialogListener;
 		private ProgressDialog mSpinner;
 		private WebView mWebView;
 		private LinearLayout mContent;
 		private TextView mTitle;
 		private boolean progressDialogRunning = false;
 
-		public TwitterDialog(Context context, String url,
-				TwDialogListener listener) {
+		public TwitterDialog(Context context, String url, TwListener listener) {
 			super(context);
 
 			mUrl = url;
-			mListener = listener;
+			mDialogListener = listener;
+
+			Log.i(TAG, url);
 		}
 
 		@Override
@@ -368,15 +347,15 @@ public class TwitterHelper {
 			addContentView(mContent, new FrameLayout.LayoutParams(
 					(int) (dimensions[0] * scale + 0.5f), (int) (dimensions[1]
 							* scale + 0.5f)));
-			
-			//addContentView(mContent, FILL);
+
+			// addContentView(mContent, FILL);
 		}
 
 		private void setUpTitle() {
 			requestWindowFeature(Window.FEATURE_NO_TITLE);
 
 			Drawable icon = getContext().getResources().getDrawable(
-					R.drawable.ic_launcher);
+					R.drawable.twitter32);
 
 			mTitle = new TextView(getContext());
 
@@ -392,6 +371,7 @@ public class TwitterHelper {
 			mContent.addView(mTitle);
 		}
 
+		@SuppressLint("SetJavaScriptEnabled")
 		private void setUpWebView() {
 			mWebView = new WebView(getContext());
 
@@ -410,7 +390,7 @@ public class TwitterHelper {
 			@Override
 			public boolean shouldOverrideUrlLoading(WebView view, String url) {
 				if (url.startsWith(CALLBACK_URL)) {
-					mListener.onComplete(url);
+					mDialogListener.onComplete(url);
 
 					TwitterDialog.this.dismiss();
 
@@ -425,8 +405,9 @@ public class TwitterHelper {
 			public void onReceivedError(WebView view, int errorCode,
 					String description, String failingUrl) {
 				super.onReceivedError(view, errorCode, description, failingUrl);
-				mListener.onError(description);
 				TwitterDialog.this.dismiss();
+				
+				mDialogListener.onError(description);
 			}
 
 			@Override

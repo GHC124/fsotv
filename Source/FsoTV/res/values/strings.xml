@@ -26,11 +26,11 @@
     <string name="text_view_title">Title</string>
     <string name="text_view_uploaded">Uploaded</string>
     <string name="text_view_views_count">ViewCount</string>
-    <string name="text_view_description">Description :</string>
+    <string name="text_view_description">Description:</string>
     <string name="title_activity_watch_video">Watch Video</string>
     <string name="menu_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
-    <string name="text_view_duration">"Duration: "</string>
+    <string name="text_view_duration">Duration:</string>
     <string name="btnSearch">Search Video</string>
     <string name="btn_browse_channels">Browse Channels</string>
     <string name="btn_browse_videos">Browse Videos</string>
@@ -46,11 +46,11 @@
     <string name="title_activity_category">Category</string>
     <string name="btn_save">Save</string>
     <string name="btn_ok">Ok</string>
-    <string name="text_view_view">"Views :"</string>
-    <string name="browse_video_views">Views :</string>
-    <string name="browse_video_favorites">Favorites :</string>
-    <string name="browse_video_duration">Duration :</string>
-    <string name="browse_video_publishday">Published :</string>
+    <string name="text_view_view">Views:</string>
+    <string name="browse_video_views">Views:</string>
+    <string name="browse_video_favorites">Favorites:</string>
+    <string name="browse_video_duration">Duration:</string>
+    <string name="browse_video_publishday">Published:</string>
     <string name="btn_sort">Sort</string>
     <string name="title_activity_comments">Comments</string>
     <string name="title_activity_home_tablet">Home</string>
@@ -60,5 +60,6 @@
     <string name="title_activity_comments_tablet">Comments</string>
     <string name="search_hint">Type to search</string>
     <string name="title_activity_video_description">Video Description</string>
+    <string name="lbl_facebook_message">Message:</string>
 
 </resources>

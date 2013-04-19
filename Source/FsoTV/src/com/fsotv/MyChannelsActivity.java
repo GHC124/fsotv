@@ -154,9 +154,7 @@ public class MyChannelsActivity extends ActivityBase {
 	 * @param v
 	 */
 	public void onOptionClick(View v){
-		switch(v.getId())
-		{
-		case R.id.tvChannels:
+		if (v.getId() == R.id.tvChannels) {
 			if (typeDialog != null)
 				typeDialog.show();
 			else {
@@ -164,7 +162,6 @@ public class MyChannelsActivity extends ActivityBase {
 				if (typeDialog != null)
 					typeDialog.show();
 			}
-			break;
 		}
 	}
 	/**

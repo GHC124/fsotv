@@ -7,6 +7,7 @@ import android.widget.TextView;
 /**
  * Show video description
  * 
+ * @author
  */
 public class VideoDescriptionActivity extends Activity {
 	TextView tvDescription;
