@@ -33,11 +33,7 @@ public class CategoryActivity extends ActivityBase {
 	private List<ListItem> listItems;
 	private ReferenceDao referenceDao;
 	
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_category);
-
+	private void init(){
 		lvCategory = (ListView) findViewById(R.id.lvCategory);
 		registerForContextMenu(lvCategory);
 		
@@ -46,7 +42,16 @@ public class CategoryActivity extends ActivityBase {
 		
 		setHeader("Category");
 		setTitle("Category");
+	}
 		
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		
+		setContentView(R.layout.activity_category);
+		
+		init();
+				
 		new loadCategories().execute();
 	}
 	
@@ -87,6 +92,9 @@ public class CategoryActivity extends ActivityBase {
 			showLoading();
 		}
 
+		/**
+		 * 
+		 */
 		@Override
 		protected String doInBackground(String... args) {
 		   List<Reference> categories = referenceDao.getListReference(
@@ -134,6 +142,13 @@ public class CategoryActivity extends ActivityBase {
 		int layoutResourceId;
 		List<ListItem> data = null;
 
+		/**
+		 * The constuctor
+		 * 
+		 * @param context
+		 * @param layoutResourceId
+		 * @param data
+		 */
 		public ListItemAdapter(Context context, int layoutResourceId,
 				List<ListItem> data) {
 			super(context, layoutResourceId, data);
@@ -142,6 +157,9 @@ public class CategoryActivity extends ActivityBase {
 			this.data = data;
 		}
 
+		/**
+		 * 
+		 */
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			View row = convertView;

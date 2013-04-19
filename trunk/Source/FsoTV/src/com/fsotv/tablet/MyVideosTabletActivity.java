@@ -79,7 +79,7 @@ public class MyVideosTabletActivity extends ActivityBase {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_my_videos);
+		setContentView(R.layout.activity_my_videos_tablet);
 
 		initComponents();
 
@@ -167,8 +167,7 @@ public class MyVideosTabletActivity extends ActivityBase {
 	 * @param v
 	 */
 	public void onOptionClick(View v) {
-		switch (v.getId()) {
-		case R.id.tvVideos:
+		if (v.getId() == R.id.tvVideos) {
 			if (typeDialog != null)
 				typeDialog.show();
 			else {
@@ -176,8 +175,6 @@ public class MyVideosTabletActivity extends ActivityBase {
 				if (typeDialog != null)
 					typeDialog.show();
 			}
-			break;
-
 		}
 	}
 
@@ -200,7 +197,7 @@ public class MyVideosTabletActivity extends ActivityBase {
 			public void onClick(View v) {
 				typeDialog.dismiss();
 				Intent i = new Intent(getApplicationContext(),
-						MyChannelsActivity.class);
+						MyChannelsTabletActivity.class);
 				i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(i);
 			}
@@ -271,7 +268,7 @@ public class MyVideosTabletActivity extends ActivityBase {
 			hideLoading();
 			ExpandListAdapter adapter = new ExpandListAdapter(
 					MyVideosTabletActivity.this, R.layout.my_videos_group,
-					R.layout.my_videos_item, groups);
+					R.layout.my_videos_item_tablet, groups);
 			// updating listview
 			expVideo.setAdapter(adapter);
 			if (groups.size() == 0) {

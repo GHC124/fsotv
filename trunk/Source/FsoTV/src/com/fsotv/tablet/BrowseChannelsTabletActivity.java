@@ -271,9 +271,7 @@ public class BrowseChannelsTabletActivity extends ActivityBase {
 	 * @param v
 	 */
 	public void onOptionClick(View v){
-		switch(v.getId())
-		{
-		case R.id.tvChannels:
+		if (v.getId() == R.id.tvChannels) {
 			if (typeDialog != null)
 				typeDialog.show();
 			else {
@@ -281,8 +279,7 @@ public class BrowseChannelsTabletActivity extends ActivityBase {
 				if (typeDialog != null)
 					typeDialog.show();
 			}
-			break;
-		case R.id.tvUserType:
+		} else if (v.getId() == R.id.tvUserType) {
 			if (userTypeDialog != null)
 				userTypeDialog.show();
 			else {
@@ -290,8 +287,7 @@ public class BrowseChannelsTabletActivity extends ActivityBase {
 				if (userTypeDialog != null)
 					userTypeDialog.show();
 			}
-			break;
-		case R.id.tvSort:
+		} else if (v.getId() == R.id.tvSort) {
 			if (sortDialog != null)
 				sortDialog.show();
 			else {
@@ -299,8 +295,7 @@ public class BrowseChannelsTabletActivity extends ActivityBase {
 				if (sortDialog != null)
 					sortDialog.show();
 			}
-			break;
-		case R.id.tvTime:
+		} else if (v.getId() == R.id.tvTime) {
 			if (timeDialog != null)
 				timeDialog.show();
 			else {
@@ -308,7 +303,6 @@ public class BrowseChannelsTabletActivity extends ActivityBase {
 				if (timeDialog != null)
 					timeDialog.show();
 			}
-			break;
 		}
 	}
 	/**

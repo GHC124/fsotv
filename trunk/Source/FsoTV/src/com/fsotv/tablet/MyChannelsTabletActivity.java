@@ -57,7 +57,7 @@ public class MyChannelsTabletActivity extends ActivityBase {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_my_channels);
+		setContentView(R.layout.activity_my_channels_tablet);
 		
 		gvChannel = (GridView)findViewById(R.id.gvChannel);
 		tvChannels = (TextView)findViewById(R.id.tvChannels);
@@ -159,9 +159,7 @@ public class MyChannelsTabletActivity extends ActivityBase {
 	 * @param v
 	 */
 	public void onOptionClick(View v){
-		switch(v.getId())
-		{
-		case R.id.tvChannels:
+		if (v.getId() == R.id.tvChannels) {
 			if (typeDialog != null)
 				typeDialog.show();
 			else {
@@ -169,7 +167,6 @@ public class MyChannelsTabletActivity extends ActivityBase {
 				if (typeDialog != null)
 					typeDialog.show();
 			}
-			break;
 		}
 	}
 	/**
@@ -189,7 +186,7 @@ public class MyChannelsTabletActivity extends ActivityBase {
 			@Override
 			public void onClick(View v) {
 				typeDialog.dismiss();
-				Intent i = new Intent(getApplicationContext(), MyVideosActivity.class);
+				Intent i = new Intent(getApplicationContext(), MyVideosTabletActivity.class);
 				i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(i);
 			}

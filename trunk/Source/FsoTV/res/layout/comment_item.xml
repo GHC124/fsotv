@@ -16,7 +16,7 @@
         android:textSize="12sp"
         android:textStyle="bold"
         android:typeface="sans"
-        android:maxLines="2" />
+        android:maxLines="1" />
 
     <!-- Description -->
 

@@ -17,19 +17,54 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 
 public class WebHelper {
 	public enum PostType {
 		GET, POST;
 	}
+	/**
+	 * Check internet connection
+	 * @author CuongVM1
+	 * @param context
+	 * @return
+	 */
+	public static boolean isConnected(Context context) {
+		boolean result = false;
+		ConnectivityManager connectivityManager = (ConnectivityManager) context
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
 
+		if (connectivityManager != null) {
+			NetworkInfo[] info = connectivityManager.getAllNetworkInfo();
+			if (info != null) {
+				for (int i = 0; i < info.length; i++) {
+					if (info[i].getState() == NetworkInfo.State.CONNECTED) {
+						result = true;
+					}
+				}
+			}
+
+		}
+
+		return result;
+	}
+	/**
+	 * Return inputstream base on url and web method
+	 * @author ChungPV1
+	 * @param url
+	 * @param postType
+	 * @return
+	 * @throws Exception
+	 */
 	public static InputStream GetStream(String url, PostType postType)
 			throws Exception {
 		HttpClient httpclient = new DefaultHttpClient();
 		CookieStore cookieStore = new BasicCookieStore();
 		InputStream is = null;
-		Log.e("URL", url);
+		Log.i("URL", url);
 
 		// Create local HTTP context
 		HttpContext localContext = new BasicHttpContext();
@@ -50,21 +85,5 @@ public class WebHelper {
 		// response = responseString.toString();
 
 		return is;
-	}
-
-	private static StringBuilder inputStreamToString(InputStream is)
-			throws IOException {
-		String line = "";
-		StringBuilder total = new StringBuilder();
-		// Wrap a BufferedReader around the InputStream
-		BufferedReader rd = new BufferedReader(new InputStreamReader(is,
-				Charset.forName("iso-8859-9")));
-		// Read response until the end
-		while ((line = rd.readLine()) != null) {
-			total.append(line);
-		}
-
-		// Return full string
-		return total;
 	}
 }

@@ -42,11 +42,8 @@
              android:id="@+id/lblPost"
              android:layout_width="wrap_content"
              android:layout_height="wrap_content"
-             android:text="Link"
-             android:textColor="#ffffff"
              android:layout_marginLeft="5dip"
-             android:visibility="gone"
-              />
+             android:text="@string/lbl_facebook_message" />
          
     </LinearLayout>
 	<LinearLayout
@@ -61,12 +58,11 @@
             android:ems="10"
             android:layout_margin="5dip"
             android:inputType="textMultiLine"
-            android:lines="4"
+            android:lines="5"
             android:gravity="top|left" 
         	android:scrollHorizontally="false"
-            android:text="abc"
-            android:textSize="12sp" 
-            android:visibility="gone">
+            android:textSize="16sp" 
+            >
 			
             <requestFocus />
         </EditText>

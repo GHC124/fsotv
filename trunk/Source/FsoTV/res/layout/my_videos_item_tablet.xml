@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="5dip" >
+
+    <!-- ListRow Left sied Thumbnail image -->
+
+    <RelativeLayout
+        android:id="@+id/thumbnail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_marginRight="5dip"
+        >
+	       
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="100dip"
+            android:layout_height="80dip"
+            android:layout_alignParentTop="true"
+            />
+            	
+        <TextView
+            android:id="@+id/duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="2dip"
+            android:layout_marginTop="65dip"
+            android:background="#000000"
+            android:text="00:00:00"
+            android:textColor="#ffffff"
+            android:textSize="8sp" />
+
+    </RelativeLayout>
+
+    <!-- Title -->
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/thumbnail"
+        android:layout_toRightOf="@id/thumbnail"
+        android:maxLines="1"
+        android:text="REVO"
+        android:textSize="16dip"
+        android:textStyle="bold"
+        android:typeface="sans" />
+
+    <!-- Description -->
+
+    <TextView
+        android:id="@+id/description"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title"
+        android:layout_marginRight="15dip"
+        android:layout_marginTop="1dip"
+        android:layout_toRightOf="@id/thumbnail"
+        android:maxLines="2"
+        android:text="Revo ..."
+        android:textSize="12dip" />
+
+    <!-- Statistic -->
+
+	<LinearLayout
+        android:id="@+id/llStatistic1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/description"
+        android:layout_marginRight="10dip"
+        android:layout_toRightOf="@id/thumbnail"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/browse_video_views"
+            android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/viewCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="2dip"
+            android:layout_marginRight="2dip"
+            android:text="123"
+            
+            android:textSize="10sp" />
+
+		<TextView
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:text="Published: "
+		    android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/published"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="2dip"
+            android:layout_marginRight="2dip"
+            android:text="123"
+            
+            android:textSize="10sp" />
+       
+    </LinearLayout>
+   
+    <!-- Rightend Duration -->
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@id/title"
+        android:layout_marginRight="5dip"
+        android:gravity="right" 
+        android:visibility="invisible"/>
+
+    <!-- Rightend Arrow -->
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/arrow" />
+
+</RelativeLayout>

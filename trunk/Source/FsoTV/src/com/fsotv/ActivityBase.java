@@ -18,12 +18,14 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.fsotv.tablet.BrowseVideosTabletActivity;
+import com.fsotv.tablet.MyVideosTabletActivity;
 import com.fsotv.utils.YouTubeHelper;
 
 /**
  * Base class for all activities that have same header + Add loading progress
  * bar + Add header title + Add Back button + Add search function + Add option
- * button
+ * button.
  * 
  */
 public class ActivityBase extends Activity {
@@ -52,17 +54,28 @@ public class ActivityBase extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 	}
+	
+	
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		
+		
+	}
+
+
 
 	@Override
 	public void setContentView(int layoutResId) {
 		// Check device, if it is tablet, use only landscape ...
-		if(MainActivity.IsTablet){
+		if (MainActivity.IsTablet) {
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-		}else{
+		} else {
 			// ... otherwise, use portrait
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		}
-		
+
 		super.setContentView(layoutResId);
 
 		llHeader = (LinearLayout) findViewById(R.id.llHeader);
@@ -199,21 +212,36 @@ public class ActivityBase extends Activity {
 			@Override
 			public void onClick(View v) {
 				optionDialog.dismiss();
-				Intent i = new Intent(getApplicationContext(),
-						BrowseVideosActivity.class);
-				i.putExtra("categoryId", YouTubeHelper.CATEGORY_FILM);
-				i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				startActivity(i);
+				if (MainActivity.IsTablet) {
+					Intent i = new Intent(getApplicationContext(),
+							BrowseVideosTabletActivity.class);
+					i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					startActivity(i);
+				} else {
+					Intent i = new Intent(getApplicationContext(),
+							BrowseVideosActivity.class);
+					i.putExtra("categoryId", YouTubeHelper.CATEGORY_FILM);
+					i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					startActivity(i);
+				}
 			}
 		});
 		txtFavorite.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				optionDialog.dismiss();
-				Intent i = new Intent(getApplicationContext(),
-						MyVideosActivity.class);
-				i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				startActivity(i);
+				if (MainActivity.IsTablet) {
+					Intent i = new Intent(getApplicationContext(),
+							MyVideosTabletActivity.class);
+					i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					startActivity(i);
+				} else {
+					Intent i = new Intent(getApplicationContext(),
+							MyVideosActivity.class);
+					i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					startActivity(i);
+				}
+
 			}
 		});
 	}
@@ -222,7 +250,7 @@ public class ActivityBase extends Activity {
 	 * Hide header control
 	 */
 	protected void hideHeader() {
-		if(llHeader!=null)
+		if (llHeader != null)
 			llHeader.setVisibility(View.GONE);
 	}
 
@@ -230,7 +258,7 @@ public class ActivityBase extends Activity {
 	 * Show header control
 	 */
 	protected void showHeader() {
-		if(llHeader!=null)
+		if (llHeader != null)
 			llHeader.setVisibility(View.VISIBLE);
 	}
 
@@ -272,7 +300,7 @@ public class ActivityBase extends Activity {
 	 */
 	protected void disableSearch() {
 		canSearch = false;
-		if(imgSearch != null)
+		if (imgSearch != null)
 			imgSearch.setVisibility(View.GONE);
 	}
 
