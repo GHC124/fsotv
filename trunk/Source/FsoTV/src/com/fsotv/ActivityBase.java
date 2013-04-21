@@ -26,7 +26,7 @@ import com.fsotv.utils.YouTubeHelper;
  * Base class for all activities that have same header + Add loading progress
  * bar + Add header title + Add Back button + Add search function + Add option
  * button.
- * 
+ * @author ChungPV1
  */
 public class ActivityBase extends Activity {
 	// Back option

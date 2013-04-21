@@ -71,6 +71,7 @@ public class BrowseChannelsTabletActivity extends ActivityBase {
 	private List<Reference> userTypes;
 	private ImageLoader imageLoader;
 	private ListChannelAdapter adapter;
+	private YouTubeHelper youTubeHelper;
 	// Sort
 	private boolean isLoading = false;
 	private String orderBy = "";
@@ -92,6 +93,7 @@ public class BrowseChannelsTabletActivity extends ActivityBase {
 		tvTime = (TextView)findViewById(R.id.tvTime);
 		
 		// Init data
+		youTubeHelper = new YouTubeHelper();
 		channels = new ArrayList<ChannelEntry>();
 		imageLoader = new ImageLoader(getApplicationContext());
 		userType = YouTubeHelper.USER_TYPE_COMEDIANS;
@@ -447,12 +449,12 @@ public class BrowseChannelsTabletActivity extends ActivityBase {
 		@Override
 		protected List<ChannelEntry> doInBackground(String... args) {
 			if (isLoading) {
-				List<ChannelEntry> items = YouTubeHelper.getChannels(userType,
+				List<ChannelEntry> items = youTubeHelper.getChannels(userType,
 						orderBy, maxLoad, startIndex, time);
 				return items;
 			} else {
 				startIndex = 1;
-				channels = YouTubeHelper.getChannels(userType, orderBy,
+				channels = youTubeHelper.getChannels(userType, orderBy,
 						maxResult, startIndex, time);
 			}
 			return null;

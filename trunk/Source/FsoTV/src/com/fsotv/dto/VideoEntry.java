@@ -14,9 +14,18 @@ public class VideoEntry {
 	int favoriteCount;
 	String published;
 	String updated;
+	String author;
 	
 	public VideoEntry(){
 		
+	}
+
+	public String getAuthor() {
+		return author;
+	}
+
+	public void setAuthor(String author) {
+		this.author = author;
 	}
 
 	public String getIdReal() {

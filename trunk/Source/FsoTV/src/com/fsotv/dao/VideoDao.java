@@ -25,6 +25,7 @@ public class VideoDao{
 	public static final String ID_REAL_VIDEO = "idRealVideo";
 	public static final String PUBLISHED = "published";
 	public static final String UPDATED = "updated";
+	public static final String AUTHOR = "author";
 	
 	private SQLiteHelper sqLiteHelper;
 	
@@ -55,6 +56,7 @@ public class VideoDao{
 					video.setFavoriteCount(cursor.getInt(11));
 					video.setPublished(cursor.getString(12));
 					video.setUpdated(cursor.getString(13));
+					video.setAuthor(cursor.getString(14));
 					// Adding obj to list
 					listDto.add(video);
 				} while (cursor.moveToNext());
@@ -85,6 +87,7 @@ public class VideoDao{
 		values.put(FAVORITE_COUNT, video.getFavoriteCount());
 		values.put(PUBLISHED, video.getPublished());
 		values.put(UPDATED, video.getUpdated());
+		values.put(AUTHOR, video.getAuthor());
 		// Check if row already existed in database
 		int idExist = isVideoExists(db, video.getIdRealVideo());
 		if (idExist == 0) {
@@ -117,6 +120,7 @@ public class VideoDao{
 		values.put(FAVORITE_COUNT, video.getFavoriteCount());
 		values.put(PUBLISHED, video.getPublished());
 		values.put(UPDATED, video.getUpdated());
+		values.put(AUTHOR, video.getAuthor());
 		// updating row return
 		int update = db.update(TABLE_NAME, values, ID_CATEGORY + " = ?",
 				new String[] { String.valueOf(video.getIdVideo()) });
@@ -133,7 +137,7 @@ public class VideoDao{
 		SQLiteDatabase db = sqLiteHelper.getReadableDatabase();
 		Cursor cursor = db.query(TABLE_NAME, new String[] { ID_CATEGORY,
 				NAME_VIDEO, URI, DESCRIBES, THUMNAIL, ACCOUNT, TYPE_VIDEO, 
-				ID_REAL_VIDEO, DURATION, VIEW_COUNT, FAVORITE_COUNT, PUBLISHED, UPDATED }, ID_VIDEO + "=?",
+				ID_REAL_VIDEO, DURATION, VIEW_COUNT, FAVORITE_COUNT, PUBLISHED, UPDATED, AUTHOR }, ID_VIDEO + "=?",
 				new String[] { String.valueOf(id) }, null, null, null, null);
 		if (cursor != null && cursor.moveToFirst()) {
 			video.setIdVideo(cursor.getInt(0));
@@ -150,6 +154,7 @@ public class VideoDao{
 			video.setFavoriteCount(cursor.getInt(11));
 			video.setPublished(cursor.getString(12));
 			video.setUpdated(cursor.getString(13));
+			video.setAuthor(cursor.getString(14));
 		}
 		cursor.close();
 		db.close();

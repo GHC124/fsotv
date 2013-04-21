@@ -61,5 +61,7 @@
     <string name="search_hint">Type to search</string>
     <string name="title_activity_video_description">Video Description</string>
     <string name="lbl_facebook_message">Message:</string>
+    <string name="btn_comment">Comment</string>
+    <string name="browse_video_author">By:</string>
 
 </resources>

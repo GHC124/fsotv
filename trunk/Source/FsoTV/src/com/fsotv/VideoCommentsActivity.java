@@ -36,7 +36,8 @@ public class VideoCommentsActivity extends Activity {
 	private ProgressBar pbLoading;
 	private List<CommentEntry> comments;
 	private ListCommentAdapter adapter;
-
+	private YouTubeHelper youTubeHelper;
+	
 	private boolean isLoading = false;
 	private String videoId = "";
 	private int maxResult = 10;
@@ -51,6 +52,7 @@ public class VideoCommentsActivity extends Activity {
 		lvComment = (ListView) findViewById(R.id.lvComment);
 		pbLoading = (ProgressBar)findViewById(R.id.pbLoading);
 		
+		youTubeHelper = new YouTubeHelper();
 		comments = new ArrayList<CommentEntry>();
 		Intent intent = getIntent();
 		Bundle extras = intent.getExtras();
@@ -99,12 +101,12 @@ public class VideoCommentsActivity extends Activity {
 		protected List<CommentEntry> doInBackground(String... args) {
 
 			if (isLoading) {
-				List<CommentEntry> items = YouTubeHelper.getComments(videoId,
+				List<CommentEntry> items = youTubeHelper.getComments(videoId,
 						maxLoad, startIndex);
 				return items;
 			} else {
 				startIndex = 1;
-				comments = YouTubeHelper.getComments(videoId, maxResult,
+				comments = youTubeHelper.getComments(videoId, maxResult,
 						startIndex);
 			}
 			return null;
@@ -174,7 +176,8 @@ public class VideoCommentsActivity extends Activity {
 				holder.title = (TextView) row.findViewById(R.id.title);
 				holder.content = (TextView) row.findViewById(R.id.content);
 				holder.published = (TextView) row.findViewById(R.id.published);
-
+				holder.author = (TextView) row.findViewById(R.id.author);
+				
 				row.setTag(holder);
 			} else {
 				holder = (ListItemHolder) row.getTag();
@@ -190,12 +193,15 @@ public class VideoCommentsActivity extends Activity {
 			if (content.length() > 150) {
 				content = content.substring(0, 150) + "...";
 			}
-
+			String author = item.getAuthor();
+			if (author.length() > 50) {
+				author = author.substring(0, 50) + "...";
+			}
 			holder.title.setText(title);
 			holder.content.setText(content);
-			holder.published
-					.setText(DataHelper.formatDate(item.getPublished()));
-
+			holder.published.setText(DataHelper.formatDate(item.getPublished()));
+			holder.author.setText(author);
+			
 			return row;
 		}
 
@@ -203,6 +209,7 @@ public class VideoCommentsActivity extends Activity {
 			TextView title;
 			TextView content;
 			TextView published;
+			TextView author;
 		}
 	}
 

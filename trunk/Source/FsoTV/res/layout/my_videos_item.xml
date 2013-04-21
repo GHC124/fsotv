@@ -107,7 +107,31 @@
             android:textSize="8sp" />
        
     </LinearLayout>
-   
+   <LinearLayout
+        android:id="@+id/llStatistic2"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/llStatistic1"
+        android:layout_marginRight="10dip"
+        android:layout_toRightOf="@id/thumbnail"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/browse_video_author"
+            android:textSize="8sp" />
+
+        <TextView
+            android:id="@+id/author"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="2dip"
+            android:layout_marginRight="2dip"
+            android:text="abc"
+            android:textSize="8sp" />
+       
+    </LinearLayout>
     <!-- Rightend Duration -->
 
     <ProgressBar

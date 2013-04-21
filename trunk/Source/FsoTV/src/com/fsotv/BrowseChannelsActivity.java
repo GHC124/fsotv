@@ -67,6 +67,7 @@ public class BrowseChannelsActivity extends ActivityBase {
 	private List<Reference> userTypes;
 	private ImageLoader imageLoader;
 	private ListChannelAdapter adapter;
+	private YouTubeHelper youTubeHelper;
 	// Sort
 	private boolean isLoading = false;
 	private String orderBy = "";
@@ -90,6 +91,7 @@ public class BrowseChannelsActivity extends ActivityBase {
 
 		channels = new ArrayList<ChannelEntry>();
 		imageLoader = new ImageLoader(getApplicationContext());
+		youTubeHelper = new YouTubeHelper();
 		userType = YouTubeHelper.USER_TYPE_COMEDIANS;
 		orderBy = YouTubeHelper.ORDERING_VIEWCOUNT;
 		time = YouTubeHelper.TIME_ALL_TIME;
@@ -572,12 +574,12 @@ public class BrowseChannelsActivity extends ActivityBase {
 			Log.i("LoadChannels", "Start doInBackground()");
 
 			if (isLoading) {
-				List<ChannelEntry> items = YouTubeHelper.getChannels(userType,
+				List<ChannelEntry> items = youTubeHelper.getChannels(userType,
 						orderBy, maxLoad, startIndex, time);
 				return items;
 			} else {
 				startIndex = 1;
-				channels = YouTubeHelper.getChannels(userType, orderBy,
+				channels = youTubeHelper.getChannels(userType, orderBy,
 						maxResult, startIndex, time);
 			}
 

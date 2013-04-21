@@ -17,8 +17,8 @@
             android:id="@+id/lvVideo"
             android:layout_width="370dp"
             android:layout_height="wrap_content"
-            android:choiceMode="singleChoice" 
-            android:layout_alignParentLeft="true" >
+            android:layout_alignParentLeft="true"
+            android:choiceMode="singleChoice" >
         </ListView>
 
         <TextView
@@ -29,9 +29,10 @@
             android:background="#000000"
             android:textIsSelectable="false" />
 
-        <LinearLayout android:layout_toRightOf="@id/lblEmpty"
+        <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/lblEmpty"
             android:orientation="vertical"
             android:paddingBottom="0dp"
             android:paddingLeft="10dp"
@@ -117,8 +118,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@id/viewCount"
-                        android:layout_marginTop="5dp"
                         android:layout_marginLeft="5dp"
+                        android:layout_marginTop="5dp"
                         android:layout_toRightOf="@id/tvFavorite"
                         android:text="0"
                         android:textColor="#000000"
@@ -143,8 +144,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@id/favoriteCount"
-                        android:layout_marginTop="5dp"
                         android:layout_marginLeft="5dp"
+                        android:layout_marginTop="5dp"
                         android:layout_toRightOf="@id/tvDuration"
                         android:text="0"
                         android:textColor="#000000"
@@ -169,10 +170,36 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@id/duration"
-                        android:layout_marginTop="5dp"
                         android:layout_marginLeft="5dp"
+                        android:layout_marginTop="5dp"
                         android:layout_toRightOf="@id/tvPublishDay"
-                        android:text=""
+                        android:text="00/00/00"
+                        android:textColor="#000000"
+                        android:textIsSelectable="false"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/tvAuthor"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/tvPublishDay"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_toRightOf="@id/imgThumbnail"
+                        android:text="@string/browse_video_author"
+                        android:textColor="#000000"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/author"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/published"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_toRightOf="@id/tvAuthor"
+                        android:text="abc"
                         android:textColor="#000000"
                         android:textIsSelectable="false"
                         android:textSize="16sp" />
@@ -181,9 +208,18 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentRight="true"
-                        android:layout_below="@id/published"
+                        android:layout_below="@id/author"
                         android:orientation="horizontal" >
 
+                        <ImageButton
+	                        android:id="@+id/imgComment"
+	                        android:layout_width="wrap_content"
+	                        android:layout_height="wrap_content"
+	                        android:layout_marginRight="5dip"
+	                        android:background="@null"
+	                        android:onClick="onCommentClick"
+	                        android:src="@drawable/comment_add32" />
+                        
                         <ImageButton
                             android:id="@+id/imgFaceBook"
                             android:layout_width="wrap_content"

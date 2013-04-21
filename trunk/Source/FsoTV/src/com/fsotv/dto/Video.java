@@ -15,6 +15,7 @@ public class Video {
 	private int favoriteCount;
 	private String published;
 	private String updated;
+	private String author;
 	
 	public int getIdVideo() {
 		return idVideo;
@@ -128,13 +129,21 @@ public class Video {
 		this.updated = updated;
 	}
 
+	public String getAuthor() {
+		return author;
+	}
+
+	public void setAuthor(String author) {
+		this.author = author;
+	}
+
 	public Video() {
 		// TODO Auto-generated constructor stub
 	}
 
 	public Video(int idVideo, int idCategory, String nameVideo, String uri,
 			String thumnail, String describes, String account, int typeVideo,
-			String idRealVideo, long duration, int viewCount, int favoriteCount) {
+			String idRealVideo, long duration, int viewCount, int favoriteCount, String author) {
 		super();
 		this.idVideo = idVideo;
 		this.idCategory = idCategory;
@@ -148,6 +157,7 @@ public class Video {
 		this.duration = duration;
 		this.viewCount = viewCount;
 		this.favoriteCount = favoriteCount;
+		this.author = author;
 	}
 
 

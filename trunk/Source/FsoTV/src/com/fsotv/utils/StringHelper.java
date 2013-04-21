@@ -9,7 +9,7 @@ package com.fsotv.utils;
  */
 public class StringHelper {
 	/**
-	 * 
+	 * Fortmat title
 	 * @param title Raw title
 	 * @return The title after formatted
 	 */
@@ -21,6 +21,7 @@ public class StringHelper {
 		return title;
 
 	}
+	
 	/**
 	 * 
 	 * @param description
