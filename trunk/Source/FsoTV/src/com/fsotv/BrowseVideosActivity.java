@@ -108,7 +108,7 @@ public class BrowseVideosActivity extends ActivityBase {
 		imageLoader = new ImageLoader(getApplicationContext());
 		youTubeHelper = new YouTubeHelper();
 		videos = new ArrayList<VideoEntry>();
-		orderBy = YouTubeHelper.ORDERING_VIEWCOUNT;
+		orderBy = YouTubeHelper.ORDERING_PUBLISHED;
 		time = YouTubeHelper.TIME_ALL_TIME;
 
 		String channelTitle = "";

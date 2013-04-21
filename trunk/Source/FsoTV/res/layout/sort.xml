@@ -15,19 +15,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal" >
-            <RadioButton
-                android:id="@+id/rdViewed"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="Viewed" />
 
             <RadioButton
                 android:id="@+id/rdPublished"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:checked="true"
                 android:text="Published" />
 
+            <RadioButton
+                android:id="@+id/rdViewed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Viewed" />
         </RadioGroup>
 
     </LinearLayout>

@@ -399,6 +399,7 @@ public class VideoDetailActivity extends ActivityBase {
 			desSpec.setIndicator(tabDes);
 			Intent desIntent = new Intent(getApplicationContext(),
 					VideoDescriptionActivity.class);
+			desIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			desIntent.putExtra("description", video.getDescription());
 			desSpec.setContent(desIntent);
 			// Comment tab
@@ -408,6 +409,7 @@ public class VideoDetailActivity extends ActivityBase {
 			comSpec.setIndicator(tabCom);
 			Intent comIntent = new Intent(getApplicationContext(),
 					VideoCommentsActivity.class);
+			comIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			comIntent.putExtra("videoId", video.getIdReal());
 			comSpec.setContent(comIntent);
 			// Add all tabs

@@ -104,8 +104,8 @@ public class WatchVideoTabletActivity extends ActivityBase implements
 			videoTitle = (videoTitle == null) ? "" : videoTitle;
 			link = (link == null) ? "" : link;
 
-			if (videoTitle.length() > 250)
-				videoTitle = videoTitle.substring(0, 250) + "...";
+			if (videoTitle.length() > 500)
+				videoTitle = videoTitle.substring(0, 500) + "...";
 		}
 		setHeader(videoTitle);
 		setTitle("Watch Video");

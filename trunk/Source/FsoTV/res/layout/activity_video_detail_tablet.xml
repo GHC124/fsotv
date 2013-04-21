@@ -7,8 +7,57 @@
     android:orientation="vertical"
     tools:context=".VideoDetailTabletActivity" >
 
-    <include layout="@layout/header_tablet" />
+    <include layout="@layout/header_tablet_search" />
+	<RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="2dip"
+         >
 
+        <TextView
+            android:id="@+id/tvCategory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="2dip"
+            android:layout_toRightOf="@id/tvVideos"
+            android:background="@drawable/action_item"
+            android:paddingBottom="5dip"
+            android:paddingLeft="5dip"
+            android:paddingRight="5dip"
+            android:paddingTop="5dip"
+            android:text="Film"
+            android:textSize="16sp" />
+        
+        <TextView
+            android:id="@+id/tvSort"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="2dip"
+            android:layout_toRightOf="@id/tvCategory"
+            android:background="@drawable/action_item"
+            android:paddingBottom="5dip"
+            android:paddingLeft="5dip"
+            android:paddingRight="5dip"
+            android:paddingTop="5dip"
+            android:text="Most viewed"
+            android:textSize="16sp" />
+        
+         <TextView
+             android:id="@+id/tvTime"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_marginRight="2dip"
+             android:layout_toRightOf="@id/tvSort"
+             android:background="@drawable/action_item"
+             android:paddingBottom="5dip"
+             android:paddingLeft="5dip"
+             android:paddingRight="5dip"
+             android:paddingTop="5dip"
+             android:text="All time"
+             android:textSize="16sp" />
+
+    </RelativeLayout>
+    
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
@@ -37,7 +86,7 @@
             android:paddingBottom="0dp"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:paddingTop="5dp" >
+            >
 
             <LinearLayout
                 android:layout_width="fill_parent"
@@ -64,14 +113,14 @@
                     <ImageView
                         android:id="@+id/imgThumbnail"
                         android:layout_width="250dip"
-                        android:layout_height="200dip"
+                        android:layout_height="180dp"
                         android:layout_below="@id/txtvTitle"
                         android:onClick="onWatchClick" />
 
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="120dip"
+                        android:layout_marginLeft="115dip"
                         android:layout_marginTop="80dip"
                         android:background="@drawable/play32"
                         android:onClick="onWatchClick" />
