@@ -73,7 +73,7 @@ public class BrowseVideosActivity extends ActivityBase {
 	private VideoEntry select;
 	private List<Reference> categories;
 	private ImageLoader imageLoader;
-
+	private YouTubeHelper youTubeHelper;
 	// Subscribe Action
 	private boolean isSubscribe = false;
 
@@ -106,6 +106,7 @@ public class BrowseVideosActivity extends ActivityBase {
 		tvTime = (TextView) findViewById(R.id.tvTime);
 
 		imageLoader = new ImageLoader(getApplicationContext());
+		youTubeHelper = new YouTubeHelper();
 		videos = new ArrayList<VideoEntry>();
 		orderBy = YouTubeHelper.ORDERING_VIEWCOUNT;
 		time = YouTubeHelper.TIME_ALL_TIME;
@@ -633,6 +634,8 @@ public class BrowseVideosActivity extends ActivityBase {
 		video.setFavoriteCount(select.getFavoriteCount());
 		video.setPublished(select.getPublished());
 		video.setUpdated(select.getUpdated());
+		video.setAuthor(select.getAuthor());
+		
 		videoDao.insertVideo(video);
 		
 		// Subscribe video successfull 
@@ -668,11 +671,11 @@ public class BrowseVideosActivity extends ActivityBase {
 			if (isLoading) {
 				List<VideoEntry> items = null;
 				if (!channelId.isEmpty()) {
-					items = YouTubeHelper.getVideosInChannel(channelId,
+					items = youTubeHelper.getVideosInChannel(channelId,
 							orderBy, maxLoad, startIndex, keyword, time);
 
 				} else if (!categoryId.isEmpty()) {
-					items = YouTubeHelper.getVideosInCategory(categoryId,
+					items = youTubeHelper.getVideosInCategory(categoryId,
 							orderBy, maxLoad, startIndex, keyword, time);
 				}
 
@@ -680,11 +683,11 @@ public class BrowseVideosActivity extends ActivityBase {
 			} else {
 				startIndex = 1;
 				if (!channelId.isEmpty()) {
-					videos = YouTubeHelper.getVideosInChannel(channelId,
+					videos = youTubeHelper.getVideosInChannel(channelId,
 							orderBy, maxResult, startIndex, keyword, time);
 
 				} else if (!categoryId.isEmpty()) {
-					videos = YouTubeHelper.getVideosInCategory(categoryId,
+					videos = youTubeHelper.getVideosInCategory(categoryId,
 							orderBy, maxResult, startIndex, keyword, time);
 				}
 			}
@@ -792,7 +795,8 @@ public class BrowseVideosActivity extends ActivityBase {
 				holder.viewCount = (TextView) row.findViewById(R.id.viewCount);
 				holder.duration = (TextView) row.findViewById(R.id.duration);
 				holder.published = (TextView) row.findViewById(R.id.published);
-
+				holder.author = (TextView) row.findViewById(R.id.author);
+				
 				row.setTag(holder);
 
 			} else {
@@ -800,24 +804,29 @@ public class BrowseVideosActivity extends ActivityBase {
 			}
 
 			VideoEntry item = data.get(position);
-
+			String title = item.getTitle();
+			String author = item.getAuthor();
+			if (title.length() > 40) {
+				title = title.substring(0, 40) + "...";
+			}
+			if (author.length() > 50) {
+				author = author.substring(0, 50) + "...";
+			}
 			imageLoader.DisplayImage(item.getImage(), holder.image,
 					holder.progressBar);
 
-			holder.title.setText(StringHelper.fomatTitle(item.getTitle()));
+			holder.title.setText(title);
 			holder.description.setText(StringHelper.formatDescription(item
 					.getDescription()));
 
 			if (item.getViewCount() == -1)
 				holder.viewCount.setText("-");
 			else
-				holder.viewCount.setText(DataHelper.numberWithCommas(item
-						.getViewCount()));
-			holder.duration.setText(DataHelper.secondsToTimer(item
-					.getDuration()));
-			holder.published
-					.setText(DataHelper.formatDate(item.getPublished()));
-
+				holder.viewCount.setText(DataHelper.numberWithCommas(item.getViewCount()));
+			holder.duration.setText(DataHelper.secondsToTimer(item.getDuration()));
+			holder.published.setText(DataHelper.formatDate(item.getPublished()));
+			holder.author.setText(author);
+			
 			return row;
 		}
 
@@ -829,6 +838,7 @@ public class BrowseVideosActivity extends ActivityBase {
 			TextView viewCount;
 			TextView duration;
 			TextView published;
+			TextView author;
 		}
 	}
 

@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class SQLiteHelper extends SQLiteOpenHelper {
 
 	private static final String DATABASE_NAME = "FsoTV";
-	private static final int DATABASE_VERSION = 8;
+	private static final int DATABASE_VERSION = 9;
 
 	public SQLiteHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -32,7 +32,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 				+ VideoDao.ID_REAL_VIDEO + " TEXT," + VideoDao.DURATION
 				+ " INTEGER," + VideoDao.VIEW_COUNT + " INTEGER,"
 				+ VideoDao.FAVORITE_COUNT + " INTEGER," + VideoDao.PUBLISHED
-				+ " TEXT," + VideoDao.UPDATED + " TEXT)";
+				+ " TEXT," + VideoDao.UPDATED + " TEXT,"+ VideoDao.AUTHOR + " TEXT)";
 		String createReference = "CREATE TABLE " + ReferenceDao.TABLE_NAME
 				+ "(" + ReferenceDao.KEY_ID
 				+ " INTEGER PRIMARY KEY AUTOINCREMENT," + ReferenceDao.KEY_KEY

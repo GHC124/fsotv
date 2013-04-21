@@ -43,9 +43,9 @@ public class TwitterHelper {
 	private final String TAG = "Twitter";
 
 	// Twitter Key
-	public static final String TWITTER_CONSUMER_KEY = "n1kQKdyywQf6awZqCVK6kw";
-	public static final String TWITTER_CONSUMER_SECRET = "XwoUFNJhJrrRkBcHIhjhAHjfk0BfbKFrZTGzmCG8cQ";
-	public static final String CALLBACK_URL = "oauth://t4j";
+	private final String TWITTER_CONSUMER_KEY = "n1kQKdyywQf6awZqCVK6kw";
+	private final String TWITTER_CONSUMER_SECRET = "XwoUFNJhJrrRkBcHIhjhAHjfk0BfbKFrZTGzmCG8cQ";
+	private final String CALLBACK_URL = "oauth://t4j";
 
 	private Twitter mTwitter;
 	private RequestToken mReqToken;
@@ -298,14 +298,6 @@ public class TwitterHelper {
 	 * 
 	 */
 	class TwitterDialog extends Dialog {
-
-		final float[] DIMENSIONS_LANDSCAPE = { 460, 260 };
-		final float[] DIMENSIONS_PORTRAIT = { 280, 420 };
-		final FrameLayout.LayoutParams FILL = new FrameLayout.LayoutParams(
-				ViewGroup.LayoutParams.MATCH_PARENT,
-				ViewGroup.LayoutParams.MATCH_PARENT);
-		final int MARGIN = 4;
-		final int PADDING = 2;
 		private String mUrl;
 		private TwListener mDialogListener;
 		private ProgressDialog mSpinner;
@@ -332,7 +324,6 @@ public class TwitterHelper {
 			mSpinner.setMessage("Loading...");
 
 			mContent = new LinearLayout(getContext());
-
 			mContent.setOrientation(LinearLayout.VERTICAL);
 
 			setUpTitle();
@@ -340,15 +331,10 @@ public class TwitterHelper {
 
 			Display display = getWindow().getWindowManager()
 					.getDefaultDisplay();
-			final float scale = getContext().getResources().getDisplayMetrics().density;
-			float[] dimensions = (display.getWidth() < display.getHeight()) ? DIMENSIONS_PORTRAIT
-					: DIMENSIONS_LANDSCAPE;
-
-			addContentView(mContent, new FrameLayout.LayoutParams(
-					(int) (dimensions[0] * scale + 0.5f), (int) (dimensions[1]
-							* scale + 0.5f)));
-
-			// addContentView(mContent, FILL);
+			int width = display.getWidth();
+			int height = display.getHeight();
+			
+			addContentView(mContent, new FrameLayout.LayoutParams(width, height));
 		}
 
 		private void setUpTitle() {
@@ -363,25 +349,25 @@ public class TwitterHelper {
 			mTitle.setTextColor(Color.WHITE);
 			mTitle.setTypeface(Typeface.DEFAULT_BOLD);
 			mTitle.setBackgroundColor(0xFFbbd7e9);
-			mTitle.setPadding(MARGIN + PADDING, MARGIN, MARGIN, MARGIN);
-			mTitle.setCompoundDrawablePadding(MARGIN + PADDING);
+			mTitle.setPadding(4 + 5, 4, 4, 4);
+			mTitle.setCompoundDrawablePadding(4 + 5);
 			mTitle.setCompoundDrawablesWithIntrinsicBounds(icon, null, null,
 					null);
 
 			mContent.addView(mTitle);
 		}
 
-		@SuppressLint("SetJavaScriptEnabled")
 		private void setUpWebView() {
+			FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+					ViewGroup.LayoutParams.MATCH_PARENT,
+					ViewGroup.LayoutParams.MATCH_PARENT);
+			
 			mWebView = new WebView(getContext());
-
-			mWebView.setVerticalScrollBarEnabled(false);
-			mWebView.setHorizontalScrollBarEnabled(false);
 			mWebView.setWebViewClient(new TwitterWebViewClient());
 			mWebView.getSettings().setJavaScriptEnabled(true);
+			mWebView.setLayoutParams(lp);
 			mWebView.loadUrl(mUrl);
-			mWebView.setLayoutParams(FILL);
-
+			
 			mContent.addView(mWebView);
 		}
 
@@ -389,14 +375,12 @@ public class TwitterHelper {
 
 			@Override
 			public boolean shouldOverrideUrlLoading(WebView view, String url) {
+				Log.i(TAG, url);
 				if (url.startsWith(CALLBACK_URL)) {
 					mDialogListener.onComplete(url);
-
 					TwitterDialog.this.dismiss();
-
-					return true;
-				} else if (url.startsWith("authorize")) {
-					return false;
+				}else{
+					view.loadUrl(url);
 				}
 				return true;
 			}

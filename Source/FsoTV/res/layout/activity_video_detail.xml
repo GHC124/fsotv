@@ -133,7 +133,7 @@
 
                 <TextView
                     android:id="@+id/tvPublishDay"
-                    android:layout_width="60dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/tvDuration"
                     android:layout_marginLeft="5dp"
@@ -156,14 +156,49 @@
                     android:textColor="#000000"
                     android:textIsSelectable="false"
                     android:textSize="12sp" />
+				
+                <TextView
+                    android:id="@+id/tvAuthor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/tvPublishDay"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_toRightOf="@id/imgThumbnail"
+                    android:text="@string/browse_video_author"
+                    android:textColor="#000000"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
 
-                <LinearLayout android:layout_below="@id/published"
+                <TextView
+                    android:id="@+id/author"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/published"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_toRightOf="@id/tvAuthor"
+                    android:text=""
+                    android:textColor="#000000"
+                    android:textIsSelectable="false"
+                    android:textSize="12sp" />
+                
+                <LinearLayout android:layout_below="@id/author"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:layout_alignParentRight="true" 
                     >
 
+                    <ImageButton
+                        android:id="@+id/imgComment"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="5dip"
+                        android:background="@null"
+                        android:onClick="onCommentClick"
+                        android:src="@drawable/comment_add32" />
+                    
                     <ImageButton
                         android:id="@+id/imgFaceBook"
                         android:layout_width="wrap_content"

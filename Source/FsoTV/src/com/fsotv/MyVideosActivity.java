@@ -237,6 +237,8 @@ public class MyVideosActivity extends ActivityBase {
 				item.setFavoriteCount(video.getFavoriteCount());
 				item.setPublished(video.getPublished());
 				item.setUpdated(video.getUpdated());
+				item.setAuthor(video.getAuthor());
+				
 				for (ListGroup g : groups) {
 					if (g.id == video.getIdCategory()) {
 						g.childs.add(item);
@@ -344,7 +346,8 @@ public class MyVideosActivity extends ActivityBase {
 
 				holder.duration = (TextView) view.findViewById(R.id.duration);
 				holder.published = (TextView) view.findViewById(R.id.published);
-
+				holder.author = (TextView) view.findViewById(R.id.author);
+				
 				view.setTag(holder);
 			} else {
 				holder = (ListItemHolder) view.getTag();
@@ -361,20 +364,20 @@ public class MyVideosActivity extends ActivityBase {
 			if (description.length() > 150) {
 				description = description.substring(0, 150) + "...";
 			}
-
+			String author = item.getAuthor();
+			if (author.length() > 50) {
+				author = author.substring(0, 50) + "...";
+			}
 			imageLoader.DisplayImage(item.getImage(), holder.image,
 					holder.progressBar);
 
 			holder.title.setText(title);
 			holder.description.setText(description);
-			holder.viewCount.setText(DataHelper.numberWithCommas(item
-					.getViewCount()));
-
-			holder.duration.setText(DataHelper.secondsToTimer(item
-					.getDuration()));
-			holder.published
-					.setText(DataHelper.formatDate(item.getPublished()));
-
+			holder.viewCount.setText(DataHelper.numberWithCommas(item.getViewCount()));
+			holder.duration.setText(DataHelper.secondsToTimer(item.getDuration()));
+			holder.published.setText(DataHelper.formatDate(item.getPublished()));
+			holder.author.setText(author);
+			
 			return view;
 		}
 
@@ -448,6 +451,7 @@ public class MyVideosActivity extends ActivityBase {
 			TextView viewCount;
 			TextView duration;
 			TextView published;
+			TextView author;
 		}
 
 		class ListGroupHolder {

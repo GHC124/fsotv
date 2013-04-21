@@ -1,40 +1,52 @@
 package com.fsotv.utils;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.NameValuePair;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.app.Activity;
+import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
+import android.view.Display;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
+import com.fsotv.R;
 import com.fsotv.dto.ChannelEntry;
 import com.fsotv.dto.CommentEntry;
 import com.fsotv.dto.VideoEntry;
+
 /**
- * YouTube Helper class. Allow:
- * + Get channels by type
- * + Get video by category, channelId
- * + Get channel detail
- * + Get video detail
- * + Get comments by videoId
- * 
+ * YouTube Helper class. Allow: + Get channels by type + Get video by category,
+ * channelId + Get channel detail + Get video detail + Get comments by videoId +
+ * Login + Add comment
  */
 public class YouTubeHelper {
- 
 	public final static String CATEGORY_EDUCATION = "Education";
 	public final static String CATEGORY_COMEDY = "Comedy";
 	public final static String CATEGORY_ENTERTAIMENT = "Entertainment";
@@ -56,9 +68,582 @@ public class YouTubeHelper {
 	public final static String TIME_THIS_MONTH = "this_month";
 	public final static String TIME_ALL_TIME = "all_time";
 
-	private final static String InforURL = "http://www.youtube.com/get_video_info?&video_id=";
-	private final static String GdataURL = "http://gdata.youtube.com/feeds/api";
-	private final static String CategoryURL = "-/%7Bhttp%3A%2F%2Fgdata.youtube.com%2Fschemas%2F2007%2Fcategories.cat%7D";
+	private final String TAG = "YouTube";
+
+	// YouTube Key
+	private final String API_KEY = "AIzaSyCNvmKz77Wtg7QEgS8Bad3br2pN4k_tmFs";
+	private final String CLIENT_ID = "113980155278.apps.googleusercontent.com";
+	private final String REDIRECT_URI = "http://localhost/oauth2callback";// "urn:ietf:wg:oauth:2.0:oob";
+	private final String RESPONSE_TYPE = "code";
+	private final String SCOPE = "https://gdata.youtube.com";
+
+	private final String GdataURL = "http://gdata.youtube.com/feeds/api";
+	private final String GdataURLs = "https://gdata.youtube.com/feeds/api";
+	private final String CategoryURL = "-/%7Bhttp%3A%2F%2Fgdata.youtube.com%2Fschemas%2F2007%2Fcategories.cat%7D";
+
+	private Activity activity;
+	private ProgressDialog mProgressDlg;
+	private YtListener mListener;
+	private YtSession mSession;
+	private String accessToken;
+	private String refreshToken;
+	private Long accessExpires;
+
+	public YouTubeHelper() {
+
+	}
+
+	public YouTubeHelper(Activity context, SharedPreferences sharedPref) {
+		this.activity = context;
+		this.mSession = new YtSession(sharedPref);
+		mProgressDlg = new ProgressDialog(context);
+
+		mProgressDlg.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+		// Check access token
+		checkAccessToken();
+	}
+
+	public void setListener(YtListener listener) {
+		mListener = listener;
+	}
+
+	public boolean hasAccessToken() {
+		boolean valid = false;
+		if (accessToken != null && refreshToken != null) {
+			valid = true;
+		}
+
+		return valid;
+	}
+
+	public void resetAccessToken() {
+		accessToken = null;
+		accessExpires = 0L;
+		
+		mSession.resetAccessToken();
+	}
+
+	/**
+	 * Login to twitter
+	 */
+	public void authorize() {
+		Log.i(TAG, "Start authorize...");
+
+		StringBuilder sb = new StringBuilder(); // Build authenticate URL
+		sb.append("https://accounts.google.com/o/oauth2/auth?client_id=");
+		sb.append(CLIENT_ID);
+		sb.append("&redirect_uri=");
+		sb.append(REDIRECT_URI);
+		sb.append("&scope=");
+		sb.append(SCOPE);
+		sb.append("&response_type=");
+		sb.append(RESPONSE_TYPE);
+
+		showLoginDialog(sb.toString());
+	
+		Log.i(TAG, "End authorize...");
+	}
+
+	/**
+	 * Add comment after logged
+	 * 
+	 * @param comment
+	 */
+	public void addComment(final String videoId, final String comment) {
+		Log.i(TAG, "Start add comment...");
+		new Thread() {
+			@Override
+			public void run() {
+				try {
+					// Build comment
+					StringBuilder sbComment = new StringBuilder();
+					sbComment
+							.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+					sbComment
+							.append("<entry xmlns=\"http://www.w3.org/2005/Atom\"");
+					sbComment
+							.append(" xmlns:yt=\"http://gdata.youtube.com/schemas/2007\"><content>");
+					sbComment.append(comment);
+					sbComment.append("</content>");
+					sbComment.append("</entry>");
+					String mComment = sbComment.toString();
+					
+					StringBuilder sbUrl = new StringBuilder(); // Build URL
+					sbUrl.append(GdataURL);
+					sbUrl.append("/videos/");
+					sbUrl.append(videoId);
+					sbUrl.append("/comments");
+					String mUrl = sbUrl.toString();
+
+					List<NameValuePair> headers = new ArrayList<NameValuePair>();
+					headers.add(new BasicNameValuePair("Content-Type",
+							"application/atom+xml"));
+					headers.add(new BasicNameValuePair("Authorization",
+							"Bearer " + accessToken));
+					headers.add(new BasicNameValuePair("GData-Version", 2 + ""));
+					headers.add(new BasicNameValuePair("X-GData-Key", "key="
+							+ API_KEY));
+
+					StringEntity se = new StringEntity(mComment);
+					int status = WebHelper.execute(mUrl, WebHelper.PostType.POST, headers, se);
+					
+					if(status == 200 || status == 201) // OK
+						mHandler.sendMessage(mHandler.obtainMessage(2, 0, 0));
+					else{ 
+						mHandler.sendMessage(mHandler.obtainMessage(4, 0, 0, "status:" + status));
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+					mHandler.sendMessage(mHandler.obtainMessage(4, 0, 0,
+							e.getMessage()));
+				}
+			}
+		}.start();
+		Log.i(TAG, "End add comment");
+	}
+
+	/**
+	 * Check access token was stored
+	 */
+	private void checkAccessToken() {
+		// Check access token
+		accessToken = mSession.getAccessToken();
+		refreshToken = mSession.getRefreshToken();
+		accessExpires = mSession.getAccessExpire();
+	}
+
+	private void refreshAccessToken(){
+		Log.i(TAG, "Start refresh access token...");
+
+		mProgressDlg.setMessage("Refresh login infor ...");
+		mProgressDlg.show();
+		
+		resetAccessToken();
+		
+		new Thread() {
+			@Override
+			public void run() {
+				try {
+					List<NameValuePair> headers = new ArrayList<NameValuePair>();
+					headers.add(new BasicNameValuePair("Content-Type",
+							"application/x-www-form-urlencoded"));
+
+					List<NameValuePair> params = new ArrayList<NameValuePair>();
+					params.add(new BasicNameValuePair("client_id", CLIENT_ID));
+					params.add(new BasicNameValuePair("refresh_token",
+							refreshToken));
+					params.add(new BasicNameValuePair("grant_type",
+							"refresh_token"));
+
+					InputStream is = WebHelper.getStream(
+							"https://accounts.google.com/o/oauth2/token",
+							WebHelper.PostType.POST, headers, params);
+					JSONObject json = JsonHelper.getJSONFromStream(is);
+					String token = null;
+					Long expires = 0L;
+					if (!json.isNull("access_token")) {
+						token = json.getString("access_token");
+					}
+					if (!json.isNull("expires_in")) {
+						expires = json.getLong("expires_in");
+					}
+					if (token != null && expires != 0) {
+						// Set access token
+						accessToken = token;
+						accessExpires = expires;
+
+						// Store access token
+						mSession.storeAccessToken(accessToken, refreshToken,
+								accessExpires);
+
+						mHandler.sendMessage(mHandler.obtainMessage(1, 0, 0));
+					}else{
+						mHandler.sendMessage(mHandler.obtainMessage(4, 0, 0,
+								"Can't get access token"));
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+					mHandler.sendMessage(mHandler.obtainMessage(4, 0, 0,
+							e.getMessage()));
+				}
+
+			}
+		}.start();
+		Log.i(TAG, "End refresh access token");
+	}
+	
+	/**
+	 * Validate access token is valid
+	 */
+	public void validateAccessToken() {
+		Log.i(TAG, "Start validate access token...");
+		new Thread() {
+			@Override
+			public void run() {
+				StringBuilder sb = new StringBuilder();
+				sb.append("https://www.googleapis.com/oauth2/v1/tokeninfo?");
+				sb.append(accessToken);
+				String url = sb.toString();
+				try {
+					InputStream is = WebHelper.getStream(url,
+							WebHelper.PostType.GET, null, null);
+					JSONObject json = JsonHelper.getJSONFromStream(is);
+					Long expires = 0L;
+					if (!json.isNull("expires_in")) {
+						expires = json.getLong("expires_in");
+					}
+					if (expires > 0) {
+						mHandler.sendMessage(mHandler.obtainMessage(5, 0, 0,
+								sb.toString()));
+					} else {
+						mHandler.sendMessage(mHandler.obtainMessage(6, 0, 0,
+								sb.toString()));
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+					mHandler.sendMessage(mHandler.obtainMessage(4, 0, 0,
+							e.getMessage()));
+				}
+			}
+		}.start();
+		Log.i(TAG, "End validate access token");
+	}
+
+	/**
+	 * Get access token
+	 * 
+	 * @param callbackUrl
+	 */
+	private void processToken(String callbackUrl) {
+		mProgressDlg.setMessage("Finalizing ...");
+		mProgressDlg.show();
+
+		Log.i(TAG, "Start process token...");
+
+		final String verifier = getVerifier(callbackUrl);
+
+		new Thread() {
+			@Override
+			public void run() {
+				try {
+					List<NameValuePair> headers = new ArrayList<NameValuePair>();
+					headers.add(new BasicNameValuePair("Content-Type",
+							"application/x-www-form-urlencoded"));
+
+					List<NameValuePair> params = new ArrayList<NameValuePair>();
+					params.add(new BasicNameValuePair("code", verifier));
+					params.add(new BasicNameValuePair("client_id", CLIENT_ID));
+					params.add(new BasicNameValuePair("redirect_uri",
+							REDIRECT_URI));
+					params.add(new BasicNameValuePair("grant_type",
+							"authorization_code"));
+
+					InputStream is = WebHelper.getStream(
+							"https://accounts.google.com/o/oauth2/token",
+							WebHelper.PostType.POST, headers, params);
+					JSONObject json = JsonHelper.getJSONFromStream(is);
+					String token = null;
+					String refresh = null;
+					Long expires = 0L;
+					if (!json.isNull("access_token")) {
+						token = json.getString("access_token");
+					}
+					if (!json.isNull("refresh_token")) {
+						refresh = json.getString("refresh_token");
+					}
+					if (!json.isNull("expires_in")) {
+						expires = json.getLong("expires_in");
+					}
+					if (token != null && expires != 0) {
+						// Set access token
+						accessToken = token;
+						refreshToken = refresh;
+						accessExpires = expires;
+
+						// Store access token
+						mSession.storeAccessToken(accessToken, refreshToken,
+								accessExpires);
+
+						mHandler.sendMessage(mHandler.obtainMessage(1, 0, 0));
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+					mHandler.sendMessage(mHandler.obtainMessage(4, 0, 0,
+							e.getMessage()));
+				}
+
+			}
+		}.start();
+		Log.i(TAG, "End process token");
+	}
+
+	/**
+	 * Get oauth_verifier that stored in callback url
+	 * 
+	 * @param callbackUrl
+	 * @return
+	 */
+	private String getVerifier(String callbackUrl) {
+		String verifier = "";
+
+		try {
+			Uri uri = Uri.parse(callbackUrl);
+			verifier = uri.getQueryParameter("code");
+		} catch (Exception e) {
+			e.printStackTrace();
+			mHandler.sendMessage(mHandler.obtainMessage(4, 0, 0, e.getMessage()));
+		}
+
+		return verifier;
+	}
+
+	/**
+	 * Show login dialog
+	 * 
+	 * @param url
+	 */
+	private void showLoginDialog(String url) {
+		final YtListener listener = new YtListener() {
+			public void onComplete(String value) {
+				processToken(value);
+			}
+
+			public void onError(String value) {
+				mListener.onError(value);
+			}
+		};
+
+		new YouTubeDialog(activity, url, listener).show();
+	}
+
+	/**
+	 * Hander <br>
+	 * What: 1-login complete; 2-comment complete; 3-show login; 4-error;
+	 * 5-access token valid; 6-access token invalid <br>
+	 * obj: message, can be an normal message or an status code response(ex: 'status:403')
+	 */
+	private Handler mHandler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			mProgressDlg.dismiss();
+			if (msg.what == 1) {
+				mListener.onComplete("login");
+			} else if (msg.what == 2) {
+				mListener.onComplete("comment");
+			} else if (msg.what == 3) {
+				showLoginDialog((String) msg.obj);
+			} else if (msg.what == 4) {
+				String error = (String) msg.obj;
+				mListener.onError(error == null ? "" : error);
+			} else if (msg.what == 5) {
+				mListener.onComplete("validate");
+			} else if (msg.what == 6) {
+				refreshAccessToken();
+			}
+		}
+	};
+
+	/**
+	 * Interface to handle complete and error event
+	 * 
+	 * @author ChungPV1
+	 * 
+	 */
+	public interface YtListener {
+		public void onComplete(String value);
+
+		public void onError(String value);
+	}
+
+	/**
+	 * Store twitter authenticate key and serect key into preference
+	 * 
+	 * @author ChungPV1
+	 * 
+	 */
+	class YtSession {
+		private SharedPreferences sharedPref;
+		private Editor editor;
+		/**
+		 * Declare access token and expire: status for secure access to YouTube
+		 * API
+		 */
+		private final String YOUTUBE_ACCESS_TOKEN = "youtube_access_token";
+		private final String YOUTUBE_REFRESH_TOKEN = "youtube_refresh_token";
+		private final String YOUTUBE_ACCESS_EXPIRE = "youtube_access_expire";
+
+		public YtSession(SharedPreferences sharedPref) {
+			this.sharedPref = sharedPref;
+			editor = sharedPref.edit();
+		}
+
+		public void storeAccessToken(String accessToken, String refreshToken,
+				Long accessExpire) {
+			editor.putString(YOUTUBE_ACCESS_TOKEN, accessToken);
+			editor.putString(YOUTUBE_REFRESH_TOKEN, refreshToken);
+			editor.putLong(YOUTUBE_ACCESS_EXPIRE, accessExpire);
+			editor.commit();
+		}
+
+		public void resetAccessToken() {
+			editor.putString(YOUTUBE_ACCESS_TOKEN, null);
+			editor.putString(YOUTUBE_REFRESH_TOKEN, null);
+			editor.putString(YOUTUBE_ACCESS_EXPIRE, null);
+
+			editor.commit();
+		}
+
+		public String getAccessToken() {
+			String token = sharedPref.getString(YOUTUBE_ACCESS_TOKEN, null);
+
+			return token;
+		}
+
+		public String getRefreshToken() {
+			String token = sharedPref.getString(YOUTUBE_REFRESH_TOKEN, null);
+
+			return token;
+		}
+
+		public Long getAccessExpire() {
+			Long token = sharedPref.getLong(YOUTUBE_ACCESS_EXPIRE, 0);
+
+			return token;
+		}
+	}
+
+	/**
+	 * Create dialog that contain webview to load twitter
+	 * 
+	 * @author ChungPV1
+	 * 
+	 */
+	class YouTubeDialog extends Dialog {
+		private String mUrl;
+		private YtListener mDialogListener;
+		private ProgressDialog mSpinner;
+		private LinearLayout mContent;
+		private WebView mWebView;
+		private TextView mTitle;
+		private boolean progressDialogRunning = false;
+
+		public YouTubeDialog(Context context, String url, YtListener listener) {
+			super(context);
+
+			mUrl = url;
+			mDialogListener = listener;
+
+			Log.i(TAG, url);
+		}
+
+		@Override
+		protected void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			mSpinner = new ProgressDialog(getContext());
+
+			mSpinner.requestWindowFeature(Window.FEATURE_NO_TITLE);
+			mSpinner.setMessage("Loading...");
+
+			mContent = new LinearLayout(getContext());
+			mContent.setOrientation(LinearLayout.VERTICAL);
+
+			setUpTitle();
+			setUpWebView();
+
+			Display display = getWindow().getWindowManager().getDefaultDisplay();
+			int width = display.getWidth();
+			int height = display.getHeight();
+			
+			addContentView(mContent, new FrameLayout.LayoutParams(
+					width, height));
+		}
+
+		private void setUpTitle() {
+			requestWindowFeature(Window.FEATURE_NO_TITLE);
+			Drawable icon = getContext().getResources().getDrawable(
+					R.drawable.youtube32);
+			mTitle = new TextView(getContext());
+			mTitle.setText("YouTube");
+			mTitle.setTextColor(Color.WHITE);
+			mTitle.setTypeface(Typeface.DEFAULT_BOLD);
+			mTitle.setBackgroundColor(0xFFbbd7e9);
+			mTitle.setPadding(4 + 2, 4, 4, 4);
+			mTitle.setCompoundDrawablePadding(4 + 2);
+			mTitle.setCompoundDrawablesWithIntrinsicBounds(icon, null, null,
+					null);
+			mContent.addView(mTitle);
+		}
+
+		private void setUpWebView() {
+			FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+					ViewGroup.LayoutParams.MATCH_PARENT,
+					ViewGroup.LayoutParams.MATCH_PARENT);
+			
+			mWebView = new WebView(getContext());
+			mWebView.setWebViewClient(new YouTubeDialog.YouTubeWebViewClient());
+			mWebView.getSettings().setJavaScriptEnabled(true);
+			mWebView.setLayoutParams(lp);
+			mWebView.loadUrl(mUrl);
+
+			mContent.addView(mWebView);
+		}
+
+		private class YouTubeWebViewClient extends WebViewClient {
+
+			@Override
+			public boolean shouldOverrideUrlLoading(WebView view, String url) {
+				Log.i(TAG, url);
+				if (url.startsWith(REDIRECT_URI)) {
+					mDialogListener.onComplete(url);
+					YouTubeDialog.this.dismiss();
+				} else {
+					view.loadUrl(url);
+				}
+				return true;
+			}
+
+			@Override
+			public void onReceivedError(WebView view, int errorCode,
+					String description, String failingUrl) {
+				super.onReceivedError(view, errorCode, description, failingUrl);
+				YouTubeDialog.this.dismiss();
+
+				mDialogListener.onError(description);
+			}
+
+			@Override
+			public void onPageStarted(WebView view, String url, Bitmap favicon) {
+				super.onPageStarted(view, url, favicon);
+				mSpinner.show();
+				progressDialogRunning = true;
+			}
+
+			@Override
+			public void onPageFinished(WebView view, String url) {
+				super.onPageFinished(view, url);
+				String title = mWebView.getTitle();
+				if (title != null && title.length() > 0) {
+					mTitle.setText(title);
+				}
+				progressDialogRunning = false;
+				mSpinner.dismiss();
+			}
+
+		}
+
+		@Override
+		protected void onStop() {
+			progressDialogRunning = false;
+			super.onStop();
+		}
+
+		public void onBackPressed() {
+			if (!progressDialogRunning) {
+				YouTubeDialog.this.dismiss();
+			}
+		}
+	}
 
 	/**
 	 * Get Channels by user type
@@ -66,11 +651,11 @@ public class YouTubeHelper {
 	 * @param userType
 	 * @return
 	 */
-	public static List<ChannelEntry> getChannels(String userType,
-			String orderBy, int maxResult, int startIndex, String time) {
-		
-		Log.i("YouTubeHelper","Start getChannels()");
-		
+	public List<ChannelEntry> getChannels(String userType, String orderBy,
+			int maxResult, int startIndex, String time) {
+
+		Log.i("YouTubeHelper", "Start getChannels()");
+
 		List<ChannelEntry> channels = null;
 		InputStream is = null;
 		StringBuilder sb = new StringBuilder();
@@ -100,28 +685,30 @@ public class YouTubeHelper {
 		String newUrl = sb.toString();
 		try {
 			newUrl = DataHelper.parseUrl(newUrl);
-			is = WebHelper.GetStream(newUrl, WebHelper.PostType.GET);
+			is = WebHelper
+					.getStream(newUrl, WebHelper.PostType.GET, null, null);
 		} catch (Exception ex) {
 			Log.e("getChannels", ex.toString());
 		}
 		channels = getChannelsByStream(is);
-		
-		Log.i("YouTubeHelper","Start getChannels()");
-		
+
+		Log.i("YouTubeHelper", "Start getChannels()");
+
 		return channels;
 	}
-	
+
 	/**
+	 * Get channels by stream
 	 * 
 	 * @param inputStream
 	 * @return
 	 */
-	public static List<ChannelEntry> getChannelsByStream(InputStream inputStream) {
+	public List<ChannelEntry> getChannelsByStream(InputStream is) {
 		List<ChannelEntry> channels = new ArrayList<ChannelEntry>();
 		try {
-			JSONObject json = JsonHelper.getJSONFromStream(inputStream);
+			JSONObject json = JsonHelper.getJSONFromStream(is);
 			JSONObject feed = json.getJSONObject("feed");
-			if(feed.isNull("entry")){
+			if (feed.isNull("entry")) {
 				return channels;
 			}
 			JSONArray entries = feed.getJSONArray("entry");
@@ -185,6 +772,7 @@ public class YouTubeHelper {
 	}
 
 	/**
+	 * Get videos in channel
 	 * 
 	 * @param channelId
 	 * @param orderBy
@@ -194,8 +782,9 @@ public class YouTubeHelper {
 	 * @param time
 	 * @return
 	 */
-	public static List<VideoEntry> getVideosInChannel(String channelId,
-			String orderBy, int maxResult, int startIndex, String keyword, String time) {
+	public List<VideoEntry> getVideosInChannel(String channelId,
+			String orderBy, int maxResult, int startIndex, String keyword,
+			String time) {
 		List<VideoEntry> videos = null;
 		InputStream is = null;
 		StringBuilder sb = new StringBuilder();
@@ -234,7 +823,8 @@ public class YouTubeHelper {
 		String newUrl = sb.toString();
 		try {
 			newUrl = DataHelper.parseUrl(newUrl);
-			is = WebHelper.GetStream(newUrl, WebHelper.PostType.GET);
+			is = WebHelper
+					.getStream(newUrl, WebHelper.PostType.GET, null, null);
 		} catch (Exception ex) {
 			Log.e("getVideosInChannel", ex.toString());
 		}
@@ -252,8 +842,9 @@ public class YouTubeHelper {
 	 * @param keyword
 	 * @return
 	 */
-	public static List<VideoEntry> getVideosInCategory(String category,
-			String orderBy, int maxResult, int startIndex, String keyword, String time) {
+	public List<VideoEntry> getVideosInCategory(String category,
+			String orderBy, int maxResult, int startIndex, String keyword,
+			String time) {
 		List<VideoEntry> videos = null;
 		InputStream is = null;
 		StringBuilder sb = new StringBuilder();
@@ -295,24 +886,27 @@ public class YouTubeHelper {
 		String newUrl = sb.toString();
 		try {
 			newUrl = DataHelper.parseUrl(newUrl);
-			is = WebHelper.GetStream(newUrl, WebHelper.PostType.GET);
+			is = WebHelper
+					.getStream(newUrl, WebHelper.PostType.GET, null, null);
 		} catch (Exception ex) {
 			Log.e("getVideosInCategory", ex.toString());
 		}
 		videos = getVideosByStream(is);
 		return videos;
 	}
+
 	/**
 	 * Get videos by stream
+	 * 
 	 * @param is
 	 * @return
 	 */
-	public static List<VideoEntry> getVideosByStream(InputStream is) {
+	public List<VideoEntry> getVideosByStream(InputStream is) {
 		List<VideoEntry> videos = new ArrayList<VideoEntry>();
 		try {
 			JSONObject json = JsonHelper.getJSONFromStream(is);
 			JSONObject feed = json.getJSONObject("feed");
-			if(feed.isNull("entry")){
+			if (feed.isNull("entry")) {
 				return videos;
 			}
 			JSONArray entries = feed.getJSONArray("entry");
@@ -323,6 +917,12 @@ public class YouTubeHelper {
 				if (!entryObject.isNull("yt$statistics")) {
 					statisticsObject = entryObject
 							.getJSONObject("yt$statistics");
+				}
+				JSONObject ratingObject = null;
+				// if orderBy=published->rating is null
+				if (!entryObject.isNull("yt$rating")) {
+					ratingObject = entryObject
+							.getJSONObject("yt$rating");
 				}
 				JSONObject titleObject = entryObject.getJSONObject("title");
 				JSONObject publishedObject = entryObject
@@ -336,7 +936,8 @@ public class YouTubeHelper {
 				JSONArray thumbnails = groupObject
 						.getJSONArray("media$thumbnail");
 				JSONArray contents = groupObject.getJSONArray("media$content");
-
+				JSONArray authors = entryObject.getJSONArray("author");
+				
 				String id = idObject.getString("$t");
 				String title = titleObject.getString("$t");
 				String description = descriptionObject.getString("$t");
@@ -348,12 +949,13 @@ public class YouTubeHelper {
 					image = thumbnails.getJSONObject(0).getString("url");
 				}
 				int viewCount = -1;
-				int favoriteCount = -1;
 				if (statisticsObject != null) {
 					viewCount = statisticsObject.getInt("viewCount");
-					favoriteCount = statisticsObject.getInt("favoriteCount");
 				}
-
+				int favoriteCount = -1;
+				if (ratingObject != null) {
+					favoriteCount = ratingObject.getInt("numLikes");
+				}
 				long duration = 0;
 				for (int j = 0; j < contents.length(); j++) {
 					JSONObject contentObject = contents.getJSONObject(j);
@@ -365,7 +967,11 @@ public class YouTubeHelper {
 					}
 					contentObject = null;
 				}
-
+				String author = "";
+				if (authors.length() > 0) {
+					author = authors.getJSONObject(0).getJSONObject("name").getString("$t");
+				}
+				
 				VideoEntry video = new VideoEntry();
 				video.setId(id);
 				video.setIdReal(id);
@@ -378,9 +984,13 @@ public class YouTubeHelper {
 				video.setDuration(duration);
 				video.setPublished(published);
 				video.setUpdated(updated);
+				video.setAuthor(author);
+				
 				videos.add(video);
 
+				authors = null;
 				thumbnails = null;
+				ratingObject = null;
 				statisticsObject = null;
 				descriptionObject = null;
 				titleObject = null;
@@ -400,15 +1010,17 @@ public class YouTubeHelper {
 
 		return videos;
 	}
+
 	/**
 	 * Get comments by videoId
+	 * 
 	 * @param videoId
 	 * @param maxResult
 	 * @param startIndex
 	 * @return
 	 */
-	public static List<CommentEntry> getComments(String videoId,
-			int maxResult, int startIndex) {
+	public List<CommentEntry> getComments(String videoId, int maxResult,
+			int startIndex) {
 		List<CommentEntry> comments = null;
 		InputStream is = null;
 		StringBuilder sb = new StringBuilder();
@@ -428,20 +1040,27 @@ public class YouTubeHelper {
 		String newUrl = sb.toString();
 		try {
 			newUrl = DataHelper.parseUrl(newUrl);
-			is = WebHelper.GetStream(newUrl, WebHelper.PostType.GET);
+			is = WebHelper
+					.getStream(newUrl, WebHelper.PostType.GET, null, null);
 		} catch (Exception ex) {
 			Log.e("getComments", ex.toString());
 		}
 		comments = getCommentsByStream(is);
 		return comments;
 	}
-	
-	public static List<CommentEntry> getCommentsByStream(InputStream is) {
+
+	/**
+	 * Get comments by stream
+	 * 
+	 * @param is
+	 * @return
+	 */
+	public List<CommentEntry> getCommentsByStream(InputStream is) {
 		List<CommentEntry> comments = new ArrayList<CommentEntry>();
 		try {
 			JSONObject json = JsonHelper.getJSONFromStream(is);
 			JSONObject feed = json.getJSONObject("feed");
-			if(feed.isNull("entry")){
+			if (feed.isNull("entry")) {
 				return comments;
 			}
 			JSONArray entries = feed.getJSONArray("entry");
@@ -451,20 +1070,27 @@ public class YouTubeHelper {
 				JSONObject publishedObject = entryObject
 						.getJSONObject("published");
 				JSONObject contentObject = entryObject.getJSONObject("content");
-
+				JSONArray authors = entryObject.getJSONArray("author");
+				
 				String title = titleObject.getString("$t");
 				String published = publishedObject.getString("$t");
 				String content = contentObject.getString("$t");
+				String author = "";
+				if (authors.length() > 0) {
+					author = authors.getJSONObject(0).getJSONObject("name").getString("$t");
+				}
 				
 				CommentEntry comment = new CommentEntry();
 				comment.setTitle(title);
 				comment.setContent(content);
 				comment.setPublished(published);
+				comment.setAuthor(author);
 				
 				comments.add(comment);
 
+				authors = null;
 				titleObject = null;
-				contentObject  = null;
+				contentObject = null;
 				publishedObject = null;
 				entryObject = null;
 			}
@@ -479,7 +1105,13 @@ public class YouTubeHelper {
 		return comments;
 	}
 
-	public static ChannelEntry getChannelDetail(String channelId) {
+	/**
+	 * Get channel detail by channel id
+	 * 
+	 * @param channelId
+	 * @return
+	 */
+	public ChannelEntry getChannelDetail(String channelId) {
 		ChannelEntry channel = null;
 		InputStream is = null;
 		StringBuilder sb = new StringBuilder();
@@ -489,7 +1121,8 @@ public class YouTubeHelper {
 		sb.append("?v=2&alt=json");
 		String newUrl = sb.toString();
 		try {
-			is = WebHelper.GetStream(newUrl, WebHelper.PostType.GET);
+			is = WebHelper
+					.getStream(newUrl, WebHelper.PostType.GET, null, null);
 		} catch (Exception ex) {
 			Log.e("getChannelDetail", ex.toString());
 		}
@@ -497,7 +1130,13 @@ public class YouTubeHelper {
 		return channel;
 	}
 
-	public static ChannelEntry getChannelByStream(InputStream is) {
+	/**
+	 * Get channels by stream
+	 * 
+	 * @param is
+	 * @return
+	 */
+	public ChannelEntry getChannelByStream(InputStream is) {
 		ChannelEntry channel = new ChannelEntry();
 		try {
 			JSONObject json = JsonHelper.getJSONFromStream(is);
@@ -554,7 +1193,7 @@ public class YouTubeHelper {
 	 * @param url
 	 * @return json string
 	 */
-	public static VideoEntry getVideoDetail(String videoId) {
+	public VideoEntry getVideoDetail(String videoId) {
 		VideoEntry video = null;
 		InputStream is = null;
 		StringBuilder sb = new StringBuilder();
@@ -564,7 +1203,8 @@ public class YouTubeHelper {
 		sb.append("?v=2&alt=json");
 		String newUrl = sb.toString();
 		try {
-			is = WebHelper.GetStream(newUrl, WebHelper.PostType.GET);
+			is = WebHelper
+					.getStream(newUrl, WebHelper.PostType.GET, null, null);
 
 		} catch (Exception ex) {
 			Log.e("getVideoDetail", ex.toString());
@@ -573,13 +1213,20 @@ public class YouTubeHelper {
 		return video;
 	}
 
-	public static VideoEntry getVideoByStream(InputStream is) {
+	/**
+	 * Get video detail by stream
+	 * 
+	 * @param is
+	 * @return
+	 */
+	public VideoEntry getVideoByStream(InputStream is) {
 		VideoEntry video = new VideoEntry();
 		try {
 			JSONObject json = JsonHelper.getJSONFromStream(is);
 			JSONObject entryObject = json.getJSONObject("entry");
 			JSONObject statisticsObject = entryObject
 					.getJSONObject("yt$statistics");
+			JSONObject ratingObject = entryObject.getJSONObject("yt$rating");
 			JSONObject titleObject = entryObject.getJSONObject("title");
 			JSONArray links = entryObject.getJSONArray("link");
 			JSONObject groupObject = entryObject.getJSONObject("media$group");
@@ -590,7 +1237,8 @@ public class YouTubeHelper {
 			JSONObject idObject = groupObject.getJSONObject("yt$videoid");
 			JSONArray contents = groupObject.getJSONArray("media$content");
 			JSONArray thumbnails = groupObject.getJSONArray("media$thumbnail");
-
+			JSONArray authors = entryObject.getJSONArray("author");
+			
 			String id = idObject.getString("$t");
 			String title = titleObject.getString("$t");
 			String description = descriptionObject.getString("$t");
@@ -624,8 +1272,11 @@ public class YouTubeHelper {
 				image = thumbnails.getJSONObject(0).getString("url");
 			}
 			int viewCount = statisticsObject.getInt("viewCount");
-			int favoriteCount = statisticsObject.getInt("favoriteCount");
-
+			int favoriteCount = ratingObject.getInt("numLikes");
+			String author = "";
+			if (authors.length() > 0) {
+				author = authors.getJSONObject(0).getJSONObject("name").getString("$t");
+			}
 			video.setId(id);
 			video.setIdReal(id);
 			video.setTitle(title);
@@ -638,10 +1289,13 @@ public class YouTubeHelper {
 			video.setFavoriteCount(favoriteCount);
 			video.setPublished(published);
 			video.setUpdated(updated);
-
+			video.setAuthor(author);
+			
+			authors = null;
 			links = null;
 			contents = null;
 			thumbnails = null;
+			ratingObject = null;
 			statisticsObject = null;
 			publishedObject = null;
 			updatedObject = null;
@@ -659,193 +1313,4 @@ public class YouTubeHelper {
 		return video;
 	}
 
-	/**
-	 * Calculate the YouTube URL to load the video. Includes retrieving a token
-	 * that YouTube requires to play the video.
-	 * 
-	 * @param pYouTubeFmtQuality
-	 *            quality of the video. 17=low, 18=high
-	 * @param bFallback
-	 *            whether to fallback to lower quality in case the supplied
-	 *            quality is not available
-	 * @param pYouTubeVideoId
-	 *            the id of the video
-	 * @return the url string that will retrieve the video
-	 * @throws IOException
-	 * @throws ClientProtocolException
-	 * @throws UnsupportedEncodingException
-	 */
-	public static String calculateYouTubeUrl(String pYouTubeFmtQuality,
-			boolean pFallback, String pYouTubeVideoId) throws IOException,
-			ClientProtocolException, UnsupportedEncodingException {
-
-		String lUriStr = null;
-		HttpClient lClient = new DefaultHttpClient();
-		HttpGet lGetMethod = new HttpGet(InforURL + pYouTubeVideoId);
-		HttpResponse lResp = null;
-		lResp = lClient.execute(lGetMethod);
-		ByteArrayOutputStream lBOS = new ByteArrayOutputStream();
-		String lInfoStr = null;
-		lResp.getEntity().writeTo(lBOS);
-		lInfoStr = new String(lBOS.toString("UTF-8"));
-		String[] lArgs = lInfoStr.split("&");
-		Map<String, String> lArgMap = new HashMap<String, String>();
-		for (int i = 0; i < lArgs.length; i++) {
-			String[] lArgValStrArr = lArgs[i].split("=");
-			if (lArgValStrArr != null) {
-				if (lArgValStrArr.length >= 2) {
-					lArgMap.put(lArgValStrArr[0],
-							URLDecoder.decode(lArgValStrArr[1]));
-				}
-			}
-		}
-
-		// Find out the URI string from the parameters
-
-		// Populate the list of formats for the video
-		String lFmtList = URLDecoder.decode(lArgMap.get("fmt_list"));
-		ArrayList<Format> lFormats = new ArrayList<Format>();
-		if (null != lFmtList) {
-			String lFormatStrs[] = lFmtList.split(",");
-
-			for (String lFormatStr : lFormatStrs) {
-				Format lFormat = new Format(lFormatStr);
-				lFormats.add(lFormat);
-			}
-		}
-
-		// Populate the list of streams for the video
-		String lStreamList = lArgMap.get("url_encoded_fmt_stream_map");
-		if (null != lStreamList) {
-			String lStreamStrs[] = lStreamList.split(",");
-			ArrayList<VideoStream> lStreams = new ArrayList<VideoStream>();
-			for (String lStreamStr : lStreamStrs) {
-				VideoStream lStream = new VideoStream(lStreamStr);
-				lStreams.add(lStream);
-			}
-
-			// Search for the given format in the list of video formats
-			// if it is there, select the corresponding stream
-			// otherwise if fallback is requested, check for next lower format
-			int lFormatId = Integer.parseInt(pYouTubeFmtQuality);
-
-			Format lSearchFormat = new Format(lFormatId);
-			while (!lFormats.contains(lSearchFormat) && pFallback) {
-				int lOldId = lSearchFormat.getId();
-				int lNewId = getSupportedFallbackId(lOldId);
-
-				if (lOldId == lNewId) {
-					break;
-				}
-				lSearchFormat = new Format(lNewId);
-			}
-
-			int lIndex = lFormats.indexOf(lSearchFormat);
-			if (lIndex >= 0) {
-				VideoStream lSearchStream = lStreams.get(lIndex);
-				lUriStr = lSearchStream.getUrl();
-			}
-
-		}
-		// Return the URI string. It may be null if the format (or a fallback
-		// format if enabled)
-		// is not found in the list of formats for the video
-		return lUriStr;
-	}
-
-	public static int getSupportedFallbackId(int pOldId) {
-		final int lSupportedFormatIds[] = { 13, // 3GPP (MPEG-4 encoded) Low
-												// quality
-				17, // 3GPP (MPEG-4 encoded) Medium quality
-				18, // MP4 (H.264 encoded) Normal quality
-				22, // MP4 (H.264 encoded) High quality
-				37 // MP4 (H.264 encoded) High quality
-		};
-		int lFallbackId = pOldId;
-		for (int i = lSupportedFormatIds.length - 1; i >= 0; i--) {
-			if (pOldId == lSupportedFormatIds[i] && i > 0) {
-				lFallbackId = lSupportedFormatIds[i - 1];
-			}
-		}
-		return lFallbackId;
-	}
-
-	static class VideoStream {
-
-		protected String mUrl;
-
-		/**
-		 * Construct a video stream from one of the strings obtained from the
-		 * "url_encoded_fmt_stream_map" parameter if the video_info
-		 * 
-		 * @param pStreamStr
-		 *            - one of the strings from "url_encoded_fmt_stream_map"
-		 */
-		public VideoStream(String pStreamStr) {
-			String[] lArgs = pStreamStr.split("&");
-			Map<String, String> lArgMap = new HashMap<String, String>();
-			for (int i = 0; i < lArgs.length; i++) {
-				String[] lArgValStrArr = lArgs[i].split("=");
-				if (lArgValStrArr != null) {
-					if (lArgValStrArr.length >= 2) {
-						lArgMap.put(lArgValStrArr[0], lArgValStrArr[1]);
-					}
-				}
-			}
-			mUrl = lArgMap.get("url");
-		}
-
-		public String getUrl() {
-			return mUrl;
-		}
-	}
-
-	static class Format {
-		protected int mId;
-
-		/**
-		 * Construct this object from one of the strings in the "fmt_list"
-		 * parameter
-		 * 
-		 * @param pFormatString
-		 *            one of the comma separated strings in the "fmt_list"
-		 *            parameter
-		 */
-		public Format(String pFormatString) {
-			String lFormatVars[] = pFormatString.split("/");
-			mId = Integer.parseInt(lFormatVars[0]);
-		}
-
-		/**
-		 * Construct this object using a format id
-		 * 
-		 * @param pId
-		 *            id of this format
-		 */
-		public Format(int pId) {
-			this.mId = pId;
-		}
-
-		/**
-		 * Retrieve the id of this format
-		 * 
-		 * @return the id
-		 */
-		public int getId() {
-			return mId;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.lang.Object#equals(java.lang.Object)
-		 */
-		@Override
-		public boolean equals(Object pObject) {
-			if (!(pObject instanceof Format)) {
-				return false;
-			}
-			return ((Format) pObject).mId == mId;
-		}
-	}
 }

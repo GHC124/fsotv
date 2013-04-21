@@ -19,13 +19,19 @@ import android.util.Log;
 @SuppressWarnings("unused")
 public class JsonHelper {
 
-	public static JSONObject getJSONFromStream(InputStream inputStream) throws Exception {
+	/**
+	 * Get json by stream and return json object
+	 * @param inputStream
+	 * @return
+	 * @throws Exception
+	 */
+	public static JSONObject getJSONFromStream(InputStream is) throws Exception {
 		Log.i("JsonHelper", "Start getJSONFromStream()");
 		
 		String json = "";
 		JSONObject jsonObject = null;
 
-		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream,
+		BufferedReader reader = new BufferedReader(new InputStreamReader(is,
 				"iso-8859-1"), 8);
 		StringBuilder stringBuilder = new StringBuilder();
 		String line = null;
@@ -33,7 +39,7 @@ public class JsonHelper {
 			stringBuilder.append(line + "\n");
 		}
 		
-		inputStream.close();
+		is.close();
 		json = stringBuilder.toString();
 
 		jsonObject = new JSONObject(json);

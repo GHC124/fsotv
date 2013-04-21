@@ -56,9 +56,9 @@ public class WatchVideoActivity extends ActivityBase implements
 	private int seekBackwardTime = 30000; // 30 seconds
 	private int streamVolume = AudioManager.STREAM_MUSIC;
 	private int seekVolume;
-
 	private AudioManager mgr = null;
 
+	private YouTubeHelper youTubeHelper;
 	private boolean isFullScreen = false;
 	private boolean isShowControl = true;
 	
@@ -75,7 +75,7 @@ public class WatchVideoActivity extends ActivityBase implements
 		setContentView(R.layout.activity_watch_video);
 
 		mgr = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-
+		
 		// All player buttons
 		llFooter = (RelativeLayout)findViewById(R.id.llFooter);
 		btnPlay = (ImageButton) findViewById(R.id.btnPlay);
@@ -89,6 +89,8 @@ public class WatchVideoActivity extends ActivityBase implements
 
 		myVideoView = (VideoView) findViewById(R.id.videoView);
 
+		youTubeHelper = new YouTubeHelper();
+		
 		Intent intent = getIntent();
 		Bundle extras = intent.getExtras();
 		if (extras != null) {
@@ -407,91 +409,6 @@ public class WatchVideoActivity extends ActivityBase implements
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-
-	}
-
-	/**
-	 * Task to figure out details by calling out to YouTube GData API. We only
-	 * use public methods that don't require authentication.
-	 * 
-	 */
-	@SuppressWarnings("unused")
-	private class QueryYouTubeTask extends AsyncTask<String, Integer, Uri> {
-		/**
-		 * Before starting background thread Show Progress Dialog
-		 * */
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-			showLoading();
-		}
-		
-		@Override
-		protected Uri doInBackground(String... pParams) {
-			String lUriStr = null;
-			String lYouTubeFmtQuality = "17"; // 3gpp medium quality, which
-												// should be fast enough to view
-												// over EDGE connection
-			String lYouTubeVideoId = null;
-
-			try {
-				WifiManager lWifiManager = (WifiManager) WatchVideoActivity.this
-						.getSystemService(Context.WIFI_SERVICE);
-				TelephonyManager lTelephonyManager = (TelephonyManager) WatchVideoActivity.this
-						.getSystemService(Context.TELEPHONY_SERVICE);
-				// //////////////////////////
-				// if we have a fast connection (wifi or 3g), then we'll get a
-				// high quality YouTube video
-				if ((lWifiManager.isWifiEnabled()
-						&& lWifiManager.getConnectionInfo() != null && lWifiManager
-						.getConnectionInfo().getIpAddress() != 0)
-						|| ((lTelephonyManager.getNetworkType() == TelephonyManager.NETWORK_TYPE_UMTS
-								||
-								/*
-								 * icky... using literals to make backwards
-								 * compatible with 1.5 and 1.6
-								 */
-								lTelephonyManager.getNetworkType() == 9 /* HSUPA */
-								|| lTelephonyManager.getNetworkType() == 10 /* HSPA */
-								|| lTelephonyManager.getNetworkType() == 8 /* HSDPA */
-								|| lTelephonyManager.getNetworkType() == 5 /* EVDO_0 */|| lTelephonyManager
-								.getNetworkType() == 6 /* EVDO A */)
-
-						&& lTelephonyManager.getDataState() == TelephonyManager.DATA_CONNECTED)) {
-					lYouTubeFmtQuality = "18";
-				}
-				lYouTubeVideoId = pParams[0];
-				// //////////////////////////////////
-				// calculate the actual URL of the video, encoded with proper
-				// YouTube token
-				lUriStr = YouTubeHelper.calculateYouTubeUrl(
-						lYouTubeFmtQuality, true, lYouTubeVideoId);
-				Log.e("URI", lUriStr);
-
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-
-			if (lUriStr != null) {
-				return Uri.parse(lUriStr);
-			} else {
-				return null;
-			}
-		}
-
-		@Override
-		protected void onPostExecute(Uri pResult) {
-			super.onPostExecute(pResult);
-			try {
-				if (pResult == null) {
-					throw new RuntimeException("Invalid NULL Url.");
-				}
-				playVideo(pResult);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			hideLoading();
-		}
 
 	}
 }

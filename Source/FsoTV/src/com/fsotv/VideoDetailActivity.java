@@ -13,8 +13,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioButton;
@@ -31,29 +29,34 @@ import com.fsotv.utils.ImageLoader;
 import com.fsotv.utils.TwitterHelper;
 import com.fsotv.utils.TwitterHelper.TwListener;
 import com.fsotv.utils.YouTubeHelper;
+import com.fsotv.utils.YouTubeHelper.YtListener;
 
 /**
- * Show video detail, allow: + Watch video + View comments +
- * Share facebook and twitter
+ * Show video detail, allow: + Watch video + View comments + Share facebook and
+ * twitter
  * 
  */
 public class VideoDetailActivity extends ActivityBase {
+	private final String TAG = "VideoDetail";
 	// Menus
 	private final int OPTION_WATCH = Menu.FIRST;
 	private final int OPTION_COMMENT = Menu.FIRST + 1;
 	private final int OPTION_SHARE = Menu.FIRST + 2;
 	// Views
 	private DialogBase shareDialog;
+	private DialogBase commentDialog;
 	private TabHost tabHost;
 	private LocalActivityManager mLocalActivityManager;
 	// Porperties
+	private YouTubeHelper youTubeHelper;
 	private boolean isLoading = true; // Loading data
 	private VideoEntry video;
 	private ImageLoader imageLoader;
 	private SharedPreferences mPrefs;
 	private FaceBookHelper faceBookHelper = null;
 	private TwitterHelper twitterHelper = null;
-	private String postMessage = "";
+	private String postMessage = ""; // FaceBook and Twitter post message
+	private String commentMessage = ""; // YouTube comment
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +72,8 @@ public class VideoDetailActivity extends ActivityBase {
 		mPrefs = getSharedPreferences(MainActivity.SHARED_PREFERENCE,
 				MODE_PRIVATE);
 
+		youTubeHelper = new YouTubeHelper(this, mPrefs);
+		youTubeHelper.setListener(mYtListener);
 		imageLoader = new ImageLoader(getApplicationContext());
 		video = new VideoEntry();
 		String videoId = "";
@@ -105,16 +110,53 @@ public class VideoDetailActivity extends ActivityBase {
 			onCommentClick(null);
 			break;
 		case OPTION_SHARE:
-			if (shareDialog != null)
-				shareDialog.show();
-			else {
-				createShareDialog(VideoDetailActivity.this);
-				if (shareDialog != null)
-					shareDialog.show();
-			}
-			break;
+			onShareClick(null);
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	/**
+	 * Create dialog that allow user to comment videos
+	 * 
+	 * @param context
+	 */
+	private void createCommentDialog(Context context) {
+		if (isLoading) {
+			Toast.makeText(getApplicationContext(), "Loading data",
+					Toast.LENGTH_SHORT).show();
+			return;
+		}
+		Log.i(TAG, "Start createCommentDialog()");
+
+		commentDialog = new DialogBase(context);
+		commentDialog.setContentView(R.layout.comment);
+		commentDialog.setHeader("Comment");
+
+		final EditText txtComment = (EditText) commentDialog
+				.findViewById(R.id.txtComment);
+
+		Button btnComment = (Button) commentDialog
+				.findViewById(R.id.btnComment);
+		btnComment.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				commentMessage = txtComment.getText().toString();
+				if (commentMessage.isEmpty()) {
+					Toast.makeText(getApplicationContext(), "Input comment!",
+							Toast.LENGTH_SHORT).show();
+					return;
+				}
+				commentDialog.dismiss();
+				// Add comment
+				if (youTubeHelper.hasAccessToken()) {
+					youTubeHelper.validateAccessToken();
+				} else {
+					youTubeHelper.authorize();
+				}
+			}
+		});
+
+		Log.i(TAG, "End createCommentDialog()");
 	}
 
 	private void createShareDialog(Context context) {
@@ -134,9 +176,9 @@ public class VideoDetailActivity extends ActivityBase {
 		final EditText txtMessage = (EditText) shareDialog
 				.findViewById(R.id.txtMessage);
 		txtMessage.setText(video.getLinkReal());
-		
+
 		Button btnShare = (Button) shareDialog.findViewById(R.id.btnShare);
-		
+
 		btnShare.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -147,10 +189,29 @@ public class VideoDetailActivity extends ActivityBase {
 					return;
 				}
 				if (rdFacebook.isChecked()) {
-					onFaceBookClick(null);
-				} else if (rdTwitter.isChecked()) {
+					if (faceBookHelper == null) {
+						faceBookHelper = new FaceBookHelper(
+								VideoDetailActivity.this, mPrefs);
+						faceBookHelper.setListener(mFbListener);
+					}
+					if (faceBookHelper.hasAccessToken()) {
+						faceBookHelper.postToWall(postMessage);
 
-					onTwitterClick(null);
+					} else {
+						faceBookHelper.authorize();
+					}
+				} else if (rdTwitter.isChecked()) {
+					if (twitterHelper == null) {
+						twitterHelper = new TwitterHelper(
+								VideoDetailActivity.this, mPrefs);
+						twitterHelper.setListener(mTwListener);
+					}
+					if (twitterHelper.hasAccessToken() == true) {
+						twitterHelper.updateStatus(postMessage);
+
+					} else {
+						twitterHelper.authorize();
+					}
 				}
 				shareDialog.dismiss();
 			}
@@ -173,12 +234,25 @@ public class VideoDetailActivity extends ActivityBase {
 	}
 
 	public void onCommentClick(View v) {
-
+		if (commentDialog != null)
+			commentDialog.show();
+		else {
+			createCommentDialog(VideoDetailActivity.this);
+			if (commentDialog != null)
+				commentDialog.show();
+		}
 	}
 
 	public void onShareClick(View v) {
 		if (shareDialog != null) {
 			shareDialog.show();
+		} else {
+			createShareDialog(VideoDetailActivity.this);
+			if (shareDialog != null) {
+				shareDialog.show();
+			}
+		}
+		if (shareDialog != null && v != null) {
 			RadioButton rdFacebook = (RadioButton) shareDialog
 					.findViewById(R.id.rdFaceBook);
 			RadioButton rdTwitter = (RadioButton) shareDialog
@@ -189,51 +263,43 @@ public class VideoDetailActivity extends ActivityBase {
 			} else if (id == R.id.imgTwitter) {
 				rdTwitter.setChecked(true);
 			}
-		} else {
-			createShareDialog(VideoDetailActivity.this);
-			if (shareDialog != null) {
-				shareDialog.show();
-				RadioButton rdFacebook = (RadioButton) shareDialog
-						.findViewById(R.id.rdFaceBook);
-				RadioButton rdTwitter = (RadioButton) shareDialog
-						.findViewById(R.id.rdTwitter);
-				int id = v.getId();
-				if (id == R.id.imgFaceBook) {
-					rdFacebook.setChecked(true);
-				} else if (id == R.id.imgTwitter) {
-					rdTwitter.setChecked(true);
+		}
+	}
+
+	/**
+	 * YouTube listener
+	 */
+	private YtListener mYtListener = new YtListener() {
+
+		public void onError(String value) {
+			Log.e("YouTube", value);
+			// Check status response from youtube
+			if (value.startsWith("status:")) {
+				int status = Integer.parseInt(value.split(":")[1]);
+				if (status == 403) {
+					Toast.makeText(getApplicationContext(),
+							"You are outside the comment quota limits.",
+							Toast.LENGTH_LONG).show();
 				}
+			} else {
+				Toast.makeText(getApplicationContext(),
+						"Fail to add comment. Please, try again!",
+						Toast.LENGTH_SHORT).show();
 			}
 		}
-	}
 
-	public void onFaceBookClick(View v) {
-		if (faceBookHelper == null) {
-			faceBookHelper = new FaceBookHelper(this, mPrefs);
-			faceBookHelper.setListener(mFbListener);
+		public void onComplete(String value) {
+			Log.i("YouTube", value);
+			if (value.equals("login")) {
+				youTubeHelper.addComment(video.getIdReal(), commentMessage);
+			} else if (value.equals("comment")) {
+				Toast.makeText(getApplicationContext(), "Commented",
+						Toast.LENGTH_SHORT).show();
+			} else if (value.equals("validate")) {
+				youTubeHelper.addComment(video.getIdReal(), commentMessage);
+			}
 		}
-		if (faceBookHelper.hasAccessToken()) {
-			faceBookHelper.postToWall(postMessage);
-
-		} else {
-			faceBookHelper.authorize();
-		}
-
-	}
-
-	public void onTwitterClick(View v) {
-		if (twitterHelper == null) {
-			twitterHelper = new TwitterHelper(this, mPrefs);
-			twitterHelper.setListener(mTwListener);
-		}
-		if (twitterHelper.hasAccessToken() == true) {
-			twitterHelper.updateStatus(postMessage);
-
-		} else {
-			twitterHelper.authorize();
-		}
-
-	}
+	};
 	/**
 	 * FaceBook listener
 	 */
@@ -247,10 +313,10 @@ public class VideoDetailActivity extends ActivityBase {
 		}
 
 		public void onComplete(String value) {
+			Log.i("FaceBook", value);
 			if (value.equals("login")) {
 				faceBookHelper.postToWall(postMessage);
 			} else if (value.equals("post")) {
-				Log.i("FaceBook", "post success");
 				Toast.makeText(getApplicationContext(), "Shared",
 						Toast.LENGTH_SHORT).show();
 			}
@@ -269,10 +335,10 @@ public class VideoDetailActivity extends ActivityBase {
 		}
 
 		public void onComplete(String value) {
+			Log.i("Twitter", value);
 			if (value.equals("login")) {
 				twitterHelper.updateStatus(postMessage);
 			} else if (value.equals("post")) {
-				Log.i("Twitter", "post success");
 				Toast.makeText(getApplicationContext(), "Shared",
 						Toast.LENGTH_SHORT).show();
 			}
@@ -298,7 +364,7 @@ public class VideoDetailActivity extends ActivityBase {
 		protected String doInBackground(String... args) {
 			String videoId = args[0];
 
-			video = YouTubeHelper.getVideoDetail(videoId);
+			video = youTubeHelper.getVideoDetail(videoId);
 
 			return null;
 		}
@@ -315,6 +381,7 @@ public class VideoDetailActivity extends ActivityBase {
 			TextView txtDuration = (TextView) findViewById(R.id.duration);
 			TextView txtPublished = (TextView) findViewById(R.id.published);
 			TextView txtFavorite = (TextView) findViewById(R.id.favoriteCount);
+			TextView txtAuthor = (TextView) findViewById(R.id.author);
 
 			title.setText(video.getTitle());
 			viewCount
@@ -323,7 +390,7 @@ public class VideoDetailActivity extends ActivityBase {
 			txtPublished.setText(DataHelper.formatDate(video.getPublished()));
 			txtFavorite.setText(DataHelper.numberWithCommas(video
 					.getFavoriteCount()));
-
+			txtAuthor.setText(video.getAuthor());
 			imageLoader.DisplayImage(video.getImage(), img, null);
 			// Description tab
 			View tabDes = createTabView(getApplicationContext(), "Description",
