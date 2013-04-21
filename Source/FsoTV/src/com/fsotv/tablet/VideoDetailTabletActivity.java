@@ -37,25 +37,34 @@ import com.fsotv.ActivityBase;
 import com.fsotv.DialogBase;
 import com.fsotv.MainActivity;
 import com.fsotv.R;
-import com.fsotv.VideoDetailActivity;
+import com.fsotv.dao.ReferenceDao;
+import com.fsotv.dto.Reference;
 import com.fsotv.dto.VideoEntry;
 import com.fsotv.utils.DataHelper;
 import com.fsotv.utils.EndlessScrollListViewListener;
 import com.fsotv.utils.FaceBookHelper;
 import com.fsotv.utils.FaceBookHelper.FbListener;
 import com.fsotv.utils.ImageLoader;
+import com.fsotv.utils.StringHelper;
 import com.fsotv.utils.TwitterHelper;
 import com.fsotv.utils.TwitterHelper.TwListener;
-import com.fsotv.utils.YouTubeHelper.YtListener;
 import com.fsotv.utils.YouTubeHelper;
+import com.fsotv.utils.YouTubeHelper.YtListener;
 
 public class VideoDetailTabletActivity extends ActivityBase {
 	private final String TAG = "VideoDetail";
 
-	private final int OPTION_WATCH = Menu.FIRST + 3;
-	private final int OPTION_COMMENT = Menu.FIRST + 4;
-	private final int OPTION_SHARE = Menu.FIRST + 5;
-
+	private final int OPTION_SEARCH = Menu.FIRST;
+	private final int OPTION_SORT = Menu.FIRST + 1;
+	private final int OPTION_TIME = Menu.FIRST + 2;
+	private final int OPTION_CATEGORY = Menu.FIRST + 3;
+	private final int OPTION_WATCH = Menu.FIRST + 4;
+	private final int OPTION_COMMENT = Menu.FIRST + 5;
+	private final int OPTION_SHARE = Menu.FIRST + 6;
+	
+	private DialogBase sortDialog;
+	private DialogBase timeDialog;
+	private DialogBase categoryDialog;
 	private DialogBase shareDialog;
 	private DialogBase commentDialog;
 	private VideoEntry video;
@@ -67,10 +76,15 @@ public class VideoDetailTabletActivity extends ActivityBase {
 
 	private ListView lvVideo;
 	private List<VideoEntry> videos;
+	private List<Reference> categories;
 	private ImageLoader imageLoader;
 	private ListVideoAdapter adapter;
 	private boolean isVideosLoading = false;
 	private boolean isVideoLoading = false;
+
+	private TextView tvCategory;
+	private TextView tvSort;
+	private TextView tvTime;
 
 	private ImageView imgThumbnail;
 	private TextView lblTitle;
@@ -105,7 +119,10 @@ public class VideoDetailTabletActivity extends ActivityBase {
 
 		mPrefs = getSharedPreferences(MainActivity.SHARED_PREFERENCE,
 				MODE_PRIVATE);
-		
+
+		tvCategory = (TextView) findViewById(R.id.tvCategory);
+		tvSort = (TextView) findViewById(R.id.tvSort);
+		tvTime = (TextView) findViewById(R.id.tvTime);
 		lvVideo = (ListView) findViewById(R.id.lvVideo);
 		imgThumbnail = (ImageView) findViewById(R.id.imgThumbnail);
 		lblTitle = (TextView) findViewById(R.id.txtvTitle);
@@ -117,12 +134,21 @@ public class VideoDetailTabletActivity extends ActivityBase {
 
 		youTubeHelper = new YouTubeHelper(this, mPrefs);
 		youTubeHelper.setListener(mYtListener);
-		
+
 		video = new VideoEntry();
 		imageLoader = new ImageLoader(getApplicationContext());
 		videos = new ArrayList<VideoEntry>();
 
+		orderBy = YouTubeHelper.ORDERING_PUBLISHED;
+		time = YouTubeHelper.TIME_ALL_TIME;
+		maxResult = 10;
+		maxLoad = 5;
+		startIndex = 1;
+		keyword = "";
+
 		String channelTitle = "";
+		String orderByTitle = "";
+		String timeTitle = "";
 		String header = "";
 		Intent intent = getIntent();
 		Bundle extras = intent.getExtras();
@@ -130,24 +156,64 @@ public class VideoDetailTabletActivity extends ActivityBase {
 			videoId = extras.getString("videoId");
 			channelId = extras.getString("channelId");
 			categoryId = extras.getString("categoryId");
+			orderBy = extras.getString("orderBy");
+			keyword = extras.getString("keyword");
+			time = extras.getString("time");
 			channelTitle = extras.getString("channelTitle");
-
+			orderByTitle = extras.getString("orderByTitle");
+			timeTitle = extras.getString("timeTitle");
+			
 			videoId = (videoId == null) ? "" : videoId;
 			channelId = (channelId == null) ? "" : channelId;
 			categoryId = (categoryId == null) ? "" : categoryId;
+			orderBy = (orderBy == null) ? YouTubeHelper.ORDERING_PUBLISHED : orderBy;
+			keyword = (keyword == null) ? "" : keyword;
+			time = (time == null) ? YouTubeHelper.TIME_ALL_TIME : time;
 			channelTitle = (channelTitle == null) ? "" : channelTitle;
+			orderByTitle = (orderByTitle == null) ? "" : orderByTitle;
+			timeTitle = (timeTitle == null) ? "" : timeTitle;
 		}
-		if (!channelTitle.isEmpty()) {
+		// If browse videos by channelID, we'll disable function change category
+		if (!channelId.isEmpty() && !channelTitle.isEmpty()) {
 			header = channelTitle;
-			if (header.length() > 250)
-				header = header.substring(0, 250) + "...";
+			// Disable change category
+			tvCategory.setVisibility(View.GONE);
+
 		} else if (!categoryId.isEmpty()) {
 			header = categoryId;
+			tvCategory.setText(categoryId);
 		}
-
+		tvSort.setText(orderByTitle);
+		tvTime.setText(timeTitle);
+		// Show search control if keyword is set
+		if(!keyword.isEmpty()){
+			setKeyword(keyword);
+			showSearch();
+		}
 		setHeader(header);
 		setTitle("Browse Video");
 
+		/*
+		 * Add click action to control
+		 */
+		tvCategory.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onOptionClick(v);
+			}
+		});
+		tvSort.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onOptionClick(v);
+			}
+		});
+		tvTime.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onOptionClick(v);
+			}
+		});
 		// Launching new screen on Selecting Single ListItem
 		lvVideo.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view,
@@ -211,7 +277,13 @@ public class VideoDetailTabletActivity extends ActivityBase {
 		menu.add(0, OPTION_WATCH, 0, "Watch");
 		menu.add(0, OPTION_COMMENT, 1, "Comments");
 		menu.add(0, OPTION_SHARE, 2, "Share");
-
+		menu.add(0, OPTION_SEARCH, 3, "Search");
+		menu.add(0, OPTION_SORT, 4, "Sort");
+		menu.add(0, OPTION_TIME, 5, "Time");
+		// Only show category dialog when browse by category
+		if (!categoryId.isEmpty()) {
+			menu.add(0, OPTION_CATEGORY, 6, "Category");
+		}	
 		return true;
 	}
 
@@ -228,11 +300,246 @@ public class VideoDetailTabletActivity extends ActivityBase {
 		case OPTION_SHARE:
 			onShareClick(null);
 			break;
-		}
+		case OPTION_SEARCH:
+			showSearch(); // Call show search method of parent
+			break;
+		case OPTION_SORT:
+			if (sortDialog != null)
+				sortDialog.show();
+			else {
+				createSortDialog(VideoDetailTabletActivity.this);
+				if (sortDialog != null)
+					sortDialog.show();
+			}
+			break;
+		case OPTION_TIME:
+			if (timeDialog != null)
+				timeDialog.show();
+			else {
+				createTimeDialog(VideoDetailTabletActivity.this);
+				if (timeDialog != null)
+					timeDialog.show();
+			}
+			break;
+		case OPTION_CATEGORY:
+			if (categoryDialog != null)
+				categoryDialog.show();
+			else {
+				createCategoryDialog(VideoDetailTabletActivity.this);
+				if (categoryDialog != null)
+					categoryDialog.show();
+			}
 
+			break;
+		}
+		
 		return super.onOptionsItemSelected(item);
 	}
 
+	/**
+	 * Hander click event when user select search, sort, category, time
+	 * 
+	 * @param v
+	 */
+	public void onOptionClick(View v) {
+		if (v.getId() == R.id.tvCategory) {
+			if (categoryDialog != null)
+				categoryDialog.show();
+			else {
+				createCategoryDialog(VideoDetailTabletActivity.this);
+				if (categoryDialog != null)
+					categoryDialog.show();
+			}
+		} else if (v.getId() == R.id.tvSort) {
+			if (sortDialog != null)
+				sortDialog.show();
+			else {
+				createSortDialog(VideoDetailTabletActivity.this);
+				if (sortDialog != null)
+					sortDialog.show();
+			}
+		} else if (v.getId() == R.id.tvTime) {
+			if (timeDialog != null)
+				timeDialog.show();
+			else {
+				createTimeDialog(VideoDetailTabletActivity.this);
+				if (timeDialog != null)
+					timeDialog.show();
+			}
+		}
+	}
+	/**
+	 * 
+	 * @param context
+	 */
+
+	/**
+	 * Create dialog that allow user to sort videos
+	 * 
+	 * @param context
+	 */
+
+	private void createSortDialog(Context context) {
+		Log.i("VideoDetailTabletActivity", "Start createSortDialog()");
+
+		sortDialog = new DialogBase(context);
+		sortDialog.setContentView(R.layout.sort);
+		sortDialog.setHeader("Sort");
+
+		final RadioButton rdViewed = (RadioButton) sortDialog
+				.findViewById(R.id.rdViewed);
+
+		final RadioButton rdPublished = (RadioButton) sortDialog
+				.findViewById(R.id.rdPublished);
+
+		Button btnSort = (Button) sortDialog.findViewById(R.id.btnSort);
+		btnSort.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				String display = "";
+
+				if (rdViewed.isChecked()) {
+					orderBy = YouTubeHelper.ORDERING_VIEWCOUNT;
+					display = rdViewed.getText().toString();
+
+				} else if (rdPublished.isChecked()) {
+					orderBy = YouTubeHelper.ORDERING_PUBLISHED;
+					display = rdPublished.getText().toString();
+				}
+
+				sortDialog.dismiss();
+
+				// Get data again
+				tvSort.setText(display);
+
+				new LoadVideos().execute();
+			}
+		});
+
+		Log.i("VideoDetailTabletActivity", "End createSortDialog()");
+	}
+
+	/**
+	 * Create dialog that allow user to change time of videos
+	 * 
+	 * @param context
+	 */
+
+	private void createTimeDialog(Context context) {
+		Log.i("VideoDetailTabletActivity", "Start createTimeDialog()");
+
+		timeDialog = new DialogBase(context);
+		timeDialog.setContentView(R.layout.time);
+		timeDialog.setHeader("Time");
+
+		final RadioButton rdToday = (RadioButton) timeDialog
+				.findViewById(R.id.rdToday);
+
+		final RadioButton rdThisWeek = (RadioButton) timeDialog
+				.findViewById(R.id.rdThisWeek);
+
+		final RadioButton rdThisMonth = (RadioButton) timeDialog
+				.findViewById(R.id.rdThisMonth);
+
+		final RadioButton rdAllTime = (RadioButton) timeDialog
+				.findViewById(R.id.rdAllTime);
+
+		Button btnOk = (Button) timeDialog.findViewById(R.id.btnOk);
+		btnOk.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				String display = "";
+				if (rdToday.isChecked()) {
+					time = YouTubeHelper.TIME_TODAY;
+					display = rdToday.getText().toString();
+
+				} else if (rdThisWeek.isChecked()) {
+					time = YouTubeHelper.TIME_THIS_WEEK;
+					display = rdThisWeek.getText().toString();
+
+				} else if (rdThisMonth.isChecked()) {
+					time = YouTubeHelper.TIME_THIS_MONTH;
+					display = rdThisMonth.getText().toString();
+
+				} else if (rdAllTime.isChecked()) {
+					time = YouTubeHelper.TIME_ALL_TIME;
+					display = rdAllTime.getText().toString();
+				}
+
+				timeDialog.dismiss();
+
+				// Get data again
+				tvTime.setText(display);
+
+				new LoadVideos().execute();
+			}
+		});
+
+		Log.i("VideoDetailTabletActivity", "End createTimeDialog()");
+	}
+
+	/**
+	 * 
+	 * @param context
+	 */
+
+	/**
+	 * Create dialog that allow user to choose category of videos
+	 * 
+	 * @param context
+	 */
+
+	private void createCategoryDialog(Context context) {
+		Log.i("VideoDetailTabletActivity", "Start createCategoryDialog()");
+
+		categoryDialog = new DialogBase(context);
+		categoryDialog.setContentView(R.layout.category_video);
+		categoryDialog.setHeader("Category");
+
+		ListView lvCategory = (ListView) categoryDialog
+				.findViewById(R.id.lvCategory);
+
+		lvCategory.setOnItemClickListener(new OnItemClickListener() {
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				Reference item = categories.get(position);
+				categoryDialog.dismiss();
+				// Reload data
+				categoryId = item.getValue();
+				setHeader(categoryId);
+				tvCategory.setText(item.getDisplay());
+
+				new LoadVideos().execute();
+			}
+		});
+
+		new LoadCategories().execute(lvCategory);
+		Log.i("VideoDetailTabletActivity", "End createCategoryDialog()");
+	}
+
+	/**
+	 * Override Search function to search
+	 */
+	@Override
+	protected void Search(String key) {
+		keyword = key;
+		new LoadVideos().execute();
+	}
+
+	/**
+	 * Override Close Search function when close search control
+	 */
+	@Override
+	protected void CloseSearch() {
+		keyword = "";
+		new LoadVideos().execute();
+	}
+
+	/**
+	 * Create share dialog, allow user type message
+	 * 
+	 * @param context
+	 */
 	private void createShareDialog(Context context) {
 		if (isVideoLoading) {
 			Toast.makeText(getApplicationContext(), "Loading data",
@@ -383,6 +690,7 @@ public class VideoDetailTabletActivity extends ActivityBase {
 			}
 		}
 	}
+
 	/**
 	 * YouTube listener
 	 */
@@ -535,7 +843,10 @@ public class VideoDetailTabletActivity extends ActivityBase {
 		}
 
 	}
-
+	/**
+	 * Adapter to populate videos to listview 
+	 *
+	 */
 	class ListVideoAdapter extends ArrayAdapter<VideoEntry> {
 		Context context;
 		int layoutResourceId;
@@ -607,7 +918,139 @@ public class VideoDetailTabletActivity extends ActivityBase {
 			TextView published;
 		}
 	}
+	/**
+	 * Background Async Task to get References from database
+	 * */
+	class LoadCategories extends AsyncTask<ListView, String, String> {
+		ListView lvCategory = null;
 
+		/**
+		 * Before starting background thread Show Progress Dialog
+		 * */
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			showLoading();
+		}
+
+		@Override
+		protected String doInBackground(ListView... args) {
+			lvCategory = args[0];
+
+			ReferenceDao referenceDao = new ReferenceDao(
+					getApplicationContext());
+
+			categories = referenceDao.getListReference(
+					ReferenceDao.KEY_YOUTUBE_CATEGORY, null);
+
+			return null;
+		}
+
+		/**
+		 * After completing background task Dismiss the progress dialog
+		 * **/
+		protected void onPostExecute(String args) {
+
+			ListCategoryAdapter adapter = new ListCategoryAdapter(
+					VideoDetailTabletActivity.this, R.layout.category_video_item,
+					categories);
+
+			// updating listview
+			lvCategory.setAdapter(adapter);
+
+			hideLoading();
+		}
+
+	}
+
+	/**
+	 * Adapter to populate Category to category listView
+	 * 
+	 * 
+	 */
+	class ListCategoryAdapter extends ArrayAdapter<Reference> {
+		Context context;
+		int layoutResourceId;
+		List<Reference> data = null;
+
+		public ListCategoryAdapter(Context context, int layoutResourceId,
+				List<Reference> data) {
+			super(context, layoutResourceId, data);
+
+			this.layoutResourceId = layoutResourceId;
+			this.context = context;
+			this.data = data;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			
+			View row = convertView;
+			ListItemHolder holder = null;
+			final Reference item = data.get(position);
+
+			if (row == null) {
+				LayoutInflater inflater = ((Activity) context)
+						.getLayoutInflater();
+				row = inflater.inflate(layoutResourceId, parent, false);
+
+				holder = new ListItemHolder();
+				holder.image = (ImageView) row.findViewById(R.id.image);
+				holder.title = (TextView) row.findViewById(R.id.title);
+				holder.description = (TextView) row
+						.findViewById(R.id.description);
+
+				row.setTag(holder);
+			} else {
+				holder = (ListItemHolder) row.getTag();
+			}
+
+			holder.title.setText(StringHelper.fomatCategoryTitle(item
+					.getDisplay()));
+			holder.description.setText(StringHelper.formatDescription(item
+					.getDisplay()));
+			// Image
+			String value = item.getValue();
+			if (value != null) {
+				if (value.equals("Comedy")) {
+					holder.image.setBackgroundResource(R.drawable.comedy32);
+				}else if (value.equals("Music")) {
+					holder.image.setBackgroundResource(R.drawable.music32);
+				}else if (value.equals("News")) {
+					holder.image.setBackgroundResource(R.drawable.news32);
+				}else if (value.equals("Autos")) {
+					holder.image.setBackgroundResource(R.drawable.auto32);
+				}else if (value.equals("Education")) {
+					holder.image.setBackgroundResource(R.drawable.edu32);
+				}else if (value.equals("Entertainment")) {
+					holder.image.setBackgroundResource(R.drawable.enter32);
+				}else if (value.equals("Film")) {
+					holder.image.setBackgroundResource(R.drawable.film32);
+				}else if (value.equals("Howto")) {
+					holder.image.setBackgroundResource(R.drawable.howto32);
+				}else if (value.equals("People")) {
+					holder.image.setBackgroundResource(R.drawable.people32);
+				}else if (value.equals("Animals")) {
+					holder.image.setBackgroundResource(R.drawable.animal32);
+				}else if (value.equals("Tech")) {
+					holder.image.setBackgroundResource(R.drawable.tech32);
+				}else if (value.equals("Sports")) {
+					holder.image.setBackgroundResource(R.drawable.sport32);
+				}else if (value.equals("Travel")) {
+					holder.image.setBackgroundResource(R.drawable.travel32);
+				}
+				
+			}
+
+			return row;
+		}
+
+		class ListItemHolder {
+			ImageView image;
+			TextView title;
+			TextView description;
+		}
+	}
 	/**
 	 * Background Async Task to get Video data from URL
 	 * */

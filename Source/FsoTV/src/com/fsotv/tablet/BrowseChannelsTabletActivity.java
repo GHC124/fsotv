@@ -97,7 +97,7 @@ public class BrowseChannelsTabletActivity extends ActivityBase {
 		channels = new ArrayList<ChannelEntry>();
 		imageLoader = new ImageLoader(getApplicationContext());
 		userType = YouTubeHelper.USER_TYPE_COMEDIANS;
-		orderBy = YouTubeHelper.ORDERING_VIEWCOUNT;
+		orderBy = YouTubeHelper.ORDERING_PUBLISHED;
 		time = YouTubeHelper.TIME_ALL_TIME;
 		
 		Intent intent = getIntent();

@@ -60,8 +60,6 @@ public class ActivityBase extends Activity {
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
-		
-		
 	}
 
 
@@ -361,11 +359,15 @@ public class ActivityBase extends Activity {
 		if (imgBack != null)
 			imgBack.setVisibility(View.INVISIBLE);
 	}
+	
+	protected void setKeyword(String text) {
+		if (txtSearch != null) {
+			txtSearch.setText(text);
+		}
+	}
 
 	protected void setHeader(String text) {
 		if (tvHeader != null) {
-			if (text.length() > 35)
-				text = text.substring(0, 35) + "...";
 			tvHeader.setText(text);
 		}
 	}

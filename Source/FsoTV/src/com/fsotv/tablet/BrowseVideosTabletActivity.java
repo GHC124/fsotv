@@ -111,7 +111,7 @@ public class BrowseVideosTabletActivity extends ActivityBase {
 		youTubeHelper = new YouTubeHelper();
 		imageLoader = new ImageLoader(getApplicationContext());
 		videos = new ArrayList<VideoEntry>();
-		orderBy = YouTubeHelper.ORDERING_VIEWCOUNT;
+		orderBy = YouTubeHelper.ORDERING_PUBLISHED;
 		time = YouTubeHelper.TIME_ALL_TIME;
 
 		// Init data
@@ -186,13 +186,18 @@ public class BrowseVideosTabletActivity extends ActivityBase {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				VideoEntry item = videos.get(position);
-				String videoId = item.getId();
 				Intent i = new Intent(getApplicationContext(),
 						VideoDetailTabletActivity.class);
 				i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				i.putExtra("videoId", videoId);
+				i.putExtra("videoId", item.getIdReal());
 				i.putExtra("channelId", channelId);
 				i.putExtra("categoryId", categoryId);
+				i.putExtra("channelTitle", item.getTitle());
+				i.putExtra("orderBy", orderBy);
+				i.putExtra("keyword", keyword);
+				i.putExtra("time", time);
+				i.putExtra("orderByTitle", tvSort.getText().toString());
+				i.putExtra("timeTitle", tvTime.getText().toString());
 				
 				startActivity(i);
 			}
@@ -272,7 +277,7 @@ public class BrowseVideosTabletActivity extends ActivityBase {
 		menu.add(0, OPTION_SORT, 1, "Sort");
 		menu.add(0, OPTION_TIME, 2, "Time");
 
-		// Only show category dialog when browse by channel
+		// Only show category dialog when browse by category
 		if (!categoryId.isEmpty()) {
 			menu.add(0, OPTION_CATEGORY, 3, "Category");
 		}

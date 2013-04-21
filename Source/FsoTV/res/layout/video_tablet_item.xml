@@ -74,21 +74,6 @@
         android:layout_toRightOf="@id/thumbnail"
         android:orientation="horizontal" >
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/browse_video_views"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/viewCount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="2dip"
-            android:layout_marginRight="2dip"
-            android:text="123"
-            android:textSize="16sp" />
-
 		<TextView
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
